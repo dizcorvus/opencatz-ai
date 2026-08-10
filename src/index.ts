@@ -133,7 +133,11 @@ const positionScanner = new PositionScanner({ positionManager, walletService, st
 // Wallet auto-tracker: mirrors user's on-chain holdings into PositionManager lifecycle + exit alerts
 const walletTracker = new WalletTracker({ positionManager, stateStore, gmgn: new GMGNAdapter(), walletService, tradeJournal: tradeJournalService });
 
+import { bootstrapCustomStrategies } from './orchestrator/strategy-bootstrap.js';
+
 const aiService = new AIService();
+await bootstrapCustomStrategies({ aiService });
+
 const skillLoader = new SkillLoader();
 const meteoraAdapter = new MeteoraDLMMAdapter();
 const openseaAdapter = new OpenSeaAdapter();

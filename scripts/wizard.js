@@ -11,101 +11,277 @@ const rl = readline.createInterface({
 
 const askQuestion = (query) => new Promise((resolve) => rl.question(query, resolve));
 
+const C = {
+  reset: '\x1b[0m', bold: '\x1b[1m', green: '\x1b[32m', yellow: '\x1b[33m',
+  red: '\x1b[31m', cyan: '\x1b[36m', magenta: '\x1b[35m', dim: '\x1b[2m',
+};
+
 const PROVIDER_PRESETS = {
-  opencode: { baseUrl: 'https://opencode.ai/zen/go/v1', modelName: 'deepseek-v4-pro' },
-  zai: { baseUrl: 'https://api.z.ai/api/coding/paas/v4', modelName: 'glm-4.7' },
-  openrouter: { baseUrl: 'https://openrouter.ai/api/v1', modelName: 'openrouter/auto' },
-  anthropic: { baseUrl: 'https://api.anthropic.com/v1', modelName: 'claude-3-5-sonnet-20241022' },
-  openai: { baseUrl: 'https://api.openai.com/v1', modelName: 'gpt-4o' },
+  anthropic: {
+    label: 'Anthropic Claude', baseUrl: 'https://api.anthropic.com/v1', model: 'claude-sonnet-5',
+    models: [
+      ['claude-sonnet-5', 'Sonnet 5 — best balance ($2/$10 per MTok, intro)'],
+      ['claude-opus-5', 'Opus 5 — maximum intelligence ($5/$25)'],
+      ['claude-fable-5', 'Fable 5 — newest flagship'],
+      ['claude-haiku-4-5', 'Haiku 4.5 — fast & cheap ($1/$5)'],
+    ],
+  },
+  openai: {
+    label: 'OpenAI GPT', baseUrl: 'https://api.openai.com/v1', model: 'gpt-5.2-chat',
+    models: [
+      ['gpt-5.2-chat', 'GPT-5.2 Chat — current API chat model (tools)'],
+      ['gpt-4.1', 'GPT-4.1 — reliable workhorse ($2/$8)'],
+      ['gpt-4.1-mini', 'GPT-4.1 mini — cheap ($0.4/$1.6)'],
+      ['gpt-4o-mini', 'GPT-4o mini — cheapest legacy'],
+    ],
+  },
+  zai: {
+    label: 'Z.ai (Zhipu GLM)', baseUrl: 'https://api.z.ai/api/coding/paas/v4', model: 'glm-5.2',
+    sub: [
+      { key: 'codingplan', label: 'GLM Coding Plan (subscription)', baseUrl: 'https://api.z.ai/api/coding/paas/v4', models: [
+        ['glm-5.2', 'GLM-5.2 — flagship (744B, 1M ctx)'],
+        ['glm-5-turbo', 'GLM-5-Turbo — fast flagship'],
+        ['glm-4.7', 'GLM-4.7 — stable 200K ctx'],
+        ['glm-4.5-air', 'GLM-4.5-Air — light'],
+      ] },
+      { key: 'zai', label: 'Z.ai Pay-as-you-go (top-up)', baseUrl: 'https://api.z.ai/api/paas/v4', models: [
+        ['glm-5.2', 'GLM-5.2 — flagship (744B, 1M ctx)'],
+        ['glm-4.7', 'GLM-4.7 — stable 200K ctx'],
+        ['glm-4.7-flash', 'GLM-4.7-Flash — FREE tier'],
+      ] },
+    ],
+  },
+  openrouter: {
+    label: 'OpenRouter', baseUrl: 'https://openrouter.ai/api/v1', model: 'inclusionai/ling-2.6-flash:free',
+    models: [
+      ['inclusionai/ling-2.6-flash:free', 'Ling 2.6 Flash — FREE, 262K ctx (default)'],
+      ['openai/gpt-oss-120b:free', 'GPT-OSS-120B — FREE, open reasoning'],
+      ['qwen/qwen3-30b-a3b-instruct-2507:free', 'Qwen3 30B — FREE, 262K ctx'],
+      ['nvidia/nemotron-3-ultra-550b-a55b:free', 'Nemotron 3 Ultra — FREE, 1M ctx'],
+      ['google/gemma-4-26b-a4b:free', 'Gemma 4 — FREE, multimodal'],
+      ['deepseek/deepseek-r1:free', 'DeepSeek R1 — FREE, reasoning'],
+      ['openrouter/auto', 'openrouter/auto — PAID (needs >= $10 credits)'],
+    ],
+    freeNote: 'Free tier is rate-limited (20 req/min, ~50-1000 req/day) and the roster rotates. Consider a one-time $10 credit for production use.',
+  },
+  minimax: {
+    label: 'MiniMax', baseUrl: 'https://api.minimax.chat/v1', model: 'MiniMax-M3',
+    sub: [
+      { key: 'minimax', label: 'MiniMax Token Plan (subscription — coding plan)', baseUrl: 'https://api.minimax.chat/v1', keyHint: 'Subscription Key (Token Plan)', models: [
+        ['MiniMax-M3', 'MiniMax-M3 — flagship (1M ctx, $0.30/$1.20)'],
+        ['MiniMax-M2.7', 'MiniMax-M2.7 — strong coding'],
+        ['MiniMax-M2.5', 'MiniMax-M2.5 — legacy, cheap'],
+      ] },
+      { key: 'minimax-payg', label: 'MiniMax API (pay-as-you-go)', baseUrl: 'https://api.minimax.chat/v1', keyHint: 'API Key (pay-as-you-go)', models: [
+        ['MiniMax-M3', 'MiniMax-M3 — flagship (1M ctx, $0.30/$1.20)'],
+        ['MiniMax-M2.7', 'MiniMax-M2.7 — strong coding'],
+        ['MiniMax-M2.7-highspeed', 'MiniMax-M2.7 highspeed — 100 tps'],
+        ['MiniMax-M2.5', 'MiniMax-M2.5 — legacy, cheap'],
+      ] },
+    ],
+  },
+  deepseek: {
+    label: 'DeepSeek', baseUrl: 'https://api.deepseek.com', model: 'deepseek-v4-flash',
+    models: [
+      ['deepseek-v4-flash', 'V4 Flash — fast & cheap (1M ctx)'],
+      ['deepseek-v4-pro', 'V4 Pro — premium reasoning'],
+    ],
+  },
+  gemini: {
+    label: 'Google Gemini', baseUrl: 'https://generativelanguage.googleapis.com/v1beta/openai', model: 'gemini-2.5-pro',
+    models: [
+      ['gemini-2.5-pro', 'Gemini 2.5 Pro — stable, 1M ctx'],
+      ['gemini-3.1-flash-lite', '3.1 Flash-Lite — stable, cheapest ($0.25/$1.50)'],
+      ['gemini-2.5-flash', 'Gemini 2.5 Flash — stable, fast'],
+      ['gemini-3-flash-preview', '3 Flash — preview'],
+      ['gemini-3.1-pro-preview', '3.1 Pro — preview'],
+    ],
+  },
 };
 
-const PROVIDER_DOMAINS = {
-  opencode: 'opencode.ai',
-  zai: 'z.ai',
-  openrouter: 'openrouter.ai',
-  anthropic: 'anthropic.com',
-  openai: 'openai.com',
-};
+const customNote = `\n${C.dim}Using another LLM provider (Groq, Mistral, xAI, local Ollama, etc.)? Choose Custom OpenAI-Compatible Endpoint and enter the base URL + model ID yourself.${C.reset}`;
 
-async function askCustomConfig(presetKey, existingBaseUrl, existingModelName, existingProviderKey) {
-  if (presetKey === 'custom') {
-    const baseUrl = await askQuestion(` Enter AI_BASE_URL [Default ${existingBaseUrl || 'https://api.9router.com/v1'}]: `) || existingBaseUrl || 'https://api.9router.com/v1';
-    const modelName = await askQuestion(` Enter AI_MODEL_NAME [Default ${existingModelName || 'glm-4'}]: `) || existingModelName || 'glm-4';
-    return { provider: 'custom', baseUrl, modelName };
+async function pickFromList(title, items, defaultIdx = 0, suffixNote = '') {
+  console.log(`\n ${C.cyan}${title}${C.reset}`);
+  items.forEach(([value, desc], i) => {
+    const dflt = i === defaultIdx ? `${C.green} [ENTER = default]${C.reset}` : '';
+    console.log(`   [${i + 1}] ${desc}${dflt}`);
+  });
+  console.log(`   [${items.length + 1}] ${C.yellow}Type a custom value${C.reset}`);
+  if (suffixNote) console.log(`${C.dim}   ${suffixNote}${C.reset}`);
+  const choice = await askQuestion(`   Choice [Default ${defaultIdx + 1}]: `);
+  const idx = parseInt(choice, 10);
+  if (choice.trim() === '') return items[defaultIdx][0];
+  if (idx >= 1 && idx <= items.length) return items[idx - 1][0];
+  if (idx === items.length + 1) {
+    const custom = await askQuestion(`   Custom value: `);
+    return custom.trim() || items[defaultIdx][0];
   }
-  const preset = PROVIDER_PRESETS[presetKey];
-  const domain = PROVIDER_DOMAINS[presetKey];
-  const defaultUrl = (existingBaseUrl && domain && existingBaseUrl.includes(domain)) ? existingBaseUrl : preset.baseUrl;
-  const defaultModel = (existingProviderKey === presetKey && existingModelName) ? existingModelName : preset.modelName;
-  const baseUrl = await askQuestion(` Enter ${presetKey} AI_BASE_URL [Default ${defaultUrl}]: `) || defaultUrl;
-  const modelName = await askQuestion(` Enter ${presetKey} AI_MODEL_NAME [Default ${defaultModel}]: `) || defaultModel;
-  return { provider: presetKey, baseUrl, modelName };
+  return items[defaultIdx][0];
 }
 
-// Provider menu for the PRIMARY key — default = Keep Existing / Auto-Detected
-async function askPrimaryProviderConfig(existingProvider, existingBaseUrl, existingModelName, detectedProvider) {
-  console.log('\n Select AI Provider & Model Configuration for the PRIMARY key:');
-  if (existingProvider) {
-    console.log(` [1] Keep Existing Config (${existingProvider} | ${existingModelName || 'default'} | ${existingBaseUrl || 'default'})`);
-    console.log(' [2] OpenCode Go (DeepSeek V4 Pro / Flash - opencode.ai/go)');
-    console.log(' [3] Z.ai / Zhipu GLM Coding Plan (GLM 4.7 / 5.2 - z.ai)');
-    console.log(' [4] OpenRouter (openrouter.ai/api/v1)');
-    console.log(' [5] Anthropic Claude (Claude 3.5 Sonnet)');
-    console.log(' [6] OpenAI (GPT-4o)');
-    console.log(' [7] Custom OpenAI-Compatible Endpoint');
+async function askModelPicker({ models, label, defaultModelId, providerKey, freeNote = '' }, existingModelName, existingProviderKey) {
+  if (!Array.isArray(models) || models.length === 0) return existingModelName || defaultModelId || '';
+  const target = (existingProviderKey === providerKey && existingModelName) ? existingModelName : defaultModelId;
+  const defaultIdx = Math.max(models.findIndex(([m]) => m === target), 0);
+  return pickFromList(`Select ${label} model:`, models, defaultIdx, freeNote);
+}
+
+async function askAiProviderConfig(existingProvider, existingBaseUrl, existingModelName) {
+  const menuKeys = ['anthropic', 'openai', 'zai', 'openrouter', 'minimax', 'deepseek', 'gemini', 'custom'];
+  console.log(`\n ${C.cyan}Select AI provider:${C.reset}`);
+  if (existingProvider) console.log(`   [0] Keep existing config (${existingProvider} | ${existingModelName || 'default'})`);
+  menuKeys.forEach((k, i) => {
+    const p = PROVIDER_PRESETS[k];
+    const label = p ? (p.sub ? p.label : `${p.label} — ${p.model}`) : 'Custom OpenAI-Compatible Endpoint (no defaults)';
+    console.log(`   [${i + 1}] ${label}`);
+  });
+  console.log(customNote);
+  const defaultChoice = existingProvider ? '0' : '1';
+  const choice = (await askQuestion(`   Choice [Default ${defaultChoice}]: `)) || defaultChoice;
+
+  let providerKey, baseUrl, modelName, keyHint;
+  if (existingProvider && choice === '0') {
+    return { provider: existingProvider, baseUrl: existingBaseUrl || 'https://openrouter.ai/api/v1', modelName: existingModelName || 'openrouter/auto', keyHint: '' };
+  }
+  const chosen = menuKeys[parseInt(choice, 10) - 1] || 'custom';
+  if (chosen === 'custom') {
+    let baseUrl = '';
+    for (let attempt = 0; attempt < 2 && !baseUrl; attempt++) {
+      const input = (await askQuestion(`   Base URL (required): `)).trim();
+      if (input) { baseUrl = input; continue; }
+      if (attempt === 0) console.log(`   ${C.yellow}Base URL is required — please enter it.${C.reset}`);
+    }
+    let modelName = '';
+    for (let attempt = 0; attempt < 2 && !modelName; attempt++) {
+      const input = (await askQuestion(`   Model ID (required): `)).trim();
+      if (input) { modelName = input; continue; }
+      if (attempt === 0) console.log(`   ${C.yellow}Model ID is required — please enter it.${C.reset}`);
+    }
+    return { provider: 'custom', baseUrl, modelName, keyHint: '' };
+  }
+  let preset = PROVIDER_PRESETS[chosen];
+  let presetModels, presetLabel, presetDefaultModel;
+  if (preset.sub) {
+    console.log(`\n ${C.cyan}${preset.label} — select billing:${C.reset}`);
+    preset.sub.forEach((s, i) => console.log(`   [${i + 1}] ${s.label}`));
+    const subChoice = (await askQuestion(`   Choice [Default 1]: `)) || '1';
+    const sub = preset.sub[parseInt(subChoice, 10) - 1] || preset.sub[0];
+    providerKey = sub.key; baseUrl = sub.baseUrl; keyHint = sub.keyHint || '';
+    presetModels = sub.models; presetLabel = sub.label; presetDefaultModel = sub.models[0][0];
   } else {
-    console.log(` [1] OpenCode Go (DeepSeek V4 Pro / Flash - opencode.ai/go) ${detectedProvider === 'opencode' ? '⭐ (Auto-Detected)' : ''}`);
-    console.log(` [2] Z.ai / Zhipu GLM Coding Plan (GLM 4.7 / 5.2 - z.ai) ${detectedProvider === 'zai' ? '⭐ (Auto-Detected)' : ''}`);
-    console.log(` [3] OpenRouter (Access to free & open models) ${detectedProvider === 'openrouter' ? '⭐ (Default)' : ''}`);
-    console.log(' [4] Anthropic Claude (Claude 3.5 Sonnet)');
-    console.log(' [5] OpenAI (GPT-4o)');
-    console.log(' [6] Custom OpenAI-Compatible Endpoint');
+    providerKey = chosen; baseUrl = preset.baseUrl; keyHint = '';
+    presetModels = preset.models; presetLabel = preset.label; presetDefaultModel = preset.model;
   }
-  const defaultChoiceStr = existingProvider ? '1' : (detectedProvider === 'opencode' ? '1' : (detectedProvider === 'zai' ? '2' : '3'));
-  const providerChoice = await askQuestion(` Choice [Default ${defaultChoiceStr}]: `) || defaultChoiceStr;
-
-  if (existingProvider && providerChoice === '1') {
-    return {
-      provider: existingProvider,
-      baseUrl: existingBaseUrl || (PROVIDER_PRESETS[existingProvider]?.baseUrl || 'https://openrouter.ai/api/v1'),
-      modelName: existingModelName || (PROVIDER_PRESETS[existingProvider]?.modelName || 'openrouter/auto'),
-    };
-  }
-  const presetKeys = existingProvider
-    ? ['keep', 'opencode', 'zai', 'openrouter', 'anthropic', 'openai', 'custom']
-    : ['opencode', 'zai', 'openrouter', 'anthropic', 'openai', 'custom'];
-  const presetKey = presetKeys[providerChoice - 1] || 'custom';
-  if (presetKey === 'keep') {
-    return {
-      provider: existingProvider,
-      baseUrl: existingBaseUrl || 'https://openrouter.ai/api/v1',
-      modelName: existingModelName || 'openrouter/auto',
-    };
-  }
-  return await askCustomConfig(presetKey, existingBaseUrl, existingModelName, existingProvider);
+  const defaultUrl = (existingBaseUrl && existingBaseUrl.includes(new URL(baseUrl).hostname)) ? existingBaseUrl : baseUrl;
+  const urlIn = await askQuestion(`   API endpoint [ENTER = default ${defaultUrl}]: `);
+  baseUrl = urlIn.trim() || defaultUrl;
+  modelName = await askModelPicker(
+    { models: presetModels, label: presetLabel, defaultModelId: presetDefaultModel, providerKey, freeNote: preset.freeNote || '' },
+    existingModelName, existingProvider,
+  );
+  return { provider: providerKey, baseUrl, modelName, keyHint };
 }
 
-// Provider menu for BACKUP keys — default = "Same as Key #1"
-async function askBackupProviderConfig(label, primaryCfg) {
-  console.log(`\n Select AI Provider & Model Configuration for ${label}:`);
-  console.log(` [1] Same as Key #1 (${primaryCfg.provider} | ${primaryCfg.modelName}) [Default]`);
-  console.log(' [2] OpenCode Go (DeepSeek V4 Pro / Flash - opencode.ai/go)');
-  console.log(' [3] Z.ai / Zhipu GLM Coding Plan (GLM 4.7 / 5.2 - z.ai)');
-  console.log(' [4] OpenRouter (openrouter.ai/api/v1)');
-  console.log(' [5] Anthropic Claude (Claude 3.5 Sonnet)');
-  console.log(' [6] OpenAI (GPT-4o)');
-  console.log(' [7] Custom OpenAI-Compatible Endpoint');
-  const choice = (await askQuestion(' Choice [Default 1]: ')) || '1';
-  if (choice === '1') return { ...primaryCfg };
-  const presetKeys = ['opencode', 'zai', 'openrouter', 'anthropic', 'openai', 'custom'];
-  const presetKey = presetKeys[choice - 2] || 'custom';
-  return await askCustomConfig(presetKey, primaryCfg.baseUrl, primaryCfg.modelName, primaryCfg.provider);
+async function askBackupKeys(label, primaryKey) {
+  const want = (await askQuestion(`   Add backup API key(s) for ${label}? (y/N): `)) || 'n';
+  if (want.toLowerCase() !== 'y') return [];
+  const count = Math.min(Math.max(parseInt((await askQuestion('   How many? (1-5) [Default 1]: ')) || '1', 10) || 1, 1), 5);
+  const backups = [];
+  for (let i = 1; i <= count; i++) {
+    const v = (await askQuestion(`   Backup key #${i}: `)).trim();
+    if (v) backups.push(v);
+  }
+  return backups;
+}
+
+async function askKeyWithBackup(label, prompt, currentValue, mandatory = false) {
+  const suffix = currentValue ? ` [Default: ${currentValue.slice(0, 10)}...]` : (mandatory ? ` ${C.red}[REQUIRED]${C.reset}` : ` ${C.dim}[OPTIONAL — ENTER to skip]${C.reset}`);
+  let value = currentValue || '';
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const input = (await askQuestion(`  ${prompt}${suffix}: `)).trim();
+    if (input) { value = input; break; }
+    if (value) break;
+    if (!mandatory) break;
+    if (attempt === 0) console.log(`   ${C.yellow}Please enter a value — this key is required.${C.reset}`);
+  }
+  const backups = value ? await askBackupKeys(label, value) : [];
+  return { value, backups };
+}
+
+const STRATEGY_DOMAINS = [
+  {
+    key: 'meme-solana',
+    label: 'Meme tokens (Solana DEX — Pump.fun / Raydium)',
+    params: [
+      { name: 'minVolume24hUsd', label: 'Minimum 24h Volume (USD)', def: 50000, unit: 'USD', example: '100000 = $100k/day' },
+      { name: 'minLiquidityUsd', label: 'Minimum Liquidity (USD)', def: 10000, unit: 'USD', example: '50000 = $50k pool' },
+    ],
+  },
+  {
+    key: 'meme-robinhood',
+    label: 'Meme tokens (EVM / Base / Ethereum / Robinhood Chain)',
+    params: [
+      { name: 'minVolume24hUsd', label: 'Minimum 24h Volume (USD)', def: 25000, unit: 'USD', example: '100000 = $100k/day' },
+      { name: 'minLiquidityUsd', label: 'Minimum Liquidity (USD)', def: 5000, unit: 'USD', example: '50000 = $50k pool' },
+      { name: 'minTotalFeeUsd', label: 'Minimum Total Fees (USD)', def: 250, unit: 'USD', example: '1000 = $1k fees/day' },
+    ],
+  },
+  {
+    key: 'lp-solana',
+    label: 'Concentrated Liquidity pools (Solana Meteora DLMM)',
+    params: [
+      { name: 'minTvlUsd', label: 'Minimum Pool TVL (USD)', def: 20000, unit: 'USD', example: '50000 = $50k TVL' },
+      { name: 'minFeeTvlRatio24h', label: 'Minimum 24h Fee/TVL ratio (%)', def: 4, unit: '%', example: '5.0 = aggressive yield' },
+    ],
+  },
+  {
+    key: 'lp-robinhood',
+    label: 'Concentrated Liquidity pools (EVM Uniswap V3 / Krystal)',
+    params: [
+      { name: 'minTvlUsd', label: 'Minimum Pool TVL (USD)', def: 10000, unit: 'USD', example: '50000 = $50k TVL' },
+      { name: 'minVol24hUsd', label: 'Minimum 24h Volume (USD)', def: 100000, unit: 'USD', example: '500000 = $500k/day' },
+    ],
+  },
+  {
+    key: 'nft',
+    label: 'NFT collections (OpenSea)',
+    params: [
+      { name: 'minSurgePct', label: 'Minimum Floor Surge 1h (%)', def: 10, unit: '%', example: '25 = +25% in 1h' },
+      { name: 'minVolSpike', label: 'Minimum Volume Spike (x baseline)', def: 1.5, unit: 'x', example: '3.0 = 3x usual volume' },
+      { name: 'minVelocity1h', label: 'Minimum Sales Velocity (/hour)', def: 3, unit: '/h', example: '10 = 10 sales/h' },
+    ],
+  },
+];
+
+async function askNumeric(promptText, def, unit, example) {
+  let value = null;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const raw = (await askQuestion(`   ${promptText} [Default: ${def}] [Example: ${example}]: `)).trim();
+    if (raw === '') return def;
+    const parsed = Number(raw);
+    if (!isNaN(parsed) && parsed >= 0 && Number.isFinite(parsed)) { value = parsed; break; }
+    if (attempt === 0) console.log(`   ${C.yellow}Please enter a valid number (${unit}). Example: ${example}${C.reset}`);
+  }
+  return value === null ? def : value;
+}
+
+function drawProgressHeader(step, total, done) {
+  const cells = [];
+  for (let i = 1; i <= total; i++) {
+    if (i < step) cells.push(`${C.green}${i}✓${C.reset}`);
+    else if (i === step) cells.push(`${C.bold}${C.cyan}[${i}]${C.reset}`);
+    else cells.push(`${C.dim}${i}${C.reset}`);
+  }
+  console.log(`\n${C.magenta}${C.bold}🏛️  PARTHENON OF ATHENA — MULTICHAIN MASTER ONBOARDING${C.reset}`);
+  console.log(` ${C.cyan}Step ${step} of ${total} — ${done ? C.green + 'configuring ' + done : 'beginning'}${C.reset}`);
+  console.log(` ${cells.join(' ')}\n`);
 }
 
 async function runWizard() {
-  console.log('\n======================================================');
-  console.log('🏛️ ATHENA MULTI-AGENT ENGINE - MASTER ONBOARDING WIZARD');
-  console.log('======================================================\n');
+  console.log('\n======================================================================');
+  console.log('🏛️ ATHENA MULTI-AGENT MULTICHAIN SYSTEM - MASTER ONBOARDING WIZARD');
+  console.log('======================================================================\n');
   console.log('💡 Note: API keys are MANDATORY for their respective sub-agents to run. Press ENTER to keep existing values.\n');
 
   let existingEnv = {};
@@ -120,6 +296,7 @@ async function runWizard() {
   }
 
   // 1. INTERFACE MODE SELECTION
+  drawProgressHeader(1, 9, 'interface mode');
   console.log('📌 STEP 1: INTERFACE MODE SELECTION');
   console.log(' [1] Discord Command Center (Default)');
   console.log(' [2] Telegram Bot & Forum Topics Bridge');
@@ -135,6 +312,7 @@ async function runWizard() {
 
   // 2. DISCORD CREDENTIALS
   if (interfaceChoice === '1' || interfaceChoice === '3') {
+    drawProgressHeader(2, 9, 'Discord credentials');
     console.log('\n💬 STEP 2: DISCORD BOT CREDENTIALS');
     const defaultBotMsg = botToken ? ` [Default: ${botToken.slice(0, 10)}...]` : '';
     const inputBot = await askQuestion(` 1. Enter DISCORD_BOT_TOKEN${defaultBotMsg}: `);
@@ -151,6 +329,7 @@ async function runWizard() {
 
   // 3. TELEGRAM CREDENTIALS
   if (interfaceChoice === '2' || interfaceChoice === '3') {
+    drawProgressHeader(3, 9, 'Telegram credentials');
     console.log('\n📱 STEP 3: TELEGRAM BOT CREDENTIALS');
     const defaultTgBotMsg = telegramToken ? ` [Default: ${telegramToken.slice(0, 10)}...]` : '';
     const inputTgBot = await askQuestion(` 1. Enter TELEGRAM_BOT_TOKEN${defaultTgBotMsg}: `);
@@ -161,226 +340,142 @@ async function runWizard() {
     telegramChatId = inputTgChat.trim() || telegramChatId;
   }
 
-  // 4. AI REASONING ENGINE
-  console.log('\n🤖 STEP 4: AI REASONING ENGINE CREDENTIALS (MANDATORY)');
+  // 4. ATHENA'S REASONING ENGINE
+  drawProgressHeader(4, 9, 'AI provider & model');
+  console.log(` ${C.cyan}${C.bold}🧠 STEP 4: ATHENA'S REASONING ENGINE (AI PROVIDER)${C.reset}`);
   let existingProvider = existingEnv.AI_PROVIDER || '';
   let existingBaseUrl = existingEnv.AI_BASE_URL || '';
   let existingModelName = existingEnv.AI_MODEL_NAME || '';
-  let aiKey = existingEnv.AI_API_KEY || existingEnv.OPENROUTER_API_KEY || existingEnv.OPENAI_API_KEY || '';
   let rawExistingKeys = existingEnv.AI_API_KEYS || existingEnv.AI_API_KEY || '';
-  let existingKeyList = rawExistingKeys.split(',').map(k => k.trim()).filter(Boolean);
+  let existingKeyList = rawExistingKeys.split(',').map((k) => k.trim()).filter(Boolean);
   let allKeys = [];
 
   if (existingKeyList.length > 0) {
-    console.log(` ℹ️  Found ${existingKeyList.length} API key(s) in the existing config:`);
-    existingKeyList.forEach((k, idx) => {
-      console.log(`   - Key #${idx + 1}: ${k.slice(0, 14)}...`);
-    });
-    const keepKeys = await askQuestion(' Keep existing API key(s)? (Y/n) [Default Y]: ') || 'y';
-    if (keepKeys.toLowerCase() !== 'n') {
-      allKeys = existingKeyList;
-      aiKey = existingKeyList[0];
-    }
+    console.log(`   ℹ️  Found ${existingKeyList.length} existing AI key(s):`);
+    existingKeyList.forEach((k, idx) => console.log(`      - Key #${idx + 1}: ${k.slice(0, 14)}...`));
+    const keepKeys = (await askQuestion('   Keep existing AI API key(s)? (Y/n) [Default Y]: ')) || 'y';
+    if (keepKeys.toLowerCase() !== 'n') allKeys = existingKeyList;
   }
 
-  let provider = existingProvider || 'opencode';
-  let baseUrl = existingBaseUrl || 'https://opencode.ai/zen/go/v1';
-  let modelName = existingModelName || 'deepseek-v4-pro';
+  let provider = existingProvider || 'anthropic';
+  let baseUrl = existingBaseUrl || 'https://api.anthropic.com/v1';
+  let modelName = existingModelName || 'claude-sonnet-5';
   const backupCfgEntries = [];
 
   if (allKeys.length === 0) {
-    const defaultAiKeyMsg = aiKey ? ` [Default: ${aiKey.slice(0, 12)}...]` : ' [Mandatory - OpenCode / Z.ai / OpenRouter]';
-    const inputAiKey = await askQuestion(` 1. Enter PRIMARY AI API KEY (OpenCode Go / Z.ai / OpenRouter / OpenAI)${defaultAiKeyMsg}: `);
-    aiKey = inputAiKey.trim() || aiKey;
+    const keyIn = (await askQuestion(`   Enter PRIMARY AI API KEY ${C.red}[REQUIRED]${C.reset}: `)).trim();
+    if (!keyIn) { console.log(`   ${C.yellow}AI key is required — falling back to existing/empty and continuing.${C.reset}`); }
+    const primaryAiKey = keyIn || existingEnv.AI_API_KEY || '';
+    if (primaryAiKey) allKeys.push(primaryAiKey);
 
-    // Auto-detect the provider for the primary key
-    let detectedProvider = existingProvider;
-    if (!detectedProvider) {
-      const lowerKey = aiKey.toLowerCase();
-      if (lowerKey.includes('opencode') || existingBaseUrl.includes('opencode')) {
-        detectedProvider = 'opencode';
-      } else if (lowerKey.includes('zai') || lowerKey.includes('glm') || existingBaseUrl.includes('z.ai')) {
-        detectedProvider = 'zai';
-      } else {
-        detectedProvider = 'opencode';
-      }
-    }
+    const cfg = await askAiProviderConfig(existingProvider, existingBaseUrl, existingModelName);
+    provider = cfg.provider; baseUrl = cfg.baseUrl; modelName = cfg.modelName;
 
-    const primaryCfg = await askPrimaryProviderConfig(existingProvider, existingBaseUrl, existingModelName, detectedProvider);
-    provider = primaryCfg.provider;
-    baseUrl = primaryCfg.baseUrl;
-    modelName = primaryCfg.modelName;
-
-    const stackChoice = await askQuestion(' 2. Add a failover BACKUP API key (provider may differ)? (y/N) [Default N]: ');
-    let allKeysList = aiKey ? aiKey.split(',').map(k => k.trim()).filter(Boolean) : [];
-    if (allKeysList.length === 0 && aiKey) allKeysList.push(aiKey);
-
+    const stackChoice = (await askQuestion('   Add a failover BACKUP AI key (provider may differ)? (y/N) [Default N]: ')) || 'n';
     if (stackChoice.toLowerCase() === 'y') {
-      const backupCountStr = await askQuestion('   How many backup API keys? (1-5) [Default 1]: ') || '1';
-      const backupCount = Math.min(Math.max(parseInt(backupCountStr) || 1, 1), 5);
+      const backupCount = Math.min(Math.max(parseInt((await askQuestion('   How many backup AI keys? (1-5) [Default 1]: ')) || '1', 10) || 1, 1), 5);
       for (let i = 1; i <= backupCount; i++) {
-        const bKey = await askQuestion(`   ➡️ Enter BACKUP API KEY #${i} (e.g. Z.ai / OpenRouter key): `);
-        if (!bKey.trim()) { console.log('   ⚠️  Backup key empty, skipped.'); continue; }
-        allKeysList.push(bKey.trim());
-        const bCfg = await askBackupProviderConfig(`BACKUP Key #${i}`, primaryCfg);
+        const bKey = (await askQuestion(`   Backup AI API KEY #${i}: `)).trim();
+        if (!bKey) { console.log('      Skipped — empty backup key.'); continue; }
+        allKeys.push(bKey);
+        const bCfg = await askAiProviderConfig(existingProvider, existingBaseUrl, existingModelName);
         backupCfgEntries.push({ slot: i + 1, cfg: bCfg });
       }
     }
-    allKeys = allKeysList;
   } else {
-    // Keep existing keys — the primary provider can still be changed; legacy AI_KEY_N_* are preserved by merge-write
-    const primaryCfg = await askPrimaryProviderConfig(existingProvider, existingBaseUrl, existingModelName, existingProvider);
-    provider = primaryCfg.provider;
-    baseUrl = primaryCfg.baseUrl;
-    modelName = primaryCfg.modelName;
+    const cfg = await askAiProviderConfig(existingProvider, existingBaseUrl, existingModelName);
+    provider = cfg.provider; baseUrl = cfg.baseUrl; modelName = cfg.modelName;
   }
   const combinedKeys = allKeys.join(',');
 
-  // 5. PRO MARKET DATA & SECURITY AUDIT APIS
-  console.log('\n📊 STEP 5: PRO MARKET DATA & SECURITY AUDIT APIS');
-  console.log('   (GMGN = mandatory for meme/LP screening; security audit runs via GMGN /token/security)');
-  let gmgnApiKey = existingEnv.GMGN_API_KEY || '';
-  let gmgnRobinhoodApiKey = existingEnv.GMGN_API_KEY_ROBINHOOD || '';
-  let krystalApiKey = existingEnv.KRYSTAL_CLOUD_API_KEY || '';
-  let openseaApiKey = existingEnv.OPENSEA_API_KEY || '';
-  let twexApiKey = existingEnv.TWEX_API_KEY || existingEnv.TWITTER_BEARER_TOKEN || '';
-  let openTwitterToken = existingEnv.TWITTER_TOKEN || '';
-  let goplusApiKey = existingEnv.GOPLUS_API_KEY || '';
-  let polymarketPrivateKey = existingEnv.POLYMARKET_PRIVATE_KEY || '';
-  let uniswapApiKey = existingEnv.UNISWAP_API_KEY || '';
-  let jupiterApiKey = existingEnv.JUPITER_API_KEY || '';
+  // 5. MARKET DATA & SECURITY APIS
+  drawProgressHeader(5, 9, 'market data & security APIs');
+  console.log(` ${C.cyan}${C.bold}📊 STEP 5: MARKET DATA & SECURITY APIS${C.reset}`);
+  const gmgn = await askKeyWithBackup('GMGN', 'GMGN_API_KEY (smart-money/rank/security for Solana & EVM)', existingEnv.GMGN_API_KEY || '', true);
+  const krystal = await askKeyWithBackup('Krystal Cloud', 'KRYSTAL_CLOUD_API_KEY (EVM LP pool data — mandatory for EVM LP agent)', existingEnv.KRYSTAL_CLOUD_API_KEY || '', true);
+  const opensea = await askKeyWithBackup('OpenSea', 'OPENSEA_API_KEY (NFT floor & rarity — mandatory for NFT agent)', existingEnv.OPENSEA_API_KEY || '', true);
+  const goplus = await askKeyWithBackup('GoPlus', 'GOPLUS_API_KEY (EVM security audit — mandatory for /audit)', existingEnv.GOPLUS_API_KEY || '', true);
+  const twex = await askKeyWithBackup('Twex/Twitter', 'TWEX_API_KEY (X/Twitter CT-Alpha sentiment engine)', existingEnv.TWEX_API_KEY || '', false);
 
-  const defaultGmgn = gmgnApiKey ? ` [Default: ${gmgnApiKey.slice(0, 8)}...]` : ' [Mandatory for Solana/LP Agents]';
-  const inputGmgn = await askQuestion(` 1. GMGN_API_KEY (Solana — GMGN AI Pro API for Smart Money & Snipers)${defaultGmgn}: `);
-  gmgnApiKey = inputGmgn.trim() || gmgnApiKey;
-
-  const defaultGmgnRh = gmgnRobinhoodApiKey ? ` [Default: ${gmgnRobinhoodApiKey.slice(0, 8)}...]` : ' [Optional — separate key so Solana & Robinhood never share rate limits]';
-  const inputGmgnRh = await askQuestion(` 2. GMGN_API_KEY_ROBINHOOD (Optional — dedicated GMGN key for the Robinhood chain)${defaultGmgnRh}: `);
-  gmgnRobinhoodApiKey = inputGmgnRh.trim() || gmgnRobinhoodApiKey;
-
-  const defaultKrystal = krystalApiKey ? ` [Default: ${krystalApiKey.slice(0, 8)}...]` : ' [Mandatory for LP Robinhood Agent]';
-  const inputKrystal = await askQuestion(` 3. KRYSTAL_CLOUD_API_KEY (Krystal Cloud DeFi data — Robinhood chain pools)${defaultKrystal}: `);
-  krystalApiKey = inputKrystal.trim() || krystalApiKey;
-
-  const defaultOpensea = openseaApiKey ? ` [Default: ${openseaApiKey.slice(0, 8)}...]` : ' [Mandatory for NFT Agent]';
-  const inputOpensea = await askQuestion(` 4. OPENSEA_API_KEY (OpenSea REST API v2 for NFT floor & rarity)${defaultOpensea}: `);
-  openseaApiKey = inputOpensea.trim() || openseaApiKey;
-
-  const defaultTwex = twexApiKey ? ` [Default: ${twexApiKey.slice(0, 8)}...]` : ' [Mandatory for CT Alpha Agent]';
-  const inputTwex = await askQuestion(` 5. TWEX_API_KEY / TWITTER_BEARER_TOKEN (X/Twitter — CT Alpha feeds)${defaultTwex}: `);
-  twexApiKey = inputTwex.trim() || twexApiKey;
-
-  const defaultOpenTwitter = openTwitterToken ? ` [Default: ${openTwitterToken.slice(0, 8)}...]` : ' [Optional — primary Twitter source (6551.io/mcp, free)]';
-  const inputOpenTwitter = await askQuestion(` 5b. TWITTER_TOKEN (OpenTwitter 6551 — profiles, KOL followers, engagement; used by CT Alpha)${defaultOpenTwitter}: `);
-  openTwitterToken = inputOpenTwitter.trim() || openTwitterToken;
-
-  const defaultGoplus = goplusApiKey ? ` [Default: ${goplusApiKey.slice(0, 8)}...]` : ' [Optional — GoPlus has no Robinhood chain data; used for other EVM chains]';
-  const inputGoplus = await askQuestion(` 6. GOPLUS_API_KEY (Optional — EVM security audit; not available on Robinhood chain)${defaultGoplus}: `);
-  goplusApiKey = inputGoplus.trim() || goplusApiKey;
-
-  const defaultPoly = polymarketPrivateKey ? ` [Default: ${polymarketPrivateKey.slice(0, 8)}...]` : ' [Optional — prediction agent is in no-call mode]';
-  const inputPoly = await askQuestion(` 7. POLYMARKET_PRIVATE_KEY (Optional — Polymarket Polygon L2 trading key; agent currently no-call)${defaultPoly}: `);
-  polymarketPrivateKey = inputPoly.trim() || polymarketPrivateKey;
-
-  const defaultUniswap = uniswapApiKey ? ` [Default: ${uniswapApiKey.slice(0, 8)}...]` : ' [Optional — Uniswap Trade API (EVM/Robinhood swap entry)]';
-  const inputUniswap = await askQuestion(` 8. UNISWAP_API_KEY (Optional — Uniswap Trade API, EVM/Robinhood swap entry)${defaultUniswap}: `);
-  uniswapApiKey = inputUniswap.trim() || uniswapApiKey;
-
-  const defaultJupiter = jupiterApiKey ? ` [Default: ${jupiterApiKey.slice(0, 8)}...]` : ' [Optional — higher rate limits for Solana Jupiter quotes]';
-  const inputJupiter = await askQuestion(` 9. JUPITER_API_KEY (Optional — Solana swap entry rate limits)${defaultJupiter}: `);
-  jupiterApiKey = inputJupiter.trim() || jupiterApiKey;
-
-  // 6. WEB3 RPC ENDPOINTS
-  console.log('\n⚡ STEP 6: WEB3 RPC ENDPOINTS & HIGH-VELOCITY NETWORK NODES');
-  let solanaRpcUrl = existingEnv.SOLANA_RPC_URL || 'https://api.mainnet-beta.solana.com';
-  let solanaWssUrl = existingEnv.SOLANA_WSS_URL || 'wss://api.mainnet-beta.solana.com';
-  let evmBaseRpcUrl = existingEnv.EVM_BASE_RPC_URL || existingEnv.EVM_RPC_URL || 'https://mainnet.base.org';
-  let evmEthRpcUrl = existingEnv.EVM_ETH_RPC_URL || 'https://eth.llamarpc.com';
-  let evmRobinhoodRpcUrl = existingEnv.EVM_ROBINHOOD_RPC_URL || 'https://arb1.arbitrum.io/rpc';
-
-  console.log(' 💡 Quick Solana RPC option: you can paste a HELIUS API KEY directly!');
-  const heliusInput = await askQuestion(' 1. Have a Helius API Key? Paste it here (or press ENTER for manual/default): ');
-
-  if (heliusInput.trim()) {
-    const key = heliusInput.trim();
-    solanaRpcUrl = `https://mainnet.helius-rpc.com/?api-key=${key}`;
-    solanaWssUrl = `wss://mainnet.helius-rpc.com/?api-key=${key}`;
-    console.log(`    ✅ Auto-configured Helius RPC & WSS URLs with your API key!`);
-  } else {
-    const defaultSolRpc = solanaRpcUrl ? ` [ALREADY SET: ${solanaRpcUrl.slice(0, 35)}...]` : ' [Default: Public Solana RPC]';
-    const inputSolRpc = await askQuestion(`    a. SOLANA_RPC_URL (HTTP)${defaultSolRpc}: `);
-    solanaRpcUrl = inputSolRpc.trim() || solanaRpcUrl;
-
-    const defaultSolWss = solanaWssUrl ? ` [ALREADY SET: ${solanaWssUrl.slice(0, 35)}...]` : ' [Default: Public Solana WSS]';
-    const inputSolWss = await askQuestion(`    b. SOLANA_WSS_URL (WebSocket)${defaultSolWss}: `);
-    solanaWssUrl = inputSolWss.trim() || solanaWssUrl;
+  // 5.5 SCREENING STRATEGY
+  drawProgressHeader(6, 9, 'screening strategy');
+  console.log(`\n ${C.cyan}${C.bold}🧠 STEP 5.5: SCREENING STRATEGY${C.reset}`);
+  console.log('   How strict should Athena be when selecting signals?');
+  console.log('   [1] Loosened Default (2x) — more call signals, still >= 80% quality   [Default]');
+  console.log('   [2] Standard — strict thresholds (previous defaults)');
+  console.log('   [3] Custom Prompt — describe your ideal screening strategy in plain English;');
+  console.log('       Athena writes the code after deploy (auto on first boot, re-runnable anytime via chat)');
+  const stratChoice = (await askQuestion('   Choice [Default 1]: ')) || '1';
+  let strategyPreset = 'loosened';
+  if (stratChoice === '2') strategyPreset = 'standard';
+  if (stratChoice === '3') {
+    strategyPreset = 'custom';
+    console.log(`\n   ${C.yellow}Write your strategy prompt (multi-line; finish with an empty line):${C.reset}`);
+    const lines = [];
+    let line = '';
+    do {
+      line = await askQuestion('   > ');
+      if (line.trim()) lines.push(line.trim());
+    } while (line.trim());
+    const prompt = lines.join('\n');
+    if (prompt) {
+      const dir = path.join(process.cwd(), 'strategies');
+      if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+      fs.writeFileSync(path.join(dir, 'custom-strategy-prompt.txt'), prompt, 'utf-8');
+      console.log(`   ${C.green}✓${C.reset} Prompt saved to strategies/custom-strategy-prompt.txt`);
+    }
   }
 
-  const defaultBaseRpc = evmBaseRpcUrl ? ` [ALREADY SET: ${evmBaseRpcUrl}]` : ' [Default: https://mainnet.base.org]';
-  const inputBaseRpc = await askQuestion(` 2. EVM_BASE_RPC_URL (Base L2 RPC)${defaultBaseRpc}: `);
-  evmBaseRpcUrl = inputBaseRpc.trim() || evmBaseRpcUrl;
+  // 6. MULTICHAIN RPC ENDPOINTS
+  drawProgressHeader(7, 9, 'blockchain RPCs');
+  console.log('\n⚡ STEP 6: BLOCKCHAIN RPC ENDPOINTS (Solana & EVM)');
+  let solanaRpcUrl = existingEnv.SOLANA_RPC_URL || 'https://api.mainnet-beta.solana.com';
+  let evmRpcUrl = existingEnv.EVM_RPC_URL || 'https://eth.llamarpc.com';
 
-  const defaultEthRpc = evmEthRpcUrl ? ` [ALREADY SET: ${evmEthRpcUrl}]` : ' [Default: https://eth.llamarpc.com]';
-  const inputEthRpc = await askQuestion(` 3. EVM_ETH_RPC_URL (Ethereum Mainnet RPC)${defaultEthRpc}: `);
-  evmEthRpcUrl = inputEthRpc.trim() || evmEthRpcUrl;
+  const defaultSolRpc = solanaRpcUrl ? ` [ALREADY SET: ${solanaRpcUrl}]` : ' [Default: https://api.mainnet-beta.solana.com]';
+  const inputSolRpc = await askQuestion(` 1. SOLANA_RPC_URL${defaultSolRpc}: `);
+  solanaRpcUrl = inputSolRpc.trim() || solanaRpcUrl;
 
-  const defaultRhRpc = evmRobinhoodRpcUrl ? ` [ALREADY SET: ${evmRobinhoodRpcUrl}]` : ' [Default: https://arb1.arbitrum.io/rpc]';
-  const inputRhRpc = await askQuestion(` 4. EVM_ROBINHOOD_RPC_URL (Robinhood L2 / Arbitrum RPC — used for on-chain honeypot checks)${defaultRhRpc}: `);
-  evmRobinhoodRpcUrl = inputRhRpc.trim() || evmRobinhoodRpcUrl;
+  const defaultEvmRpc = evmRpcUrl ? ` [ALREADY SET: ${evmRpcUrl}]` : ' [Default: https://eth.llamarpc.com]';
+  const inputEvmRpc = await askQuestion(` 2. EVM_RPC_URL${defaultEvmRpc}: `);
+  evmRpcUrl = inputEvmRpc.trim() || evmRpcUrl;
 
-  // 7. BURNER WALLETS & EXCHANGE KEYS
-  console.log('\n👛 STEP 7: ON-CHAIN BURNER WALLETS & EXCHANGE API KEYS');
-  console.log('   ⚠️  Wallet keys are stored ONLY in .env on this machine. Use burner wallets with capped funds.');
+  // 7. WALLET & EXCHANGES
+  drawProgressHeader(8, 9, 'wallet & execution');
+  console.log('\n👛 STEP 7: BURNER WALLETS & EXECUTION TUNING');
   let solanaPrivateKey = existingEnv.SOLANA_PRIVATE_KEY || '';
   let evmPrivateKey = existingEnv.EVM_PRIVATE_KEY || '';
-  let hyperliquidPrivateKey = existingEnv.HYPERLIQUID_PRIVATE_KEY || '';
 
-  const defaultSolPk = solanaPrivateKey ? ` [ALREADY SET: ${solanaPrivateKey.slice(0, 8)}...]` : ' [Optional — required only for live on-chain Solana execution]';
-  const inputSolPk = await askQuestion(` 1. SOLANA_PRIVATE_KEY${defaultSolPk}: `);
+  const defaultSolPk = solanaPrivateKey ? ` [ALREADY SET: ${solanaPrivateKey.slice(0, 8)}...]` : ' [Optional for DRY_RUN]';
+  const inputSolPk = await askQuestion(` 1. SOLANA_PRIVATE_KEY (Base58 / JSON array)${defaultSolPk}: `);
   solanaPrivateKey = inputSolPk.trim() || solanaPrivateKey;
 
-  const defaultEvmPk = evmPrivateKey ? ` [ALREADY SET: ${evmPrivateKey.slice(0, 8)}...]` : ' [Optional — required only for live on-chain EVM execution]';
-  const inputEvmPk = await askQuestion(` 2. EVM_PRIVATE_KEY${defaultEvmPk}: `);
+  const defaultEvmPk = evmPrivateKey ? ` [ALREADY SET: ${evmPrivateKey.slice(0, 8)}...]` : ' [Optional for DRY_RUN]';
+  const inputEvmPk = await askQuestion(` 2. EVM_PRIVATE_KEY (Hex 0x...)${defaultEvmPk}: `);
   evmPrivateKey = inputEvmPk.trim() || evmPrivateKey;
 
-  const defaultHlPk = hyperliquidPrivateKey ? ` [ALREADY SET: ${hyperliquidPrivateKey.slice(0, 8)}...]` : ' [Optional — whale tracking is read-only; key only needed for perps execution]';
-  const inputHlPk = await askQuestion(` 3. HYPERLIQUID_PRIVATE_KEY (Optional — perps trading account key)${defaultHlPk}: `);
-  hyperliquidPrivateKey = inputHlPk.trim() || hyperliquidPrivateKey;
+  // 8. OPERATING MODE & RISK CONTROLS
+  drawProgressHeader(9, 9, 'operating mode & risk controls');
+  console.log('\n⚙️ STEP 8: OPERATING MODE & RISK CONTROLS');
+  console.log(' [1] DRY_RUN — Safe realistic simulation with real market quotes (Default)');
+  console.log(' [2] SIGNAL_ONLY — Intelligence Hub (Call Signals + Wallet Tracking)');
+  console.log(' [3] AUTO_EXECUTE — Autonomous Trading across Solana & EVM');
+  const modeInput = (await askQuestion(' Selection (1/2/3) [Default 1]: ')) || '1';
 
-  // 8. OPERATING MODE
-  console.log('\n⚙️ STEP 8: OPERATING MODE & SIMULATION BALANCES');
-  const dryRunChoice = await askQuestion(' 1. Run agents in Simulation Mode (DRY_RUN)? (Y/n) [Default Y]: ') || 'y';
-  const isDryRun = dryRunChoice.toLowerCase() !== 'n' ? 'true' : 'false';
+  let execMode = 'DRY_RUN';
+  if (modeInput === '2') execMode = 'SIGNAL_ONLY';
+  if (modeInput === '3') execMode = 'AUTO_EXECUTE';
 
-  const autoExecChoice = await askQuestion(' 2. Enable AUTO-EXECUTE (bot executes trades itself)? (y/N) [Default N — manual execution, safest]: ') || 'n';
-  const autoExecuteEnabled = autoExecChoice.toLowerCase() === 'y' ? 'true' : 'false';
+  const isDryRunStr = execMode === 'AUTO_EXECUTE' ? 'false' : 'true';
+  const autoExecEnabled = execMode === 'AUTO_EXECUTE' ? 'true' : 'false';
 
-  const defaultSolSim = existingEnv.SIMULATION_BALANCE_SOL ? ` [ALREADY SET: ${existingEnv.SIMULATION_BALANCE_SOL} SOL]` : ' [Default 10.0]';
-  const simSolBalance = await askQuestion(` 3. Starting Simulation Balance for Solana (SOL)${defaultSolSim}: `) || existingEnv.SIMULATION_BALANCE_SOL || '10.0';
-
-  const defaultEthSim = existingEnv.SIMULATION_BALANCE_ETH ? ` [ALREADY SET: ${existingEnv.SIMULATION_BALANCE_ETH} ETH]` : ' [Default 1.0]';
-  const simEthBalance = await askQuestion(` 4. Starting Simulation Balance for EVM (ETH)${defaultEthSim}: `) || existingEnv.SIMULATION_BALANCE_ETH || '1.0';
-
-  const defaultPolySim = existingEnv.SIMULATION_BALANCE_POLYMARKET ? ` [ALREADY SET: ${existingEnv.SIMULATION_BALANCE_POLYMARKET} USDC]` : ' [Default 500.0]';
-  const simPolyBalance = await askQuestion(` 5. Starting Simulation Balance for Polymarket (USDC)${defaultPolySim}: `) || existingEnv.SIMULATION_BALANCE_POLYMARKET || '500.0';
-
-  const defaultHlSim = existingEnv.SIMULATION_BALANCE_HYPERLIQUID ? ` [ALREADY SET: ${existingEnv.SIMULATION_BALANCE_HYPERLIQUID} USDC]` : ' [Default 1000.0]';
-  const simHlBalance = await askQuestion(` 6. Starting Simulation Balance for Hyperliquid Perps (USDC)${defaultHlSim}: `) || existingEnv.SIMULATION_BALANCE_HYPERLIQUID || '1000.0';
-
-  const primaryAiKey = allKeys[0] || '';
-
-  // ── MERGE-BASED .env WRITE ─────────────────────────────────────────────
-  // Never clobber the whole file: keep every existing key, only update the
-  // values this wizard run collected. Unknown/extra keys survive untouched.
   const updates = {
     NODE_ENV: 'production',
-    DRY_RUN: isDryRun,
-    AUTO_EXECUTE_ENABLED: autoExecuteEnabled,
+    EXECUTION_MODE: execMode,
+    DRY_RUN: isDryRunStr,
+    AUTO_EXECUTE_ENABLED: autoExecEnabled,
     LOG_LEVEL: 'info',
-    SIMULATION_BALANCE_SOL: simSolBalance.trim(),
-    SIMULATION_BALANCE_ETH: simEthBalance.trim(),
-    SIMULATION_BALANCE_POLYMARKET: simPolyBalance.trim(),
-    SIMULATION_BALANCE_HYPERLIQUID: simHlBalance.trim(),
+    STRATEGY_PRESET: strategyPreset,
     DISCORD_BOT_TOKEN: botToken.trim(),
     DISCORD_CLIENT_ID: clientId.trim(),
     DISCORD_CHANNEL_CONTROL_ROOM: controlRoomId.trim(),
@@ -389,39 +484,57 @@ async function runWizard() {
     AI_PROVIDER: provider,
     AI_BASE_URL: baseUrl,
     AI_API_KEYS: combinedKeys,
-    AI_API_KEY: primaryAiKey,
+    AI_API_KEY: (allKeys[0] || '').trim(),
     AI_MODEL_NAME: modelName,
-    OPENROUTER_API_KEY: primaryAiKey,
-    OPENAI_API_KEY: primaryAiKey,
-    ANTHROPIC_API_KEY: primaryAiKey,
-    GMGN_API_KEY: gmgnApiKey.trim(),
-    GMGN_API_KEY_ROBINHOOD: gmgnRobinhoodApiKey.trim(),
-    KRYSTAL_CLOUD_API_KEY: krystalApiKey.trim(),
-    OPENSEA_API_KEY: openseaApiKey.trim(),
-    TWEX_API_KEY: twexApiKey.trim(),
-    TWITTER_BEARER_TOKEN: twexApiKey.trim(),
-    TWITTER_TOKEN: openTwitterToken.trim(),
-    GOPLUS_API_KEY: goplusApiKey.trim(),
-    POLYMARKET_PRIVATE_KEY: polymarketPrivateKey.trim(),
-    UNISWAP_API_KEY: uniswapApiKey.trim(),
-    JUPITER_API_KEY: jupiterApiKey.trim(),
+    OPENROUTER_API_KEY: (allKeys[0] || '').trim(),
+    OPENAI_API_KEY: (allKeys[0] || '').trim(),
+    ANTHROPIC_API_KEY: (allKeys[0] || '').trim(),
+    GMGN_API_KEY: gmgn.value.trim(),
+    GMGN_BACKUP_KEYS: gmgn.backups.join(','),
+    KRYSTAL_CLOUD_API_KEY: krystal.value.trim(),
+    KRYSTAL_CLOUD_BACKUP_KEYS: krystal.backups.join(','),
+    OPENSEA_API_KEY: opensea.value.trim(),
+    OPENSEA_BACKUP_KEYS: opensea.backups.join(','),
+    GOPLUS_API_KEY: goplus.value.trim(),
+    GOPLUS_BACKUP_KEYS: goplus.backups.join(','),
+    TWEX_API_KEY: twex.value.trim(),
     SOLANA_RPC_URL: solanaRpcUrl.trim(),
-    SOLANA_WSS_URL: solanaWssUrl.trim(),
-    EVM_BASE_RPC_URL: evmBaseRpcUrl.trim(),
-    EVM_RPC_URL: evmBaseRpcUrl.trim(),
-    EVM_ETH_RPC_URL: evmEthRpcUrl.trim(),
-    EVM_ROBINHOOD_RPC_URL: evmRobinhoodRpcUrl.trim(),
+    EVM_RPC_URL: evmRpcUrl.trim(),
     SOLANA_PRIVATE_KEY: solanaPrivateKey.trim(),
     EVM_PRIVATE_KEY: evmPrivateKey.trim(),
-    HYPERLIQUID_PRIVATE_KEY: hyperliquidPrivateKey.trim(),
-    RUGCHECK_API_URL: 'https://api.rugcheck.xyz/v1',
   };
 
-  // Per-key backup config: AI_KEY_N_PROVIDER / AI_KEY_N_BASE_URL / AI_KEY_N_MODEL_NAME (slot = position in AI_API_KEYS)
   for (const { slot, cfg } of backupCfgEntries) {
     updates[`AI_KEY_${slot}_PROVIDER`] = cfg.provider;
     updates[`AI_KEY_${slot}_BASE_URL`] = cfg.baseUrl;
     updates[`AI_KEY_${slot}_MODEL_NAME`] = cfg.modelName;
+  }
+
+  // ⚠️ TRIAL OF CONFIGURATION — review before saving
+  console.log(`\n${C.magenta}${C.bold}========================================================${C.reset}`);
+  console.log(`${C.magenta}${C.bold} ⚠️  TRIAL OF CONFIGURATION — REVIEW SUMMARY${C.reset}`);
+  console.log(`${C.magenta}${C.bold}========================================================${C.reset}`);
+  const rows = [
+    ['Execution Mode', execMode === 'AUTO_EXECUTE' ? `${C.red}AUTO_EXECUTE (LIVE TRADING)${C.reset}` : execMode === 'SIGNAL_ONLY' ? `${C.cyan}SIGNAL_ONLY (INTELLIGENCE HUB)${C.reset}` : `${C.green}DRY_RUN (SIMULATION)${C.reset}`],
+    ['Scope', 'Multi-Chain (Solana, EVM, Perps, NFT, Polymarket, CT-Alpha)'],
+    ['Strategy Preset', strategyPreset],
+    ['Discord', botToken ? `${C.green}✓${C.reset} token set` : `${C.red}✗${C.reset} not set`],
+    ['Telegram', telegramToken ? `${C.green}✓${C.reset} token set` : `${C.dim}–${C.reset} not set`],
+    ['AI Provider', `${provider} (${modelName})`],
+    ['AI Keys', `${allKeys.length} total (${backupCfgEntries.length} backup)`],
+    ['GMGN', gmgn.value ? `${C.green}✓${C.reset} +${gmgn.backups.length} backup` : `${C.red}✗${C.reset}`],
+    ['Krystal', krystal.value ? `${C.green}✓${C.reset} +${krystal.backups.length} backup` : `${C.red}✗${C.reset}`],
+    ['OpenSea', opensea.value ? `${C.green}✓${C.reset} +${opensea.backups.length} backup` : `${C.red}✗${C.reset}`],
+    ['GoPlus', goplus.value ? `${C.green}✓${C.reset} +${goplus.backups.length} backup` : `${C.red}✗${C.reset}`],
+    ['Solana RPC', solanaRpcUrl],
+    ['EVM RPC', evmRpcUrl],
+  ];
+  for (const [label, val] of rows) console.log(`   ${label.padEnd(16)} ${val}`);
+  const confirmWrite = (await askQuestion(`\n   Save this configuration to .env? (Y/n) [Default Y]: `)) || 'y';
+  if (confirmWrite.toLowerCase() === 'n') {
+    console.log(`\n${C.yellow}Configuration discarded. Rerun 'athena wizard' when ready.${C.reset}`);
+    rl.close();
+    return;
   }
 
   let mergedLines = [];
@@ -436,13 +549,12 @@ async function runWizard() {
           mergedLines.push(`${key}=${updates[key]}`);
           seen.add(key);
         } else {
-          mergedLines.push(line); // preserve unknown keys verbatim
+          mergedLines.push(line);
         }
       } else {
-        mergedLines.push(line); // preserve comments/blank lines
+        mergedLines.push(line);
       }
     }
-    // Append any wizard keys that didn't exist yet
     for (const [key, val] of Object.entries(updates)) {
       if (!seen.has(key)) {
         mergedLines.push(`${key}=${val}`);
@@ -456,14 +568,12 @@ async function runWizard() {
 
   fs.writeFileSync(envPath, mergedLines.join('\n').replace(/\n{3,}/g, '\n\n') + '\n', 'utf8');
 
-  console.log('\n======================================================');
-  console.log('✅ Configuration file (.env) successfully generated!');
-  console.log(`💡 Operating Mode: ${isDryRun === 'true' ? 'SIMULATION (DRY_RUN ACTIVE)' : 'LIVE TRADING (CAUTION)'}`);
-  console.log(`⚡ Auto-Execute: ${autoExecuteEnabled === 'true' ? 'ENABLED (bot trades itself)' : 'DISABLED (manual execution via call cards)'}`);
-  console.log(`🪙 Simulation Balances: ${simSolBalance} SOL | ${simEthBalance} ETH | $${simPolyBalance} USDC | $${simHlBalance} USDC perps`);
-  console.log('💡 All API keys and adapter credentials saved securely in .env');
-  console.log('   Next steps: run `npm install`, then `npm run build`, then `pm2 start dist/index.js --name athena-agent --update-env`');
-  console.log('======================================================\n');
+  console.log(`\n${C.green}${C.bold}========================================================${C.reset}`);
+  console.log(`${C.green}${C.bold} ✅ CONFIGURATION SAVED — ATHENA MULTICHAIN IS READY${C.reset}`);
+  console.log(`${C.green}${C.bold}========================================================${C.reset}`);
+  console.log(`   ${C.bold}Parthenon:${C.reset} run \`athena terminal\` to open the command center TUI.`);
+  console.log(`   ${C.bold}Athena:${C.reset} run \`athena run\` (dev) or \`athena deploy\` (24/7 via PM2).`);
+  console.log(`   ${C.bold}Checks:${C.reset} \`athena doctor\` | \`athena test\` | \`athena update\``);
 
   rl.close();
 }

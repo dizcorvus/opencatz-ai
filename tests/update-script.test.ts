@@ -16,9 +16,9 @@ describe('runAthenaUpdate', () => {
     mockSpawn.mockImplementation(() => ({ unref: vi.fn(), on: vi.fn() }));
   });
 
-  it('runs stash (only when dirty), pull, install, build, then schedules pm2 restart via detached spawn', () => {
+  it('runs stash (only when dirty), pull, install, build, then schedules pm2 restart via detached spawn', async () => {
     mockExecSync.mockImplementationOnce(() => ' M src/x.ts\n'); // dirty worktree
-    const result = runAthenaUpdate({ cwd: '/repo' });
+    const result = await runAthenaUpdate({ cwd: '/repo' });
 
     const calls = mockExecSync.mock.calls.map((c) => c[0] as string);
     expect(calls[0]).toBe('git status --porcelain');
@@ -36,9 +36,9 @@ describe('runAthenaUpdate', () => {
     expect(result.restartOk).toBe(true);
   });
 
-  it('skips stash when the worktree is clean', () => {
+  it('skips stash when the worktree is clean', async () => {
     mockExecSync.mockImplementationOnce(() => ''); // clean
-    const result = runAthenaUpdate({ cwd: '/repo' });
+    const result = await runAthenaUpdate({ cwd: '/repo' });
 
     const calls = mockExecSync.mock.calls.map((c) => c[0] as string);
     expect(calls[0]).toBe('git status --porcelain');
@@ -46,25 +46,25 @@ describe('runAthenaUpdate', () => {
     expect(result.ok).toBe(true);
   });
 
-  it('skips pm2 restart when noRestart is set', () => {
-    const result = runAthenaUpdate({ cwd: '/repo', noRestart: true });
+  it('skips pm2 restart when noRestart is set', async () => {
+    const result = await runAthenaUpdate({ cwd: '/repo', noRestart: true });
     expect(mockSpawn).not.toHaveBeenCalled();
     expect(result.ok).toBe(true);
   });
 
-  it('reports ok=false and continues when npm install fails', () => {
+  it('reports ok=false and continues when npm install fails', async () => {
     mockExecSync
       .mockImplementationOnce(() => '') // clean
       .mockImplementationOnce(() => '') // pull
       .mockImplementationOnce(() => { throw new Error('install failed'); }); // npm install
-    const result = runAthenaUpdate({ cwd: '/repo' });
+    const result = await runAthenaUpdate({ cwd: '/repo' });
 
     const calls = mockExecSync.mock.calls.map((c) => c[0] as string);
     expect(calls).toContain('npm run build'); // build still attempted
     expect(result.ok).toBe(false);
   });
 
-  it('continues past a failed stash pop (conflict tolerated)', () => {
+  it('continues past a failed stash pop (conflict tolerated)', async () => {
     mockExecSync
       .mockImplementationOnce(() => ' M src/x.ts') // dirty
       .mockImplementationOnce(() => '') // stash push ok
@@ -72,7 +72,7 @@ describe('runAthenaUpdate', () => {
       .mockImplementationOnce(() => { throw new Error('conflict'); }) // stash pop fails
       .mockImplementationOnce(() => '') // npm install
       .mockImplementationOnce(() => ''); // build
-    const result = runAthenaUpdate({ cwd: '/repo' });
+    const result = await runAthenaUpdate({ cwd: '/repo' });
     expect(result.ok).toBe(true); // pop failure is tolerated
   });
 });

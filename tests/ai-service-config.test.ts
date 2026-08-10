@@ -15,7 +15,7 @@ describe('AIService per-key config', () => {
     vi.stubEnv('AI_KEY_2_MODEL_NAME', 'deepseek-v4-flash');
     const cfg = new AIService().getConfig();
     expect(cfg.keyConfigs.length).toBe(2);
-    expect(cfg.keyConfigs[0]).toMatchObject({ provider: 'zai', baseUrl: 'https://api.z.ai/api/coding/paas/v4', modelName: 'glm-4.7' });
+    expect(cfg.keyConfigs[0]).toMatchObject({ provider: 'zai', baseUrl: 'https://api.z.ai/api/paas/v4', modelName: 'glm-4.7' });
     expect(cfg.keyConfigs[1]).toMatchObject({ provider: 'opencode', baseUrl: 'https://opencode.ai/zen/go/v1', modelName: 'deepseek-v4-flash' });
   });
 

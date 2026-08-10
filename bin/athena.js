@@ -2,12 +2,14 @@
 
 import { spawn } from 'child_process';
 import path from 'path';
-import fileURLToPath from 'url';
+import { fileURLToPath } from 'url';
 
 const args = process.argv.slice(2);
 const subCommand = (args[0] || 'run').toLowerCase();
 
-const rootDir = process.cwd();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const rootDir = path.resolve(__dirname, '..');
 
 console.log(`
                    /\\
@@ -42,10 +44,11 @@ switch (subCommand) {
     runCommand('npx', ['tsx', 'watch', 'src/index.ts']);
     break;
 
+  case 'onboard':
   case 'wizard':
   case 'setup':
   case 'config':
-    console.log('🧙‍♂️ Launching Athena Interactive Setup Wizard...\n');
+    console.log('🧙‍♂️ Launching Athena Interactive Onboarding Wizard...\n');
     runCommand('node', ['scripts/wizard.js']);
     break;
 
@@ -82,20 +85,29 @@ switch (subCommand) {
     runCommand('npx', ['tsx', 'src/cli/doctor.ts']);
     break;
 
+  case 'uninstall':
+  case 'purge':
+  case 'clean-all':
+    console.log('🧹 Launching Athena Clean Uninstaller...\n');
+    runCommand('node', ['scripts/uninstall.mjs', ...args.slice(1)]);
+    break;
+
   case 'help':
   case '--help':
   case '-h':
   default:
     console.log(`
-🏛️ ATHENA CLI COMMAND CHEATSHEET:
+🏛️ ATHENA CLI — PARTHENON COMMAND CHEATSHEET:
 
-  athena run (or athena)     - Launch Athena Multi-Agent Engine (Development / Live Bot)
-  athena wizard (or setup)   - Launch Interactive Configuration Wizard for .env & Tokens
-  athena terminal (or tui)   - Launch Parthenon Interactive Terminal TUI
-  athena deploy              - Deploy 24/7 Background Daemon via PM2 Process Manager
-  athena test                - Run Automated Unit Test Suite (12/12 Core Modules)
-  athena build               - Compile TypeScript Codebase into /dist
-  athena update              - Pull Latest Git Updates, Install, & Re-build
+  athena run (or athena)     - Launch Athena (dev / live bot)
+  athena onboard (or wizard) - Parthenon onboarding wizard (.env + providers + backups)
+  athena terminal (or tui)   - Open the Parthenon command-center TUI
+  athena deploy              - ⛰️ Olympian: deploy 24/7 via PM2 (Mount Olympus)
+  athena update              - ⛰️ Olympian: git pull + install + rebuild + notify (Telegram/Discord)
+  athena uninstall (or purge)- 🧹 Parthenon clean uninstaller (reset state & PM2)
+  athena doctor              - ⛰️ Olympian: run the diagnostic doctor
+  athena test                - Run the Vitest suite
+  athena build               - Compile TypeScript into /dist
 `);
     break;
 }

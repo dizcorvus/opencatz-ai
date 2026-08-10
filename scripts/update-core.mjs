@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /**
  * Athena self-update core — single source of truth for both entry points:
  *   - CLI: `athena update` (bin/athena.js -> npm run update)
@@ -24,7 +23,7 @@ const SELF_DIR = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(SELF_DIR, '..');
 const EXEC_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes per step (npm install can be slow)
 
-export function runAthenaUpdate({ noRestart = false, cwd = REPO_ROOT } = {}) {
+export async function runAthenaUpdate({ noRestart = false, cwd = REPO_ROOT } = {}) {
   const log = [];
   const step = (label, command, { ignore = false } = {}) => {
     console.log(`\n▶ ${label}`);
@@ -77,14 +76,15 @@ export function runAthenaUpdate({ noRestart = false, cwd = REPO_ROOT } = {}) {
 
   const allOk = pullOk && installOk && buildOk;
 
+  // 5b. Olympian notifications (Telegram + Discord webhook) — non-fatal
+  try {
+    const { notifyUpdate } = await import('./notify-update.mjs');
+    await notifyUpdate({ ok: allOk, restartOk: null, steps: log, noRestart });
+  } catch (err) {
+    console.warn(`⚠ Deploy notification failed (non-fatal): ${err.message}`);
+  }
+
   // 6. Restart pm2 (unless --no-restart)
-  // Important: the restart runs DETACHED + delayed (separate process). If
-  // executed synchronously from inside the bot process, pm2 would kill the
-  // bot process mid-execSync, the restart is "reported" as
-  // failed even though it actually succeeded (bot online). Detached + unref
-  // lets the restart run independently in the pm2 daemon without killing the
-  // update process first. The 3s delay gives the update process time to write
-  // the report and return before pm2 restart stops this process.
   let restartOk = true;
   if (!noRestart) {
     console.log('\n▶ Restart PM2 agent (detached — the update process is not killed by itself)');
@@ -95,8 +95,6 @@ export function runAthenaUpdate({ noRestart = false, cwd = REPO_ROOT } = {}) {
         stdio: 'ignore',
         cwd,
       });
-      // spawn errors are async events — without this handler the process could crash
-      // (e.g. on Windows without `sh`). A Linux VPS always has `sh`.
       child.on('error', (err) => {
         restartOk = false;
         console.warn(`⚠ Gagal spawn restart: ${err.message}`);
@@ -113,8 +111,6 @@ export function runAthenaUpdate({ noRestart = false, cwd = REPO_ROOT } = {}) {
     console.log('\n⏭ Skip pm2 restart (--no-restart).');
   }
 
-  // Write the report to a file so the new process (after restart) can
-  // send the update report to Discord — the restart kills the old process.
   try {
     const reportPath = path.join(REPO_ROOT, 'database', 'last_update_report.json');
     fs.mkdirSync(path.dirname(reportPath), { recursive: true });
@@ -137,10 +133,9 @@ export function runAthenaUpdate({ noRestart = false, cwd = REPO_ROOT } = {}) {
   return { ok: allOk, restartOk, log };
 }
 
-// CLI entry: only runs when executed directly (not when imported)
 const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 if (isMain) {
   const noRestart = process.argv.includes('--no-restart');
-  const result = runAthenaUpdate({ noRestart });
+  const result = await runAthenaUpdate({ noRestart });
   process.exit(result.ok ? 0 : 1);
 }

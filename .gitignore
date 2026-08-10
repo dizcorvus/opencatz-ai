@@ -27,6 +27,10 @@ prisma/dev.db
 
 # Strategy Engine runtime state
 strategies/.active.json
+strategies/*-custom.mjs
+strategies/custom-strategy-prompt.txt
+strategies/.backup/
+indicators/.backup/
 
 # Logs & Diagnostics
 logs/
@@ -35,11 +39,6 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pino.log
-
-# Runtime state
-strategies/.active.json
-strategies/.backup/
-indicators/.backup/
 
 # IDE & OS Files
 .DS_Store
@@ -51,7 +50,6 @@ Thumbs.db
 docs/superpowers/
 .brain/
 .superpowers/
-
 
 nft-scanner-test.json
 database/nft-scanner-test.json

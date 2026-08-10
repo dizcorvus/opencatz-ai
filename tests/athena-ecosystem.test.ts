@@ -342,7 +342,7 @@ describe('🏛️ ATHENA MULTI-AGENT SYSTEM TEST SUITE', () => {
     const bal = await ws.getEvmBalance(1);
     expect(bal.symbol).toBe('ETH');
     expect(typeof bal.balance).toBe('number');
-  });
+  }, 15000);
 
   it('17. Solana Adapter Direct Execution: realistic dry-run via real Jupiter quote', async () => {
     const { SolanaTradeAdapter } = await import('../src/adapters/solana-adapter.js');
