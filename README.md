@@ -134,7 +134,7 @@ Athena is engineered with an asynchronous Node.js Event Loop architecture and lo
 Copy and paste this single block into your PowerShell or CMD terminal:
 
 ```powershell
-git clone https://github.com/dizcorvus/Athena.git
+git clone https://github.com/dizcorvus/athena-ai-multichain.git
 cd Athena
 .\setup.bat
 ```
@@ -143,7 +143,7 @@ cd Athena
 Copy and paste this single block into your bash terminal:
 
 ```bash
-git clone https://github.com/dizcorvus/Athena.git
+git clone https://github.com/dizcorvus/athena-ai-multichain.git
 cd Athena
 bash deploy.sh
 ```
@@ -156,7 +156,7 @@ If you prefer to execute commands step-by-step manually, copy and paste each com
 
 #### Step 1: Clone Repository & Install Dependencies
 ```bash
-git clone https://github.com/dizcorvus/Athena.git
+git clone https://github.com/dizcorvus/athena-ai-multichain.git
 cd Athena
 npm install
 npm link
