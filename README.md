@@ -1,13 +1,13 @@
 # 🐾 OPENCATZ AI — Multichain Edition (Catz NFT Exclusive)
 
 ```
-       /\_____/\
-      /  ■   ■  \       🐾 OPENCATZ AI (MULTICHAIN EDITION) 🐾
-     ( ==  ^  == )      Autonomous Multi-Agent Crypto Intelligence Swarm
-       )    ~    (       Solana • Robinhood Chain • Base • ETH • BNB Chain • Perps • NFTs
-      (   _____   )      "Chill trades, 9 lives, razor-sharp on-chain instincts."
-    ( (  )   (  ) )
-   (__(__)___(__)__)
+      /\_____/\
+     /  ■   ■  \       🐾 OPENCATZ AI (MULTICHAIN EDITION) 🐾
+    ( ==  ^  == )      Autonomous Multi-Agent Crypto Intelligence Swarm
+     )    ~    (       Solana • Robinhood Chain • Base • ETH • BNB Chain • Perps • NFTs
+    (   _____   )      "Chill trades, 9 lives, razor-sharp on-chain instincts."
+   ( (  )   (  ) )
+  (__(__)___(__)__)
 ```
 
 [![Domain](https://img.shields.io/badge/Domain-opencatz.xyz-brightgreen.svg)](https://opencatz.xyz)

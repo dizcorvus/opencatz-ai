@@ -69,13 +69,13 @@ Opencatz AI UI components utilize a standardized retro palette across Discord em
 ### Swag Sunglasses OpenCatz (Command Center & Oracle)
 
 ```text
-       /\_____/\
-      /  ■   ■  \      🕶️ OPENCATZ AI · MULTICHAIN COMMAND CENTER 🕶️
-     ( ==  ^  == )     3-Layer Swarm Consensus & Precision Execution
-      )    ~    (      Solana • Robinhood Chain • EVM • Perps • NFTs
-     (   _____   )     Cat Den 24/7 Agent Daemon Active
-    ( (  )   (  ) )
-   (__(__)___(__)__)
+      /\_____/\
+     /  ■   ■  \       🕶️ OPENCATZ AI · MULTICHAIN COMMAND CENTER 🕶️
+    ( ==  ^  == )      3-Layer Swarm Consensus & Precision Execution
+     )    ~    (       Solana • Robinhood Chain • Base • ETH • BNB • Perps • NFTs
+    (   _____   )      Cat Den 24/7 Agent Daemon Active
+   ( (  )   (  ) )
+  (__(__)___(__)__)
 ```
 
 ---
