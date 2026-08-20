@@ -6,11 +6,14 @@ export async function runAthenaDoctor(): Promise<void> {
   console.log('🩺 OPENCATZ AI MULTICHAIN DOCTOR & DIAGNOSTICS');
   console.log('======================================================\n');
 
-  // 1. Check API Keys Configuration
+  // 1. Check API Keys Configuration & Pools
   console.log('🔑 1. API KEYS CONFIGURATION AUDIT:');
+  const gmgnPool = (await import('../services/api-key-pool.js')).loadApiKeyPool('GMGN_API_KEY');
+  const aiPool = (await import('../services/api-key-pool.js')).loadApiKeyPool('AI_API_KEY');
+
   const envKeys = [
-    { name: 'AI_API_KEY / AI_API_KEYS', val: process.env.AI_API_KEYS || process.env.AI_API_KEY, required: true },
-    { name: 'GMGN_API_KEY', val: process.env.GMGN_API_KEY, required: false },
+    { name: 'AI_API_KEY / POOL', val: aiPool.get(), count: aiPool.size, required: true },
+    { name: 'GMGN_API_KEYS (Pool)', val: gmgnPool.get(), count: gmgnPool.size, required: false },
     { name: 'OPENSEA_API_KEY', val: process.env.OPENSEA_API_KEY, required: false },
     { name: 'TWEX_API_KEY', val: process.env.TWEX_API_KEY || process.env.TWITTER_BEARER_TOKEN, required: false },
     { name: 'GOPLUS_API_KEY', val: process.env.GOPLUS_API_KEY, required: false },
@@ -20,7 +23,8 @@ export async function runAthenaDoctor(): Promise<void> {
 
   for (const k of envKeys) {
     const isSet = Boolean(k.val);
-    const symbol = isSet ? '🟢 CONFIGURED' : k.required ? '🔴 MISSING (REQUIRED)' : '⚪ UNSET (OPTIONAL)';
+    const countInfo = (k as any).count && (k as any).count > 1 ? ` [${(k as any).count} keys in pool]` : '';
+    const symbol = isSet ? `🟢 CONFIGURED${countInfo}` : k.required ? '🔴 MISSING (REQUIRED)' : '⚪ UNSET (OPTIONAL)';
     const hint = isSet ? `(${k.val!.slice(0, 10)}...)` : '';
     console.log(`   • ${k.name.padEnd(28)}: ${symbol} ${hint}`);
   }

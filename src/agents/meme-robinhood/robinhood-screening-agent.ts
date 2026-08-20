@@ -1,4 +1,4 @@
-import { GMGNAdapter, GMGNRawToken } from '../../adapters/gmgn-adapter.js';
+import { GMGNAdapter, GMGNRawToken, SolChain } from '../../adapters/gmgn-adapter.js';
 import { globalPriceFeedService } from '../../services/price-feed-service.js';
 import { StrategyEngine } from '../../orchestrator/strategy-engine.js';
 import type { ScreeningAgent, AgentReport, CallCardPayload } from '../shared/agent-contract.js';
@@ -13,6 +13,7 @@ export interface RobinhoodSignal {
 }
 
 export interface RobinhoodScreeningConfig {
+  chains: SolChain[];        // ['robinhood', 'base', 'eth', 'bsc'] — EVM Meme Multi-Chain screening
   minVolume1hUsd: number;    // 50000 — real 1-HOUR volume (token must be active RIGHT NOW)
   minLiquidityUsd: number;   // 10000
   minMarketCapUsd: number;   // 100000 — required to be above $100k (MC 0/unknown = reject)
@@ -33,6 +34,7 @@ export interface RobinhoodScreeningConfig {
 }
 
 const DEFAULT_CONFIG: RobinhoodScreeningConfig = {
+  chains: ['robinhood', 'base', 'eth', 'bsc'],
   minVolume1hUsd: 50000,
   minLiquidityUsd: 10000,
   minMarketCapUsd: 100000,
@@ -62,9 +64,7 @@ export class RobinhoodScreeningAgent implements ScreeningAgent<RobinhoodSignal> 
   private dedupeTokens = createDedupe();
 
   constructor(config?: Partial<RobinhoodScreeningConfig>) {
-    // Separate GMGN key for robinhood (per-key rate limit): fallback to
-    // GMGN_API_KEY when GMGN_API_KEY_ROBINHOOD is not yet set.
-    this.gmgn = new GMGNAdapter(process.env.GMGN_API_KEY_ROBINHOOD || process.env.GMGN_API_KEY);
+    this.gmgn = new GMGNAdapter();
     this.strategyEngine = new StrategyEngine();
     this.config = { ...DEFAULT_CONFIG, ...config };
   }
@@ -75,9 +75,17 @@ export class RobinhoodScreeningAgent implements ScreeningAgent<RobinhoodSignal> 
    */
   public updateConfig(partial: Record<string, unknown>): { applied: Record<string, unknown>; rejected: string[] } {
     const { applied, rejected } = validateMemeConfigUpdate(partial);
+    if (Array.isArray(partial.chains)) {
+      const validChains = partial.chains.filter((c): c is SolChain => ['robinhood', 'base', 'eth', 'bsc', 'sol'].includes(c as any));
+      if (validChains.length > 0) {
+        applied.chains = validChains;
+      } else {
+        rejected.push('chains: must be an array of valid chains (e.g. ["robinhood", "base", "eth", "bsc"])');
+      }
+    }
     this.config = { ...this.config, ...applied };
     if (Object.keys(applied).length > 0) {
-      console.log(`[ROBINHOOD AGENT] Config updated: ${JSON.stringify(applied)}`);
+      console.log(`[EVM MEME AGENT] Config updated: ${JSON.stringify(applied)}`);
     }
     return { applied, rejected };
   }
@@ -87,83 +95,102 @@ export class RobinhoodScreeningAgent implements ScreeningAgent<RobinhoodSignal> 
   }
 
   /**
-   * 3 data sources, all focused on GRADUATED tokens (already on DEX, not
-   * bonding curve) with a 1H timeframe:
+   * Collect candidates across all configured EVM chains (Robinhood, Base, ETH, BSC):
    * 1. Trending rank (interval 1h, is_out_market filter) — tokens currently rising
    * 2. Trenches completed — just finished bonding curve -> DEX
    * 3. Hot searches (migrated) — most-searched tokens
-   * NOTE: token_signal (smart-money/KOL/CTO events) dropped: GMGN never fills
-   * volume/swaps in robinhood events & all its fees are < $100 — that source
-   * always dies at the volume/fee gate (investigated 2026-08-08).
    */
   public async collectCandidates(): Promise<GMGNRawToken[]> {
-    const [rank, trenches, hotSearches] = await Promise.all([
-      this.gmgn.fetchRank('robinhood', {
-        interval: '1h',
-        limit: this.config.rankLimit,
-        filters: ['not_honeypot', 'verified', 'renounced', 'is_out_market'],
-      }),
-      this.gmgn.fetchTrenches('robinhood', {
-        types: ['completed'],
-        limit: this.config.trenchesLimit,
-        filters: { max_rug_ratio: 0.3, max_insider_ratio: 0.3 },
-      }),
-      this.gmgn.fetchHotSearches({ chain: 'robinhood', interval: '1h', limit: this.config.hotSearchesLimit, filters: ['migrated', 'not_honeypot', 'verified', 'renounced'] }),
-    ]);
+    const allChainCandidates = await Promise.all(
+      this.config.chains.map(async (chain) => {
+        try {
+          const [rank, trenches, hotSearches] = await Promise.all([
+            this.gmgn.fetchRank(chain, {
+              interval: '1h',
+              limit: Math.min(this.config.rankLimit, 60),
+              filters: ['not_honeypot', 'verified', 'renounced', 'is_out_market'],
+            }),
+            this.gmgn.fetchTrenches(chain, {
+              types: ['completed'],
+              limit: Math.min(this.config.trenchesLimit, 50),
+              filters: { max_rug_ratio: 0.3, max_insider_ratio: 0.3 },
+            }),
+            this.gmgn.fetchHotSearches({
+              chain,
+              interval: '1h',
+              limit: Math.min(this.config.hotSearchesLimit, 60),
+              filters: ['migrated', 'not_honeypot', 'verified', 'renounced'],
+            }),
+          ]);
 
-    const candidates = [
-      ...rank,
-      ...trenches.completed,
-      ...hotSearches,
-    ];
+          return [...rank, ...trenches.completed, ...hotSearches];
+        } catch (err: any) {
+          console.warn(`[EVM MEME AGENT] Failed to fetch candidates for chain ${chain}: ${err.message}`);
+          return [];
+        }
+      })
+    );
+
+    const candidates = allChainCandidates.flat();
     return this.dedupeTokens.dedupe(candidates);
   }
 
   /**
-   * Signal booster map (analytical overlay, NOT a candidate source): GMGN
-   * token_signal never fills volume/swaps (any chain), so its events are used
-   * to boost confidence on tokens that already pass rank/trenches/hot gates.
+   * Signal booster map across all configured chains (analytical overlay):
    * Fail-open: any error -> empty map, screening proceeds unchanged.
    */
   public async collectSignalBoostMap(): Promise<SignalBoostMap> {
     try {
-      const events = await this.gmgn.fetchTokenSignals('robinhood', this.config.signalTypes);
-      return buildSignalBoostMap(events);
+      const allEvents = await Promise.all(
+        this.config.chains.map(async (chain) => {
+          try {
+            return await this.gmgn.fetchTokenSignals(chain, this.config.signalTypes);
+          } catch {
+            return [];
+          }
+        })
+      );
+      return buildSignalBoostMap(allEvents.flat());
     } catch (err: any) {
-      console.warn(`[ROBINHOOD AGENT] Signal booster failed (skipped): ${err.message}`);
+      console.warn(`[EVM MEME AGENT] Signal booster failed (skipped): ${err.message}`);
       return new Map();
     }
   }
 
-   /**
-    * Smart-money/KOL trade feed per token (accumulation) — analytical overlay:
-    * additional candidates (strong accumulation) + cluster boost + card label.
-    * Fail-open: error → empty map, screening proceeds as usual.
-    */
+  /**
+   * Smart-money/KOL trade feed per token (accumulation) across all chains:
+   * Fail-open: error → empty map, screening proceeds as usual.
+   */
   public async collectTrackAccumulation(): Promise<Map<string, TrackAccumulation>> {
     if (!this.config.trackFeedEnabled) return new Map();
     try {
-      const [sm, kol] = await Promise.all([
-        this.gmgn.fetchTrackTrades('robinhood', 'smartmoney'),
-        this.gmgn.fetchTrackTrades('robinhood', 'kol'),
-      ]);
-      const acc = buildTrackAccumulation([...sm, ...kol]);
-      if (acc.size > 0) console.log(`[ROBINHOOD AGENT] Track feed: ${acc.size} tokens with smart-money/KOL activity.`);
+      const allTrades = await Promise.all(
+        this.config.chains.map(async (chain) => {
+          try {
+            const [sm, kol] = await Promise.all([
+              this.gmgn.fetchTrackTrades(chain, 'smartmoney').catch(() => []),
+              this.gmgn.fetchTrackTrades(chain, 'kol').catch(() => []),
+            ]);
+            return [...sm, ...kol];
+          } catch {
+            return [];
+          }
+        })
+      );
+      const acc = buildTrackAccumulation(allTrades.flat());
+      if (acc.size > 0) {
+        console.log(`[EVM MEME AGENT] Track feed: ${acc.size} tokens with smart-money/KOL activity across [${this.config.chains.join(', ')}].`);
+      }
       return acc;
     } catch (err: any) {
-      console.warn(`[ROBINHOOD AGENT] Track feed failed (skipped): ${err.message}`);
+      console.warn(`[EVM MEME AGENT] Track feed failed (skipped): ${err.message}`);
       return new Map();
     }
   }
 
-   /**
-    * Additional candidates from the track feed (BOOSTER, not a replacement):
-    * tokens newly accumulated by smart money (>= minTrackWallets buying
-    * wallets, total >= minTrackBuyUsd, fresh <= trackFreshMinutes) but not yet
-    * appearing in rank/trenches/hot. Full data fetched via fetchTokenInfo —
-    * still goes through ALL pipeline gates (graduated, preFilter, audit,
-    * detect, strategy, 80).
-    */
+  /**
+   * Additional candidates from the track feed across chains:
+   */
   public async collectTrackCandidates(acc: Map<string, TrackAccumulation>): Promise<GMGNRawToken[]> {
     if (!this.config.trackFeedEnabled || acc.size === 0) return [];
     const nowSec = Date.now() / 1000;
@@ -172,13 +199,18 @@ export class RobinhoodScreeningAgent implements ScreeningAgent<RobinhoodSignal> 
       if (a.buyWalletCount < this.config.minTrackWallets) continue;
       if (a.totalBuyUsd < this.config.minTrackBuyUsd) continue;
       if (nowSec - a.lastBuyAt > this.config.trackFreshMinutes * 60) continue;
-      try {
-        const info = await this.gmgn.fetchTokenInfo('robinhood', a.address);
-        if (info) out.push(info);
-      } catch { /* this token is skipped — it does not affect the others */ }
+      for (const chain of this.config.chains) {
+        try {
+          const info = await this.gmgn.fetchTokenInfo(chain, a.address);
+          if (info) {
+            out.push(info);
+            break;
+          }
+        } catch { /* try next chain */ }
+      }
     }
     if (out.length > 0) {
-      console.log(`[ROBINHOOD AGENT] New track candidates: ${out.length} tokens (smart-money accumulation, passed threshold).`);
+      console.log(`[EVM MEME AGENT] New track candidates: ${out.length} tokens (smart-money accumulation, passed threshold).`);
     }
     return out;
   }
@@ -193,7 +225,7 @@ export class RobinhoodScreeningAgent implements ScreeningAgent<RobinhoodSignal> 
     return detectMemeSignal(t);
   }
 
-  /** Build call-card payload from real data (or 'N/A') */
+  /** Build call-card payload with exact chain parameters and verification links */
   public buildPayload(t: GMGNRawToken, confidence: number, thesis: string, trackLabel?: string): CallCardPayload {
     const ageHours = t.creationTimestamp !== null ? (Date.now()/1000 - t.creationTimestamp)/3600 : null;
     const total = t.buys + t.sells;
@@ -206,92 +238,106 @@ export class RobinhoodScreeningAgent implements ScreeningAgent<RobinhoodSignal> 
       ? `🧠 **Smart Money:** ${trackLabel}`
       : `🧠 **Smart Traders:** ${t.smartDegenCount} wallets (+${t.creatorClose ? 'dev closed' : 'monitoring'})`;
 
+    const chainNameMap: Record<string, { label: string; chainId: number; dexscreenerChain: string }> = {
+      robinhood: { label: 'Robinhood Chain', chainId: 4663, dexscreenerChain: 'robinhood' },
+      base: { label: 'Base L2', chainId: 8453, dexscreenerChain: 'base' },
+      eth: { label: 'Ethereum Mainnet', chainId: 1, dexscreenerChain: 'ethereum' },
+      bsc: { label: 'BNB Chain (BSC)', chainId: 56, dexscreenerChain: 'bsc' },
+      sol: { label: 'Solana', chainId: 0, dexscreenerChain: 'solana' },
+    };
+    const cMeta = chainNameMap[t.chain] || { label: t.chain.toUpperCase(), chainId: 1, dexscreenerChain: t.chain };
+
     return {
       domain: 'MEME_EVM',
       title: `${t.name} (${t.symbol})`,
       symbol: t.symbol,
       contractAddress: t.address,
-      network: 'Robinhood',
+      network: cMeta.label,
       tokenAge: ageHours !== null ? `${ageHours.toFixed(1)}h` : 'N/A',
       priceUsd: t.priceUsd > 0 ? `$${t.priceUsd}` : 'N/A',
       marketCap: t.marketCapUsd > 0 ? `$${(t.marketCapUsd/1000).toFixed(1)}k` : 'N/A',
       liquidity: t.liquidityUsd > 0 ? `$${(t.liquidityUsd/1000).toFixed(1)}k` : 'N/A',
-      // Honest card: we have no real 5m/1h volume breakdown — price-change data lives in reasons/thesis
       volume5m: 'N/A',
       volume1h: 'N/A',
       volume24h: (() => { const v = volume24hOf(t); return v > 0 ? `$${(v/1000).toFixed(1)}k` : 'N/A'; })(),
       txRatio,
       top10Pct: top10Str,
       devHoldingPct: devStr,
-      sniperPct: 'N/A', // not exposed by rank; keep honest
+      sniperPct: 'N/A',
       bundlerPct: bundlerStr,
       dexPaidStatus: t.dexscrBoostFee > 0 ? `✅ $${t.dexscrBoostFee} boost` : (t.dexscrAd ? '✅ DexScreener ad' : 'None'),
       smartMoneyInfo: smStr,
       confidenceScore: confidence,
       securityScore: rugStr,
       aiThesis: thesis,
-      gmgnUrl: `https://gmgn.ai/robinhood/token/${t.address}`,
-      dexScreenerUrl: `https://dexscreener.com/robinhood/${t.address}`,
-      rugcheckUrl: `https://gopluslabs.io/token-security/4663/${t.address}`,
-      securityAuditPassed: true, // security audit via GMGN in preFilter (rug/honeypot/tax/insider/bundler/top10)
+      gmgnUrl: `https://gmgn.ai/${t.chain}/token/${t.address}`,
+      dexScreenerUrl: `https://dexscreener.com/${cMeta.dexscreenerChain}/${t.address}`,
+      rugcheckUrl: `https://gopluslabs.io/token-security/${cMeta.chainId}/${t.address}`,
+      securityAuditPassed: true,
       socialHypeScore: confidence,
       liquidityUsd: t.liquidityUsd,
       volume1hUsd: t.volume1hUsd > 0 ? t.volume1hUsd : volume24hOf(t) / 24,
     };
   }
 
-  /** Full pass: collect -> prefilter (audit GMGN) -> detect -> report */
+  /** Full pass: collect across all chains -> prefilter -> audit -> detect -> report */
   public async runScreeningPass(): Promise<AgentReport<RobinhoodSignal>[]> {
-    console.log('[ROBINHOOD AGENT] Screening pass started (GMGN OpenAPI)...');
+    console.log(`[EVM MEME AGENT] Multi-chain screening pass started for [${this.config.chains.join(', ')}] (GMGN OpenAPI)...`);
     const reports: AgentReport<RobinhoodSignal>[] = [];
 
-    // 0. Live native price (ETH) — needed once per pass to convert total fees to USD (cached 60s)
-    let nativePriceUsd: number | null = null;
+    // 0. Fetch live native prices (ETH, BNB) for accurate multi-chain fee conversions
+    let ethPrice: number | null = null;
+    let bnbPrice: number | null = null;
     try {
-      nativePriceUsd = await this.priceFeed.getPrice('ETH');
-      console.log(`[ROBINHOOD AGENT] ETH price: ${nativePriceUsd !== null ? '$' + nativePriceUsd.toFixed(2) : 'UNAVAILABLE (fee gate will reject all)'}`);
+      [ethPrice, bnbPrice] = await Promise.all([
+        this.priceFeed.getPrice('ETH').catch(() => null),
+        this.priceFeed.getPrice('BNB').catch(() => null),
+      ]);
+      console.log(`[EVM MEME AGENT] Native prices: ETH = ${ethPrice ? '$' + ethPrice.toFixed(2) : 'N/A'} | BNB = ${bnbPrice ? '$' + bnbPrice.toFixed(2) : 'N/A'}`);
     } catch (err: any) {
-      console.warn(`[ROBINHOOD AGENT] Failed to fetch ETH price: ${err.message}`);
+      console.warn(`[EVM MEME AGENT] Failed to fetch native prices: ${err.message}`);
     }
 
-    // 1. Collect candidates from 3 sources + signal booster overlay + track feed
+    // 1. Collect candidates across all chains + signal booster + track feed
     const [candidates, signalBoostMap, trackAcc] = await Promise.all([
       this.collectCandidates(),
       this.collectSignalBoostMap(),
       this.collectTrackAccumulation(),
     ]);
     const trackCandidates = await this.collectTrackCandidates(trackAcc);
-    // Merge by address (candidates already deduped in collectCandidates; this
-    // merge must not hit the 60s dedupe cooldown — plain by-address dedupe only).
+
+    // Merge by address
     const merged = new Map<string, GMGNRawToken>();
     for (const t of [...candidates, ...trackCandidates]) merged.set(t.address.toLowerCase(), t);
     const allCandidates = [...merged.values()];
     if (signalBoostMap.size > 0) {
-      console.log(`[ROBINHOOD AGENT] Signal overlay: ${signalBoostMap.size} tokens with smart-money/KOL/CTO events.`);
+      console.log(`[EVM MEME AGENT] Signal overlay: ${signalBoostMap.size} tokens with smart-money/KOL/CTO events.`);
     }
 
-    // 2. Pre-filter (cheap, termasuk audit GMGN) then detect
+    // 2. Pre-filter & detect
     for (const t of allCandidates) {
-      // Graduated-only: reject tokens still on the bonding curve (exchange='pump')
+      // Graduated-only: reject tokens still on bonding curves
       if (!isGraduatedToken(t)) {
-        console.log(`[ROBINHOOD AGENT] ⛔ ${t.symbol}: not yet graduated (bonding curve).`);
+        console.log(`[EVM MEME AGENT] ⛔ [${t.chain.toUpperCase()}] ${t.symbol}: not yet graduated (bonding curve).`);
         continue;
       }
 
+      const nativePriceUsd = t.chain === 'bsc' ? bnbPrice : ethPrice;
       const filter = this.preFilter(t, nativePriceUsd);
-      if (!filter.ok) { console.log(`[ROBINHOOD AGENT] ${filter.reason}`); continue; }
-      // GMGN /v1/token/security audit (fail-closed): honeypot, blacklist,
-      // sell-lock, tax. Per-token audit endpoint — rank data (is_honeypot) is
-      // blind on the robinhood chain, so this dedicated audit is mandatory.
-      const audit = await this.gmgn.fetchTokenSecurity('robinhood', t.address);
+      if (!filter.ok) {
+        console.log(`[EVM MEME AGENT] [${t.chain.toUpperCase()}] ${filter.reason}`);
+        continue;
+      }
+
+      // Security audit per chain (fail-closed)
+      const audit = await this.gmgn.fetchTokenSecurity(t.chain, t.address);
       const sec = securityAuditGate(audit);
       if (!sec.ok) {
-        console.log(`[ROBINHOOD AGENT] ⛔ ${t.symbol}: AUDIT FAIL — ${sec.reasons.join(' ')}`);
+        console.log(`[EVM MEME AGENT] ⛔ [${t.chain.toUpperCase()}] ${t.symbol}: AUDIT FAIL — ${sec.reasons.join(' ')}`);
         continue;
       }
 
       let det = applySignalBoost(this.detectSignal(t), signalBoostMap, t.address);
-      // Smart-money cluster (>= 3 wallets buying the same token, fresh) = boost +20
       const trackEntry = trackAcc.get(t.address.toLowerCase());
       const trackLabel = trackEntry ? trackAccumulationLabel(trackEntry) : undefined;
       if (trackEntry && trackEntry.buyWalletCount >= 3 && det.type !== 'NONE') {
@@ -302,11 +348,11 @@ export class RobinhoodScreeningAgent implements ScreeningAgent<RobinhoodSignal> 
         };
       }
       if (det.type === 'NONE' || det.confidence < this.config.passThreshold) {
-        console.log(`[ROBINHOOD AGENT] ⚪ ${t.symbol}: ${det.type} ${det.confidence}% < ${this.config.passThreshold}% (${det.reasons.join(' | ')})`);
+        console.log(`[EVM MEME AGENT] ⚪ [${t.chain.toUpperCase()}] ${t.symbol}: ${det.type} ${det.confidence}% < ${this.config.passThreshold}% (${det.reasons.join(' | ')})`);
         continue;
       }
 
-      // Strategy extension layer (optional): adjust confidence
+      // Strategy extension layer
       let confidence = det.confidence;
       let strategyReason = '';
       try {
@@ -321,7 +367,7 @@ export class RobinhoodScreeningAgent implements ScreeningAgent<RobinhoodSignal> 
             gmgn: { ...toStrategyGmgn(t), native_price_usd: nativePriceUsd },
           });
           if (ev?.recommendedAction === 'SKIP') {
-            console.log(`[ROBINHOOD AGENT] ⛔ ${t.symbol}: strategy rejected (${ev.reason})`);
+            console.log(`[EVM MEME AGENT] ⛔ [${t.chain.toUpperCase()}] ${t.symbol}: strategy rejected (${ev.reason})`);
             continue;
           }
           if (ev && typeof ev.confidence === 'number') {
@@ -329,11 +375,11 @@ export class RobinhoodScreeningAgent implements ScreeningAgent<RobinhoodSignal> 
             strategyReason = ev.reason || '';
           }
         }
-      } catch (err: any) { console.warn(`[ROBINHOOD AGENT] Strategy failed: ${err.message}`); }
+      } catch (err: any) { console.warn(`[EVM MEME AGENT] Strategy failed: ${err.message}`); }
 
-      // Fail-closed: the 80 gate must hold on the FINAL blended confidence
+      // Fail-closed: require >= passThreshold
       if (confidence < this.config.passThreshold) {
-        console.log(`[ROBINHOOD AGENT] ⚪ ${t.symbol}: ${det.type} ${confidence}% < ${this.config.passThreshold}% (post-strategy)`);
+        console.log(`[EVM MEME AGENT] ⚪ [${t.chain.toUpperCase()}] ${t.symbol}: ${det.type} ${confidence}% < ${this.config.passThreshold}% (post-strategy)`);
         continue;
       }
 
@@ -341,14 +387,13 @@ export class RobinhoodScreeningAgent implements ScreeningAgent<RobinhoodSignal> 
       const payload = this.buildPayload(t, confidence, thesis, trackLabel);
       const signal: RobinhoodSignal = { token: t, signalType: det.type, confidence, reasons: det.reasons };
       reports.push({ passed: true, signal, reason: thesis, confidence, payload });
-      console.log(`[ROBINHOOD AGENT] 🎯 ${det.type} ${t.symbol} ${confidence}%`);
+      console.log(`[EVM MEME AGENT] 🎯 [${t.chain.toUpperCase()}] ${det.type} ${t.symbol} ${confidence}%`);
     }
 
-    console.log(`[ROBINHOOD AGENT] Pass complete. ${reports.length} signals passed.`);
+    console.log(`[EVM MEME AGENT] Pass complete. ${reports.length} signals passed across [${this.config.chains.join(', ')}].`);
     return reports;
   }
 
-  /** Map GMGNRawToken -> snake_case GMGN field contract consumed by strategy .mjs modules */
   public toStrategyGmgn(t: GMGNRawToken): Record<string, unknown> {
     return toStrategyGmgn(t);
   }

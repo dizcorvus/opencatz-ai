@@ -364,4 +364,30 @@ describe('GMGNAdapter (OpenAPI)', () => {
     const adapter = new GMGNAdapter();
     expect(await adapter.fetchTrackTrades('sol', 'kol')).toEqual([]);
   });
+
+  it('rotates to backup API keys when primary key encounters 429 rate limit', async () => {
+    delete process.env.GMGN_API_KEY;
+    process.env.GMGN_API_KEYS = 'key-primary,key-backup';
+    process.env.GMGN_REQUEST_SPACING_MS = '10';
+
+    let attempt = 0;
+    const fetchFn = vi.fn().mockImplementation(async (url: string, opts: any) => {
+      attempt++;
+      if (attempt === 1) {
+        expect(opts.headers['X-APIKEY']).toBe('key-primary');
+        return { ok: false, status: 429, headers: { get: () => '0' }, json: async () => ({ error: 'RATE_LIMITED' }) };
+      }
+      expect(opts.headers['X-APIKEY']).toBe('key-backup');
+      return { ok: true, status: 200, headers: { get: () => null }, json: async () => ({ code: 0, data: { data: { rank: [] } } }) };
+    });
+    vi.stubGlobal('fetch', fetchFn);
+
+    const adapter = new GMGNAdapter();
+    expect(adapter.getKeyCount()).toBe(2);
+
+    const res = await adapter.fetchRank('sol');
+    expect(res).toEqual([]);
+    expect(fetchFn).toHaveBeenCalledTimes(2);
+    delete process.env.GMGN_API_KEYS;
+  });
 });

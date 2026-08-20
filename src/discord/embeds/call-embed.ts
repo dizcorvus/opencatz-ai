@@ -328,15 +328,16 @@ export function buildCallEmbed(payload: CallSignalPayload) {
   }
 
   // ==========================================
-  // DOMAIN 7 & 8: MEME DEX TOKENS (SOLANA & EVM)
+  // DOMAIN 7 & 8: MEME DEX TOKENS (SOLANA & EVM MULTICHAIN)
   // ==========================================
   const isSolana = payload.domain === 'MEME_SOLANA';
   const safeTitle = sanitizeEmbedField(payload.title) || 'Token';
   const safeSymbol = sanitizeEmbedField(payload.symbol, 32) || 'TOKEN';
+  const networkName = payload.network || (isSolana ? 'Solana' : 'EVM');
   embed.setTitle(
     isSolana
       ? `🚀 OPENCATZ SOLANA MEME CALL: ${safeTitle} ($${safeSymbol}) • [${confidenceStr}]`
-      : `🌸 OPENCATZ EVM MEME CALL: ${safeTitle} ($${safeSymbol}) • [${confidenceStr}]`
+      : `🌸 OPENCATZ ${networkName.toUpperCase()} MEME CALL: ${safeTitle} ($${safeSymbol}) • [${confidenceStr}]`
   );
 
   if (payload.contractAddress) {

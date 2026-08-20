@@ -45,5 +45,35 @@ export function createApiKeyPool(baseVar: string, keys: string[]): ApiKeyPool {
 export function loadApiKeyPool(baseVar: string): ApiKeyPool {
   const primary = process.env[baseVar] || '';
   const backups = process.env[`${baseVar}_BACKUP_KEYS`] || process.env[`${baseVar.replace(/_API_KEY$/, '')}_BACKUP_KEYS`] || '';
-  return createApiKeyPool(baseVar, [primary, ...backups.split(',')]);
+  const commaSeparated = process.env[`${baseVar}S`] || process.env[`${baseVar.replace(/_API_KEY$/, '')}_API_KEYS`] || '';
+
+  // Collect indexed backup keys (e.g. GMGN_API_KEY_1, GMGN_API_KEY_2 ... GMGN_API_KEY_10)
+  const indexedKeys: string[] = [];
+  for (let i = 1; i <= 20; i++) {
+    const k1 = process.env[`${baseVar}_${i}`];
+    const k2 = process.env[`${baseVar.replace(/_API_KEY$/, '')}_API_KEY_${i}`];
+    if (k1) indexedKeys.push(k1);
+    if (k2) indexedKeys.push(k2);
+  }
+
+  // Collect chain-specific keys if baseVar relates to GMGN
+  const chainKeys: string[] = [];
+  if (baseVar.includes('GMGN')) {
+    for (const suffix of ['ROBINHOOD', 'SOLANA', 'BASE', 'ETH', 'BSC']) {
+      const k = process.env[`GMGN_API_KEY_${suffix}`];
+      if (k) chainKeys.push(k);
+    }
+  }
+
+  const allRaw = [
+    primary,
+    ...backups.split(','),
+    ...commaSeparated.split(','),
+    ...indexedKeys,
+    ...chainKeys,
+  ];
+
+  // Deduplicate keys preserving order
+  const uniqueKeys = Array.from(new Set(allRaw.map((k) => k.trim()).filter(Boolean)));
+  return createApiKeyPool(baseVar, uniqueKeys);
 }

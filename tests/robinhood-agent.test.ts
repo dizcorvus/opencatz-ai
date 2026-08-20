@@ -131,8 +131,9 @@ describe('RobinhoodScreeningAgent', () => {
 
   it('runScreeningPass returns [] without network', async () => {
     process.env.GMGN_API_KEY = 'test-key';
+    process.env.GMGN_REQUEST_SPACING_MS = '10';
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('no network')));
-    const agent = new RobinhoodScreeningAgent();
+    const agent = new RobinhoodScreeningAgent({ chains: ['robinhood'] });
     const reports = await agent.runScreeningPass();
     expect(Array.isArray(reports)).toBe(true);
     expect(reports.length).toBe(0);
@@ -166,7 +167,7 @@ describe('RobinhoodScreeningAgent', () => {
       data: { data: { rank: [mkWire(healthy)] } },
     };
     const emptyTrenches = { code: 0, data: { new_creation: [], pump: [], near_completion: [], completed: [] } };
-    const priceResponse = { ethereum: { usd: ETH_PRICE, usd_24h_change: 1.5 } };
+    const priceResponse = { ethereum: { usd: ETH_PRICE, usd_24h_change: 1.5 }, binancecoin: { usd: 600, usd_24h_change: 2.0 } };
     const securityResponse = {
       code: 0,
       data: {
@@ -183,11 +184,13 @@ describe('RobinhoodScreeningAgent', () => {
       if (url.includes('openapi.gmgn.ai/v1/market/hot_searches')) return { ok: true, status: 200, headers: { get: () => null }, json: async () => ({ code: 0, data: [{ tokens: [] }] }) };
       if (url.includes('openapi.gmgn.ai/v1/trenches')) return { ok: true, status: 200, headers: { get: () => null }, json: async () => emptyTrenches };
       if (url.includes('openapi.gmgn.ai/v1/token/security')) return { ok: true, status: 200, headers: { get: () => null }, json: async () => securityResponse };
+      if (url.includes('openapi.gmgn.ai/v1/market/token_signal')) return { ok: true, status: 200, headers: { get: () => null }, json: async () => ({ code: 0, data: [] }) };
+      if (url.includes('openapi.gmgn.ai/v1/user/')) return { ok: true, status: 200, headers: { get: () => null }, json: async () => ({ code: 0, data: { history: [] } }) };
       if (url.includes('coingecko')) return { ok: true, status: 200, headers: { get: () => null }, json: async () => priceResponse };
       throw new Error(`unexpected fetch: ${url}`);
     }));
 
-    const agent = new RobinhoodScreeningAgent();
+    const agent = new RobinhoodScreeningAgent({ chains: ['robinhood'] });
     expect(agent.preFilter(healthy, ETH_PRICE).ok).toBe(true); // sanity: GMGN audit gates pass
     const reports = await agent.runScreeningPass();
     expect(reports.length).toBe(1);
@@ -293,5 +296,35 @@ describe('RobinhoodScreeningAgent', () => {
     const agent = new RobinhoodScreeningAgent();
     const map = await agent.collectSignalBoostMap();
     expect(map.size).toBe(0);
+  });
+
+  it('supports multi-chain meme screening configuration across ETH, BNB, BASE, and Robinhood', () => {
+    const agent = new RobinhoodScreeningAgent();
+    expect(agent.getConfig().chains).toEqual(['robinhood', 'base', 'eth', 'bsc']);
+
+    agent.updateConfig({ chains: ['eth', 'bsc'] });
+    expect(agent.getConfig().chains).toEqual(['eth', 'bsc']);
+  });
+
+  it('buildPayload produces chain-aware network names and explorer links', () => {
+    const agent = new RobinhoodScreeningAgent();
+    const ethToken = mkToken({ chain: 'eth', address: '0x123' });
+    const bscToken = mkToken({ chain: 'bsc', address: '0x456' });
+    const baseToken = mkToken({ chain: 'base', address: '0x789' });
+
+    const ethPayload = agent.buildPayload(ethToken, 85, 'ETH thesis');
+    expect(ethPayload.network).toContain('Ethereum');
+    expect(ethPayload.gmgnUrl).toContain('gmgn.ai/eth/token/0x123');
+    expect(ethPayload.rugcheckUrl).toContain('gopluslabs.io/token-security/1/0x123');
+
+    const bscPayload = agent.buildPayload(bscToken, 88, 'BSC thesis');
+    expect(bscPayload.network).toContain('BNB');
+    expect(bscPayload.gmgnUrl).toContain('gmgn.ai/bsc/token/0x456');
+    expect(bscPayload.rugcheckUrl).toContain('gopluslabs.io/token-security/56/0x456');
+
+    const basePayload = agent.buildPayload(baseToken, 90, 'Base thesis');
+    expect(basePayload.network).toContain('Base');
+    expect(basePayload.gmgnUrl).toContain('gmgn.ai/base/token/0x789');
+    expect(basePayload.rugcheckUrl).toContain('gopluslabs.io/token-security/8453/0x789');
   });
 });

@@ -7,6 +7,7 @@ export class PriceFeedService {
   private symbolToGeckoId: Record<string, string> = {
     BTC: 'bitcoin',
     ETH: 'ethereum',
+    BNB: 'binancecoin',
     SOL: 'solana',
     HYPE: 'hyperliquid',
     BONK: 'bonk',

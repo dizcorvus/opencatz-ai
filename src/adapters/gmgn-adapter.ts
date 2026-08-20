@@ -1,4 +1,5 @@
 import crypto from 'node:crypto';
+import { ApiKeyPool, loadApiKeyPool, createApiKeyPool } from '../services/api-key-pool.js';
 
 export type SolChain = 'sol' | 'base' | 'eth' | 'bsc' | 'robinhood';
 export type RankInterval = '1m' | '5m' | '1h' | '6h' | '24h';
@@ -125,7 +126,6 @@ export type GMGNTokenSignal = GMGNRawToken & {
 
 export class GMGNAdapter {
   private baseUrl = 'https://openapi.gmgn.ai';
-  private apiKey?: string;
 
   /** Security audit cache — module-level, shared across ALL adapter instances. */
   private static securityCache = new Map<string, { audit: GMGNSecurityAudit; at: number }>();
@@ -164,8 +164,30 @@ export class GMGNAdapter {
     }
   }
 
-  constructor(apiKey?: string) {
-    this.apiKey = apiKey || process.env.GMGN_API_KEY;
+  private keyPool: ApiKeyPool;
+
+  constructor(apiKeyOrPool?: string | ApiKeyPool) {
+    if (apiKeyOrPool && typeof apiKeyOrPool === 'object' && 'get' in apiKeyOrPool) {
+      this.keyPool = apiKeyOrPool;
+    } else if (typeof apiKeyOrPool === 'string' && apiKeyOrPool.includes(',')) {
+      this.keyPool = createApiKeyPool('GMGN_API_KEY', apiKeyOrPool.split(','));
+    } else if (typeof apiKeyOrPool === 'string' && apiKeyOrPool.trim()) {
+      this.keyPool = createApiKeyPool('GMGN_API_KEY', [apiKeyOrPool]);
+    } else {
+      this.keyPool = loadApiKeyPool('GMGN_API_KEY');
+    }
+  }
+
+  public get apiKey(): string | undefined {
+    return this.keyPool.get();
+  }
+
+  public getKeyPool(): ApiKeyPool {
+    return this.keyPool;
+  }
+
+  public getKeyCount(): number {
+    return this.keyPool.size;
   }
 
   private async gmgnRequest<T>(
@@ -175,9 +197,11 @@ export class GMGNAdapter {
     body?: unknown,
     retries = 1
   ): Promise<T | null> {
-    const key = this.apiKey || process.env.GMGN_API_KEY || '';
-    if (!key) return null;
+    const initialKey = this.keyPool.get();
+    if (!initialKey) return null;
+
     const doRequest = async (attemptsLeft: number): Promise<T | null> => {
+      const currentKey = this.keyPool.get() || initialKey;
       const timestamp = Math.floor(Date.now() / 1000);
       const client_id = crypto.randomUUID();
       const params = new URLSearchParams();
@@ -194,14 +218,20 @@ export class GMGNAdapter {
       try {
         const res = await fetch(url, {
           method,
-          headers: { 'X-APIKEY': key, 'Content-Type': 'application/json', 'User-Agent': 'athena/1.0' },
+          headers: { 'X-APIKEY': currentKey, 'Content-Type': 'application/json', 'User-Agent': 'opencatz/1.0' },
           body: body !== undefined ? JSON.stringify(body) : undefined,
         });
-        if (res.status === 429) {
-          // Polite retry (GMGN docs): read the reset time, wait until reset + buffer,
-          // then retry AT MOST once. Do not spam: each retry during cooldown
-          // extends the ban by 5 seconds (up to 5 minutes). Long bans (>30s) are skipped —
-          // the next scan (5 minutes later) retries.
+
+        if (res.status === 429 || res.status === 401) {
+          // If we have backup keys in pool, rotate immediately and retry
+          if (this.keyPool.size > 1 && attemptsLeft > 0) {
+            const nextKey = this.keyPool.markFailed(`HTTP ${res.status} on ${subPath}`);
+            if (nextKey && nextKey !== currentKey) {
+              console.warn(`[GMGN] Rate limited/auth error (HTTP ${res.status}) on ${subPath}. Rotated to backup key in pool (${this.keyPool.size} keys active). Retrying...`);
+              return doRequest(attemptsLeft - 1);
+            }
+          }
+
           let resetSec = Number(res.headers.get('X-RateLimit-Reset') || 0);
           let banned = false;
           if (!resetSec) {
@@ -220,9 +250,18 @@ export class GMGNAdapter {
           console.warn(`[GMGN] Rate limited${banned ? ' (BANNED)' : ''} — skip ${subPath}, retry on the next pass (~5m).`);
           return null;
         }
-        if (!res.ok) { console.warn(`[GMGN] HTTP ${res.status} for ${subPath}`); return null; }
+
+        if (!res.ok) {
+          console.warn(`[GMGN] HTTP ${res.status} for ${subPath}`);
+          return null;
+        }
+
         const json: any = await res.json();
         if (json && typeof json === 'object' && json.code !== undefined && json.code !== 0) {
+          if ((json.code === 401 || json.code === 429) && this.keyPool.size > 1 && attemptsLeft > 0) {
+            this.keyPool.markFailed(`API code ${json.code} on ${subPath}`);
+            return doRequest(attemptsLeft - 1);
+          }
           console.warn(`[GMGN] API code ${json.code}: ${json.message || json.error || ''}`);
           return null;
         }
