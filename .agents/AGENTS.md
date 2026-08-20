@@ -12,7 +12,10 @@ Welcome to the **Opencatz AI** codebase! This document outlines project conventi
 - **Swarm Consensus Engine:** Evaluates candidate signals through a 3-Layer Filter (Quant & Liquidity, Catalyst & Sentiment, Security Audit) requiring a **>= 80% Confidence Score** before delivering call cards.
 - **Specialist Screening Sub-Agents:** Run 24/7 background screening and post call signals to dedicated Discord channels:
   - `#call-meme-solana` (Solana DEX tokens / Pump.fun / Raydium / Meteora DLMM)
-  - `#call-meme-robinhood` (Robinhood Chain / EVM L1/L2 tokens / Base / Uniswap)
+  - `#call-meme-robinhood` (Robinhood Chain DEX tokens)
+  - `#call-meme-base` (Base L2 DEX tokens & Smart Money Flow)
+  - `#call-meme-eth` (Ethereum Mainnet DEX tokens & Whale Buys)
+  - `#call-meme-bnb` (BNB Chain / BSC DEX tokens)
   - `#call-lp-solana` (Solana Meteora DLMM Concentrated Liquidity Pools)
   - `#call-lp-robinhood` (Robinhood Chain Uniswap V3 Concentrated Liquidity Pools)
   - `#call-whale-tracking` (Hyperliquid L1 institutional positioning & spot flow)

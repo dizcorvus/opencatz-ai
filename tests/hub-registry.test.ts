@@ -191,16 +191,22 @@ describe('AthenaHub registry-driven triggerAgentPass', () => {
     expect((results[0] as any).signal.symbol).toBe('SOL');
   });
 
-  it('aliases "evm" and "base" resolve to meme-robinhood', async () => {
+  it('aliases "robinhood" and "rh" resolve to meme-robinhood', async () => {
     const stub = mkStubAgent('meme-robinhood', [mkReport('PEPE')]);
     const hub = new AthenaHub({ agentFactories: { 'meme-robinhood': () => stub } });
-    expect(await hub.triggerAgentPass('evm')).toHaveLength(1);
-    expect(await hub.triggerAgentPass('base')).toHaveLength(1);
+    expect(await hub.triggerAgentPass('robinhood')).toHaveLength(1);
+    expect(await hub.triggerAgentPass('rh')).toHaveLength(1);
     expect(stub.runScreeningPass).toHaveBeenCalledTimes(2);
   });
 
-  it('all 8 registered domain ids are triggerable via factories', async () => {
-    const ids = ['meme-solana', 'meme-robinhood', 'perps', 'nft', 'prediction', 'ct-alpha', 'lp-solana', 'lp-robinhood'] as const;
+  it('alias "base" resolves to meme-base', async () => {
+    const stub = mkStubAgent('meme-base', [mkReport('BRETT')]);
+    const hub = new AthenaHub({ agentFactories: { 'meme-base': () => stub } });
+    expect(await hub.triggerAgentPass('base')).toHaveLength(1);
+  });
+
+  it('all 11 registered domain ids are triggerable via factories', async () => {
+    const ids = ['meme-solana', 'meme-robinhood', 'meme-base', 'meme-eth', 'meme-bsc', 'perps', 'nft', 'prediction', 'ct-alpha', 'lp-solana', 'lp-robinhood'] as const;
     for (const id of ids) {
       const stub = mkStubAgent(id, [mkReport(id.toUpperCase())]);
       const hub = new AthenaHub({ agentFactories: { [id]: () => stub } });

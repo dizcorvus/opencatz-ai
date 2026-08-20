@@ -147,7 +147,10 @@ const evmTradeAdapter = new EVMTradeAdapter();
 // Apply persisted per-domain screening overrides (set via chat `set_screening_config`)
 const savedScreeningConfigs = stateStore.getScreeningConfigs();
 const solanaScreeningAgent = new SolanaScreeningAgent(savedScreeningConfigs['meme-solana'] as any);
-const robinhoodScreeningAgent = new RobinhoodScreeningAgent(savedScreeningConfigs['meme-robinhood'] as any);
+const robinhoodScreeningAgent = new RobinhoodScreeningAgent({ chains: ['robinhood'], ...(savedScreeningConfigs['meme-robinhood'] as any) });
+const baseScreeningAgent = new RobinhoodScreeningAgent({ chains: ['base'], ...(savedScreeningConfigs['meme-base'] as any) });
+const ethScreeningAgent = new RobinhoodScreeningAgent({ chains: ['eth'], ...(savedScreeningConfigs['meme-eth'] as any) });
+const bscScreeningAgent = new RobinhoodScreeningAgent({ chains: ['bsc'], ...(savedScreeningConfigs['meme-bsc'] as any) });
 const nftScreeningAgent = new NFTScreeningAgent(openseaAdapter);
 const polymarketAgent = new PolymarketAgent(polymarketAdapter);
 
@@ -157,6 +160,9 @@ hub.attachAdapters({ meteoraAdapter });
 hub.attachAgentFactories({
   'meme-solana': () => solanaScreeningAgent,
   'meme-robinhood': () => robinhoodScreeningAgent,
+  'meme-base': () => baseScreeningAgent,
+  'meme-eth': () => ethScreeningAgent,
+  'meme-bsc': () => bscScreeningAgent,
   nft: () => nftScreeningAgent,
   prediction: () => polymarketAgent,
   perps: () => perpsScreeningAgent,
@@ -360,6 +366,36 @@ if (discordToken && clientId) {
         });
         dispatchedPayloads.push(...robinhoodDispatched);
 
+        const baseDispatched = await dispatchDomain({
+          domain: 'meme-base',
+          channelName: 'call-meme-base',
+          isActive: () => hub.isAgentActive('meme-base'),
+          runPass: () => withScreeningTimeout(baseScreeningAgent.runScreeningPass(), 'meme-base'),
+          keyReady: () => apiKeyGuard.checkDomainKeys('meme-base'),
+          onHalt: (domain, msg) => notifyControlRoom(client, `halt:${domain}`, `⚠️ **${domain.toUpperCase()} TIDAK BISA JALAN**\n${msg}`),
+        });
+        dispatchedPayloads.push(...baseDispatched);
+
+        const ethDispatched = await dispatchDomain({
+          domain: 'meme-eth',
+          channelName: 'call-meme-eth',
+          isActive: () => hub.isAgentActive('meme-eth'),
+          runPass: () => withScreeningTimeout(ethScreeningAgent.runScreeningPass(), 'meme-eth'),
+          keyReady: () => apiKeyGuard.checkDomainKeys('meme-eth'),
+          onHalt: (domain, msg) => notifyControlRoom(client, `halt:${domain}`, `⚠️ **${domain.toUpperCase()} TIDAK BISA JALAN**\n${msg}`),
+        });
+        dispatchedPayloads.push(...ethDispatched);
+
+        const bscDispatched = await dispatchDomain({
+          domain: 'meme-bsc',
+          channelName: 'call-meme-bnb',
+          isActive: () => hub.isAgentActive('meme-bsc'),
+          runPass: () => withScreeningTimeout(bscScreeningAgent.runScreeningPass(), 'meme-bsc'),
+          keyReady: () => apiKeyGuard.checkDomainKeys('meme-bsc'),
+          onHalt: (domain, msg) => notifyControlRoom(client, `halt:${domain}`, `⚠️ **${domain.toUpperCase()} TIDAK BISA JALAN**\n${msg}`),
+        });
+        dispatchedPayloads.push(...bscDispatched);
+
         const nftDispatched = await dispatchDomain({
           domain: 'nft',
           channelName: 'call-nft-sniping',
@@ -451,6 +487,9 @@ if (discordToken && clientId) {
           const autoExecDomain: string | undefined =
             item.channelName === 'call-meme-solana' ? 'meme-solana' :
             item.channelName === 'call-meme-robinhood' ? 'meme-robinhood' :
+            item.channelName === 'call-meme-base' ? 'meme-base' :
+            item.channelName === 'call-meme-eth' ? 'meme-eth' :
+            item.channelName === 'call-meme-bnb' ? 'meme-bsc' :
             item.channelName === 'call-whale-tracking' ? 'perps' :
             item.channelName === 'call-prediction-markets' ? 'prediction' :
             undefined;
@@ -476,9 +515,10 @@ if (discordToken && clientId) {
                 if (autoExecDomain === 'meme-solana' && item.payload.contractAddress) {
                   const execRes = await solanaTradeAdapter.executeBuyToken({ outputMint: item.payload.contractAddress, amountSol: autoExec.maxTradeAmount || 0.1, slippageBps: 150 });
                   console.log(`[AUTO-EXECUTE] meme-solana ${item.payload.symbol}: ${execRes.success ? (execRes.simulated ? 'SIMULATED ' : '') + 'ok' : 'FAILED'} ${execRes.error || ''} (out=${execRes.outputTokens}, impact=${execRes.priceImpactPercentage}%)`);
-                } else if (autoExecDomain === 'meme-robinhood' && item.payload.contractAddress) {
-                  const execRes = await evmTradeAdapter.executeBuyToken({ chain: 'robinhood', tokenAddress: item.payload.contractAddress, amountEth: autoExec.maxTradeAmount || 0.1, slippagePercentage: 1.5 });
-                  console.log(`[AUTO-EXECUTE] meme-robinhood ${item.payload.symbol}: ${execRes.success ? (execRes.simulated ? 'SIMULATED ' : '') + 'ok' : 'FAILED'} ${execRes.error || ''} (out=${execRes.outputTokens})`);
+                } else if ((autoExecDomain === 'meme-robinhood' || autoExecDomain === 'meme-base' || autoExecDomain === 'meme-eth' || autoExecDomain === 'meme-bsc') && item.payload.contractAddress) {
+                  const chainKey = autoExecDomain === 'meme-base' ? 'base' : autoExecDomain === 'meme-eth' ? 'eth' : autoExecDomain === 'meme-bsc' ? 'bsc' : 'robinhood';
+                  const execRes = await evmTradeAdapter.executeBuyToken({ chain: chainKey as any, tokenAddress: item.payload.contractAddress, amountEth: autoExec.maxTradeAmount || 0.1, slippagePercentage: 1.5 });
+                  console.log(`[AUTO-EXECUTE] ${autoExecDomain} ${item.payload.symbol}: ${execRes.success ? (execRes.simulated ? 'SIMULATED ' : '') + 'ok' : 'FAILED'} ${execRes.error || ''} (out=${execRes.outputTokens})`);
                 } else if (autoExecDomain === 'perps' && isDryRun) {
                   // Simulation-only: HyperliquidAdapter.placeOrder exists (DRY_RUN-capable) but
                   // dispatch keeps a log-only simulation until live perps execution is enabled.
@@ -500,7 +540,7 @@ if (discordToken && clientId) {
                     domain: journalDomain,
                     symbol: item.payload.symbol || 'TOKEN',
                     contractAddressOrId: item.payload.contractAddress || item.payload.symbol || 'N/A',
-                    chain: autoExecDomain === 'meme-solana' ? 'solana' : autoExecDomain === 'meme-robinhood' ? 'robinhood' : autoExecDomain === 'perps' ? 'hyperliquid' : 'polymarket',
+                    chain: autoExecDomain === 'meme-solana' ? 'solana' : autoExecDomain === 'meme-robinhood' ? 'robinhood' : autoExecDomain === 'meme-base' ? 'base' : autoExecDomain === 'meme-eth' ? 'eth' : autoExecDomain === 'meme-bsc' ? 'bsc' : autoExecDomain === 'perps' ? 'hyperliquid' : 'polymarket',
                     entryTimestamp: new Date().toISOString(),
                     entryPriceUsdOrEth: entryPrice,
                     positionSizeUsd: (autoExec.maxTradeAmount || 0.1) * (entryPrice || 1),
@@ -552,15 +592,16 @@ if (discordToken && clientId) {
           // 3. Register called tokens for wallet auto-tracking (own-position detection + exit alerts)
           if (item.channelName === 'call-meme-solana' && item.payload.contractAddress) {
             walletTracker.registerTrackedToken('sol', item.payload.contractAddress, item.payload.symbol);
-          } else if ((item.channelName === 'call-meme-robinhood' || item.channelName === 'call-lp-robinhood') && item.payload.contractAddress) {
-            const chainKey = item.payload.network?.toLowerCase().includes('base')
-              ? 'base'
-              : item.payload.network?.toLowerCase().includes('eth')
-                ? 'eth'
-                : item.payload.network?.toLowerCase().includes('bnb') || item.payload.network?.toLowerCase().includes('bsc')
-                  ? 'bsc'
-                  : 'robinhood';
-            walletTracker.registerTrackedToken(chainKey, item.payload.contractAddress, item.payload.symbol);
+          } else if (item.channelName === 'call-meme-robinhood' && item.payload.contractAddress) {
+            walletTracker.registerTrackedToken('robinhood', item.payload.contractAddress, item.payload.symbol);
+          } else if (item.channelName === 'call-meme-base' && item.payload.contractAddress) {
+            walletTracker.registerTrackedToken('base', item.payload.contractAddress, item.payload.symbol);
+          } else if (item.channelName === 'call-meme-eth' && item.payload.contractAddress) {
+            walletTracker.registerTrackedToken('eth', item.payload.contractAddress, item.payload.symbol);
+          } else if (item.channelName === 'call-meme-bnb' && item.payload.contractAddress) {
+            walletTracker.registerTrackedToken('bsc', item.payload.contractAddress, item.payload.symbol);
+          } else if (item.channelName === 'call-lp-robinhood' && item.payload.contractAddress) {
+            walletTracker.registerTrackedToken('robinhood', item.payload.contractAddress, item.payload.symbol);
           } else if (item.channelName === 'call-nft-sniping' && item.payload.symbol) {
             // NFT: register collection slug for user position monitoring (floor drop -20%, TP, etc.)
             stateStore.setTrackedNftCollection(item.payload.symbol.toLowerCase());

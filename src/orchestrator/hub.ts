@@ -204,7 +204,19 @@ export class AthenaHub {
       }
       case 'meme-robinhood': {
         const { RobinhoodScreeningAgent } = await import('../agents/meme-robinhood/robinhood-screening-agent.js');
-        return new RobinhoodScreeningAgent();
+        return new RobinhoodScreeningAgent({ chains: ['robinhood'] });
+      }
+      case 'meme-base': {
+        const { RobinhoodScreeningAgent } = await import('../agents/meme-robinhood/robinhood-screening-agent.js');
+        return new RobinhoodScreeningAgent({ chains: ['base'] });
+      }
+      case 'meme-eth': {
+        const { RobinhoodScreeningAgent } = await import('../agents/meme-robinhood/robinhood-screening-agent.js');
+        return new RobinhoodScreeningAgent({ chains: ['eth'] });
+      }
+      case 'meme-bsc': {
+        const { RobinhoodScreeningAgent } = await import('../agents/meme-robinhood/robinhood-screening-agent.js');
+        return new RobinhoodScreeningAgent({ chains: ['bsc'] });
       }
       case 'nft': {
         const { NFTScreeningAgent } = await import('../agents/nft/nft-screening-agent.js');

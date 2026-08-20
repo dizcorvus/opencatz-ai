@@ -57,7 +57,7 @@ export async function launchTUI(): Promise<void> {
     console.log(`${C.cyan}------------------------------------------------------------------------${C.reset}`);
     console.log(` ${C.lime}[1]${C.reset} 🔑 Burner Wallet & Treasury Manager (Solana & Robinhood/EVM)`);
     console.log(` ${C.pink}[2]${C.reset} 🔍 On-Demand 3-Layer Swarm Token Audit (Input CA)`);
-    console.log(` ${C.cyan}[3]${C.reset} ⚡ Background Screening Control (8 Multichain Specialist Agents)`);
+    console.log(` ${C.cyan}[3]${C.reset} ⚡ Background Screening Control (11 Multichain Specialist Agents)`);
     console.log(` ${C.yellow}[4]${C.reset} 🧠 Cat Den Command Room Chat (Natural Language AI Hub)`);
     console.log(` ${C.lime}[5]${C.reset} 🛡️ 9-Lives Risk Management & Safeguards`);
     console.log(` ${C.gold}[6]${C.reset} 📊 Trade Journal & Realized PnL Analytics (View Summary)`);
@@ -194,13 +194,13 @@ export async function launchTUI(): Promise<void> {
         console.log('[A] ⚡ Activate ALL Agents');
         console.log('[P] ⏸️ Pause ALL Agents');
         console.log('[0] Back to OpenCatz Menu\n');
-        const agentChoice = await prompt('Select Option (1-8, A, P, 0): ');
+        const agentChoice = await prompt(`Select Option (1-${subAgentsList.length}, A, P, 0): `);
         if (agentChoice.toUpperCase() === 'A') {
           subAgentsList.forEach(a => hub.toggleChannelScreening('tui-terminal', a.domain, true));
-          console.log(`${C.green}⚡ All 8 Sub-Agents activated in OpenCatz TUI!${C.reset}`);
+          console.log(`${C.green}⚡ All ${subAgentsList.length} Sub-Agents activated in OpenCatz TUI!${C.reset}`);
         } else if (agentChoice.toUpperCase() === 'P') {
           subAgentsList.forEach(a => hub.toggleChannelScreening('tui-terminal', a.domain, false));
-          console.log(`${C.yellow}⏸️ All 8 Sub-Agents paused in OpenCatz TUI!${C.reset}`);
+          console.log(`${C.yellow}⏸️ All ${subAgentsList.length} Sub-Agents paused in OpenCatz TUI!${C.reset}`);
         } else {
           const selected = subAgentsList.find(a => a.id === agentChoice.trim());
           if (selected) {

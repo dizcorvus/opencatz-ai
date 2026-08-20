@@ -1,6 +1,9 @@
 export type AgentDomainId =
   | 'meme-solana'
   | 'meme-robinhood'
+  | 'meme-base'
+  | 'meme-eth'
+  | 'meme-bsc'
   | 'perps'
   | 'nft'
   | 'prediction'
@@ -26,7 +29,7 @@ export const AGENT_DOMAINS: AgentDomainInfo[] = [
     displayName: 'MEME-SOLANA',
     name: 'Solana DEX Meme Screening',
     channel: 'call-meme-solana',
-    aliases: ['solana', 'solana-meme'],
+    aliases: ['solana', 'solana-meme', 'sol'],
     requiredKeys: ['AI_API_KEY'],
     category: 'MEME',
   },
@@ -35,7 +38,34 @@ export const AGENT_DOMAINS: AgentDomainInfo[] = [
     displayName: 'MEME-ROBINHOOD',
     name: 'Robinhood Chain Meme Screening',
     channel: 'call-meme-robinhood',
-    aliases: ['robinhood', 'evm', 'evm-meme', 'base', 'meme-evm'],
+    aliases: ['robinhood', 'rh', 'rh-meme'],
+    requiredKeys: ['AI_API_KEY'],
+    category: 'MEME',
+  },
+  {
+    id: 'meme-base',
+    displayName: 'MEME-BASE',
+    name: 'Base L2 Meme Screening',
+    channel: 'call-meme-base',
+    aliases: ['base', 'base-meme'],
+    requiredKeys: ['AI_API_KEY'],
+    category: 'MEME',
+  },
+  {
+    id: 'meme-eth',
+    displayName: 'MEME-ETH',
+    name: 'Ethereum Mainnet Meme Screening',
+    channel: 'call-meme-eth',
+    aliases: ['eth', 'ethereum', 'eth-meme', 'call-meme-ethereum'],
+    requiredKeys: ['AI_API_KEY'],
+    category: 'MEME',
+  },
+  {
+    id: 'meme-bsc',
+    displayName: 'MEME-BNB',
+    name: 'BNB Chain (BSC) Meme Screening',
+    channel: 'call-meme-bnb',
+    aliases: ['bsc', 'bnb', 'bnb-meme', 'bsc-meme', 'call-meme-bsc'],
     requiredKeys: ['AI_API_KEY'],
     category: 'MEME',
   },
@@ -86,10 +116,10 @@ export const AGENT_DOMAINS: AgentDomainInfo[] = [
   },
   {
     id: 'lp-robinhood',
-    displayName: 'LP-EVM',
-    name: 'EVM Concentrated Liquidity Velocity (Uniswap)',
+    displayName: 'LP-ROBINHOOD',
+    name: 'Robinhood Chain Concentrated Liquidity Velocity (Uniswap)',
     channel: 'call-lp-robinhood',
-    aliases: ['uniswap', 'evm-lp'],
+    aliases: ['uniswap', 'evm-lp', 'lp-evm'],
     requiredKeys: ['AI_API_KEY'],
     category: 'LP',
   },

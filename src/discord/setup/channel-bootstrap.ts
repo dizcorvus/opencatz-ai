@@ -4,7 +4,10 @@ export interface ChannelSetupResult {
   controlRoomId: string;
   auditOnDemandId: string;
   memeSolanaId: string;
-  memeEvmId: string;
+  memeRobinhoodId: string;
+  memeBaseId: string;
+  memeEthId: string;
+  memeBnbId: string;
   perpsId: string;
   nftId: string;
   lpSolanaId: string;
@@ -65,9 +68,24 @@ export async function bootstrapDiscordChannels(guild: Guild): Promise<ChannelSet
     '🚀 High-Confidence Solana DEX Signal Calls (Pump.fun, Raydium, Meteora)'
   );
 
-  const memeEvmId = await getOrCreateChannel(
+  const memeRobinhoodId = await getOrCreateChannel(
     'call-meme-robinhood',
-    '🌸 High-Confidence Robinhood Chain & EVM Meme Signal Calls (GMGN + GoPlus)'
+    '🌸 High-Confidence Robinhood Chain Meme Signal Calls (GMGN + GoPlus)'
+  );
+
+  const memeBaseId = await getOrCreateChannel(
+    'call-meme-base',
+    '🔵 High-Confidence Base L2 Meme Signal Calls (GMGN + GoPlus Security)'
+  );
+
+  const memeEthId = await getOrCreateChannel(
+    'call-meme-eth',
+    '💎 High-Confidence Ethereum Mainnet Meme Signal Calls (Uniswap + GoPlus)'
+  );
+
+  const memeBnbId = await getOrCreateChannel(
+    'call-meme-bnb',
+    '🟡 High-Confidence BNB Chain (BSC) Meme Signal Calls (PancakeSwap + GoPlus)'
   );
 
   const perpsId = await getOrCreateChannel(
@@ -87,7 +105,7 @@ export async function bootstrapDiscordChannels(guild: Guild): Promise<ChannelSet
 
   const lpEvmId = await getOrCreateChannel(
     'call-lp-robinhood',
-    '🌊 High-Yield EVM Concentrated Liquidity Calls (Robinhood Chain Uniswap V3)'
+    '🌊 High-Yield Robinhood Chain Concentrated Liquidity Calls (Uniswap V3)'
   );
 
   const predictionId = await getOrCreateChannel(
@@ -100,13 +118,16 @@ export async function bootstrapDiscordChannels(guild: Guild): Promise<ChannelSet
     '☀️ Smart Crypto Twitter (CT) & AI Alpha - Airdrop threads, AI Agent launches, & Smart Money Calls'
   );
 
-  console.log('[DISCORD BOOTSTRAP] All OpenCatz channels are ready!');
+  console.log('[DISCORD BOOTSTRAP] All OpenCatz dedicated multichain channels are ready!');
 
   return {
     controlRoomId,
     auditOnDemandId,
     memeSolanaId,
-    memeEvmId,
+    memeRobinhoodId,
+    memeBaseId,
+    memeEthId,
+    memeBnbId,
     perpsId,
     nftId,
     lpSolanaId,
