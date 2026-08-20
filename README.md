@@ -52,41 +52,42 @@
 ```
                           USER INTERFACE PLATFORMS
              (Discord Command Center · Terminal TUI · Telegram Bridge)
-                                      │
-                                      ▼
-                   ┌───────────────────────────────────┐
-                   │       OPENCATZ CORE HUB           │
-                   │   #opencatz-control-room · chat   │
-                   │   9-lives risk engine · wallet    │
-                   │   catz nft gating · trade journal │
-                   └──────────────────┬────────────────┘
+                                       │
+                                       ▼
+                    ┌───────────────────────────────────┐
+                    │       OPENCATZ CORE HUB           │
+                    │   #opencatz-control-room · chat   │
+                    │   9-lives risk engine · wallet    │
+                    │   catz nft gating · trade journal │
+                    └─────────────────┬─────────────────┘
                                       │ candidate signals
-     ┌──────────┬──────────┬──────────┼──────────┬──────────┬──────────┬──────────┬──────────┬──────────┬──────────┬──────────┐
+     ┌──────────┬──────────┬──────────┼──────────┬──────────┬──────────┬──────────┬──────────┬──────────┬──────────┐
      ▼          ▼          ▼          ▼          ▼          ▼          ▼          ▼          ▼          ▼          ▼
  ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐
  │ SOLANA │ │ROBINH'D│ │  BASE  │ │  ETH   │ │  BNB   │ │ SOL LP │ │ RH LP  │ │ WHALES │ │  NFT   │ │ POLY   │ │ CT-X   │
  │  MEME  │ │  MEME  │ │  MEME  │ │  MEME  │ │  MEME  │ │METEORA │ │UNISWAP │ │ HYPER- │ │ OPENSEA│ │ MARKET │ │ ALPHA  │
  │  GMGN  │ │  GMGN  │ │  GMGN  │ │  GMGN  │ │  GMGN  │ │  DLMM  │ │KRYSTAL │ │ LIQUID │ │  CATZ  │ │ GAMMA  │ │TWITTER │
  │RugCheck│ │ GoPlus │ │ GoPlus │ │ GoPlus │ │ GoPlus │ │  FEE   │ │Fee/TVL │ │ perps  │ │  NFT   │ │  CLOB  │ │  AI    │
- └────┬───┘ └───┬────┘ └───┬────┘ └───┬────┘ └───┬────┘ └───┬────┘ └───┬────┘ └───┬────┘ └───┬────┘ └───┬────┘ └───┬────┘
-      └─────────┴──────────┴──────────┴──────────┴──────────┼──────────┴──────────┴──────────┴──────────┴──────────┘
-                                                            ▼
-                                        ┌────────────────────────────────────┐
-                                        │   SWARM CONSENSUS ENGINE (≥ 80%)   │
-                                        │  Quant · Catalyst · Security Audit │
-                                        └───────────────────┬────────────────┘
-                                                            │ only ≥ 80% confidence
-                                                            ▼
-                               MULTI-PLATFORM DISPATCH (Discord · Terminal TUI · Telegram)
-        • #call-meme-solana · #call-meme-robinhood · #call-meme-base · #call-meme-eth · #call-meme-bnb
-        • #call-lp-solana · #call-lp-robinhood · #call-whale-tracking · #call-nft-sniping
-        • #call-prediction-markets · #call-ct-alpha
-                                                            │
-                                                            ▼
-                                             WALLET TRACKER (holdings lifecycle)
-                                                            │
-                                                            ▼
-                                      POSITION MANAGER (TP 2x/3x · SL -20% · trailing)
+ └───┬────┘ └───┬────┘ └───┬────┘ └───┬────┘ └───┬────┘ └───┬────┘ └───┬────┘ └───┬────┘ └───┬────┘ └───┬────┘ └───┬────┘
+     └──────────┴──────────┴──────────┼──────────┴──────────┴──────────┴──────────┴──────────┴──────────┴──────────┘
+                                      │
+                                      ▼
+                  ┌────────────────────────────────────┐
+                  │   SWARM CONSENSUS ENGINE (≥ 80%)   │
+                  │  Quant · Catalyst · Security Audit │
+                  └─────────────────┬──────────────────┘
+                                    │ only ≥ 80% confidence
+                                    ▼
+       MULTI-PLATFORM DISPATCH (Discord · Terminal TUI · Telegram)
+• #call-meme-solana · #call-meme-robinhood · #call-meme-base · #call-meme-eth · #call-meme-bnb
+• #call-lp-solana · #call-lp-robinhood · #call-whale-tracking · #call-nft-sniping
+• #call-prediction-markets · #call-ct-alpha
+                                    │
+                                    ▼
+                     WALLET TRACKER (holdings lifecycle)
+                                    │
+                                    ▼
+              POSITION MANAGER (TP 2x/3x · SL -20% · trailing)
 ```
 
 ---
