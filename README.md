@@ -4,15 +4,15 @@
        /\_____/\
       /  ■   ■  \       🐾 OPENCATZ AI (MULTICHAIN EDITION) 🐾
      ( ==  ^  == )      Autonomous Multi-Agent Crypto Intelligence Swarm
-      )    ~    (       Solana • Robinhood Chain • Base • ETH • Perps • NFTs
-     (   _____   )      "Chill trades, 9 lives, razor-sharp on-chain instincts."
+       )    ~    (       Solana • Robinhood Chain • Base • ETH • BNB Chain • Perps • NFTs
+      (   _____   )      "Chill trades, 9 lives, razor-sharp on-chain instincts."
     ( (  )   (  ) )
    (__(__)___(__)__)
 ```
 
 [![Domain](https://img.shields.io/badge/Domain-opencatz.xyz-brightgreen.svg)](https://opencatz.xyz)
 [![NFT Collection](https://img.shields.io/badge/Catz%20NFT-4%2C444%20Supply-blueviolet.svg)](https://opencatz.xyz)
-[![Chain](https://img.shields.io/badge/Chains-Solana%20%7C%20Robinhood%20%7C%20EVM%20%7C%20Hyperliquid-7b5cff.svg)](https://opencatz.xyz)
+[![Chains](https://img.shields.io/badge/Chains-Solana%20%7C%20Robinhood%20%7C%20Base%20%7C%20ETH%20%7C%20BNB%20%7C%20Hyperliquid-7b5cff.svg)](https://opencatz.xyz)
 [![Discord](https://img.shields.io/badge/Discord-Community-5865F2.svg)](https://discord.gg/5HMy95ZHuY)
 [![X (Twitter)](https://img.shields.io/badge/X-%40pxidentities-black.svg)](https://x.com/pxidentities/)
 [![Node](https://img.shields.io/badge/Node.js-%3E%3D22.12-green.svg)](https://nodejs.org/)

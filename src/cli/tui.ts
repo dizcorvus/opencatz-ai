@@ -35,7 +35,7 @@ const OPENCATZ_TUI_ASCII = `
 ${C.lime}${C.bold}       /\\_____/\\
       /  ${C.pink}■${C.lime}   ${C.pink}■${C.lime}  \\      ${C.lime}🐾 OPENCATZ AI COMMAND CENTER 🐾${C.reset}
 ${C.lime}     ( ==  ${C.pink}^${C.lime}  == )     ${C.cyan}Autonomous Multichain Swarm Intelligence${C.reset}
-${C.lime}      )    ${C.yellow}~${C.lime}    (      ${C.lavender}Solana • Robinhood Chain • EVM • Perps • NFTs${C.reset}
+${C.lime}      )    ${C.yellow}~${C.lime}    (      ${C.lavender}Solana • Robinhood Chain • Base • ETH • BNB • Perps • NFTs${C.reset}
 ${C.lime}     (   _____   )     ${C.gold}"Chill trades, 9 lives, sharp alpha." • opencatz.xyz${C.reset}
 ${C.lime}    ( (  )   (  ) )
    (__(__)___(__)__)${C.reset}

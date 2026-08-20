@@ -8,7 +8,7 @@
 
 ## 1. 🎨 Executive Brand Overview
 
-**Opencatz AI** is an autonomous, multi-agent crypto intelligence and trading ecosystem operating across **Solana, Robinhood Chain (EVM L2), Base, Ethereum, Hyperliquid, and Polymarket**:
+**Opencatz AI** is an autonomous, multi-agent crypto intelligence and trading ecosystem operating across **Solana, Robinhood Chain (EVM L2), Base, Ethereum, BNB Chain (BSC), Hyperliquid, and Polymarket**:
 
 - **Art Direction:** Retro 8-bit / 24×24 pixel art aesthetic, crisp outlines (`#0B0E14`), casual pixel personality traits, and witty feline charm.
 - **Hero Palette:** High-energy **Robinhood Green (`#CCFF00`)** anchored against deep **Solid Obsidian Black (`#0B0E14`)** and harmonized pastel & neon counter-tones.
