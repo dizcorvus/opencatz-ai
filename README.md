@@ -134,6 +134,17 @@ opencatz test         # 🧪 Run Vitest automated test suite
 opencatz build        # ⚙️ Compile TypeScript to /dist
 opencatz update       # 🔄 Git pull, rebuild, and hot-restart daemon
 opencatz doctor       # 🩺 Check API keys, network RPCs, and diagnostics
+opencatz uninstall    # 🧹 Cleanly remove PM2 process, build artifacts, & DB
+```
+
+### Clean Uninstallation
+
+Untuk menghapus proses background daemon PM2, mereset database local, membersihkan build cache, dan mencabut link binary global:
+
+```bash
+opencatz uninstall         # Mode interaktif (dengan konfirmasi tiap tahapan)
+# atau
+npm run clean -- --force   # Mode one-shot otomatis bersih total
 ```
 
 ---
