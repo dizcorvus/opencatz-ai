@@ -27,7 +27,7 @@ export interface SignalLedgerEntry {
  * Token tracked by the wallet auto-tracker — resolved on startup via GMGN token info.
  */
 export interface TrackedToken {
-  chain: 'sol' | 'robinhood';
+  chain: 'sol' | 'robinhood' | 'base' | 'eth' | 'bsc' | string;
   address: string;
   symbol: string;
   addedAt: number;

@@ -105,11 +105,15 @@ export class WalletTracker {
     this.exitAlertsEnabled = deps.exitAlertsEnabled ?? true;
   }
 
-  private defaultEvmBalanceReader: EvmBalanceReader = async (_chain, token, owner) => {
+  private defaultEvmBalanceReader: EvmBalanceReader = async (chain, token, owner) => {
     try {
-      // Robinhood L2 is Base-compatible; use the robinhood RPC first, base as fallback.
-      const rpc = process.env.EVM_ROBINHOOD_RPC_URL || process.env.EVM_BASE_RPC_URL || undefined;
-      const publicClient = createPublicClient({ chain: base, transport: http(rpc) });
+      let rpc: string | undefined;
+      if (chain === 'eth') rpc = process.env.EVM_ETH_RPC_URL || process.env.EVM_RPC_URL;
+      else if (chain === 'base') rpc = process.env.EVM_BASE_RPC_URL;
+      else if (chain === 'bsc') rpc = process.env.EVM_BSC_RPC_URL || 'https://bsc-dataseed.binance.org';
+      else rpc = process.env.EVM_ROBINHOOD_RPC_URL || process.env.EVM_BASE_RPC_URL || undefined;
+
+      const publicClient = createPublicClient({ transport: http(rpc) });
       return await publicClient.readContract({
         address: token as `0x${string}`,
         abi: ERC20_BALANCE_ABI,
@@ -172,7 +176,7 @@ export class WalletTracker {
     }
     try {
       const owner = this.walletService.getEvmAddress();
-      const tracked = this.stateStore.getTrackedTokens().filter((t) => t.chain === 'robinhood');
+      const tracked = this.stateStore.getTrackedTokens().filter((t) => t.chain !== 'sol');
       const holdings: Array<{ address: string }> = [];
       const scannedOk = new Set<string>();
       for (const tok of tracked) {
@@ -193,7 +197,7 @@ export class WalletTracker {
   }
 
   /** Persist a token as an auto-tracking target (deduped by chain + address in StateStore). */
-  public registerTrackedToken(chain: 'sol' | 'robinhood', address: string, symbol: string): void {
+  public registerTrackedToken(chain: 'sol' | 'robinhood' | 'base' | 'eth' | 'bsc' | string, address: string, symbol: string): void {
     this.stateStore?.setTrackedToken({ chain, address, symbol, addedAt: Date.now() });
   }
 

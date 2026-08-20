@@ -46,7 +46,7 @@ const ctAlphaAgent = new CTAlphaAgent();
 const perpsScreeningAgent = new PerpsScreeningAgent(new HyperliquidAdapter(), undefined, new CexRadarAdapter());
 
 console.log('----------------------------------------------------');
-console.log('🏛️ ATHENA MULTI-AGENT CRYPTO SYSTEM INITIALIZING...');
+console.log('🐾 OPENCATZ MULTI-AGENT CRYPTO SYSTEM INITIALIZING...');
 console.log('----------------------------------------------------');
 
 const isDryRun = isDryRunMode();
@@ -553,7 +553,14 @@ if (discordToken && clientId) {
           if (item.channelName === 'call-meme-solana' && item.payload.contractAddress) {
             walletTracker.registerTrackedToken('sol', item.payload.contractAddress, item.payload.symbol);
           } else if ((item.channelName === 'call-meme-robinhood' || item.channelName === 'call-lp-robinhood') && item.payload.contractAddress) {
-            walletTracker.registerTrackedToken('robinhood', item.payload.contractAddress, item.payload.symbol);
+            const chainKey = item.payload.network?.toLowerCase().includes('base')
+              ? 'base'
+              : item.payload.network?.toLowerCase().includes('eth')
+                ? 'eth'
+                : item.payload.network?.toLowerCase().includes('bnb') || item.payload.network?.toLowerCase().includes('bsc')
+                  ? 'bsc'
+                  : 'robinhood';
+            walletTracker.registerTrackedToken(chainKey, item.payload.contractAddress, item.payload.symbol);
           } else if (item.channelName === 'call-nft-sniping' && item.payload.symbol) {
             // NFT: register collection slug for user position monitoring (floor drop -20%, TP, etc.)
             stateStore.setTrackedNftCollection(item.payload.symbol.toLowerCase());

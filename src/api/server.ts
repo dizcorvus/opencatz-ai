@@ -36,7 +36,7 @@ export class AthenaRESTServer {
       // Set CORS Headers for website integration
       res.setHeader('Access-Control-Allow-Origin', '*');
       res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Athena-Api-Key');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-OpenCatz-Api-Key, X-Athena-Api-Key');
       res.setHeader('Content-Type', 'application/json');
 
       // Handle CORS Preflight
@@ -46,13 +46,13 @@ export class AthenaRESTServer {
         return;
       }
 
-      // API Key Authentication Guard (if ATHENA_API_KEY environment variable is configured)
-      const authKey = process.env.ATHENA_API_KEY;
+      // API Key Authentication Guard (if OPENCATZ_API_KEY / ATHENA_API_KEY environment variable is configured)
+      const authKey = process.env.OPENCATZ_API_KEY || process.env.ATHENA_API_KEY;
       if (authKey && authKey.trim() !== '') {
-        const clientKey = req.headers['x-athena-api-key'] || req.headers['authorization']?.replace('Bearer ', '');
+        const clientKey = req.headers['x-opencatz-api-key'] || req.headers['x-athena-api-key'] || req.headers['authorization']?.replace('Bearer ', '');
         if (clientKey !== authKey) {
           res.statusCode = 401;
-          res.end(JSON.stringify({ success: false, error: 'Unauthorized: Invalid or missing ATHENA_API_KEY' }));
+          res.end(JSON.stringify({ success: false, error: 'Unauthorized: Invalid or missing OPENCATZ_API_KEY' }));
           return;
         }
       }
@@ -245,3 +245,6 @@ function parseJsonBody(req: http.IncomingMessage): Promise<any> {
     req.on('error', (err) => reject(err));
   });
 }
+
+export { AthenaRESTServer as OpenCatzRESTServer };
+
