@@ -1,4 +1,4 @@
-import { Guild, ChannelType, PermissionFlagsBits } from 'discord.js';
+import { Guild, ChannelType } from 'discord.js';
 
 export interface ChannelSetupResult {
   controlRoomId: string;
@@ -14,25 +14,26 @@ export interface ChannelSetupResult {
 }
 
 export async function bootstrapDiscordChannels(guild: Guild): Promise<ChannelSetupResult> {
-  console.log(`[DISCORD BOOTSTRAP] Checking & auto-creating Athena channels in guild: "${guild.name}"...`);
+  console.log(`[DISCORD BOOTSTRAP] Checking & auto-creating OpenCatz channels in guild: "${guild.name}"...`);
 
-  // 1. Check or Create Category "🏛️ ATHENA COMMAND CENTER"
+  // 1. Check or Create Category "🐾 OPENCATZ MULTICHAIN COMMAND CENTER"
   let category = guild.channels.cache.find(
-    c => c.type === ChannelType.GuildCategory && c.name.toLowerCase().includes('athena command center')
+    c => c.type === ChannelType.GuildCategory &&
+      (c.name.toLowerCase().includes('opencatz') || c.name.toLowerCase().includes('athena command center'))
   );
 
   if (!category) {
     category = await guild.channels.create({
-      name: '🏛️ ATHENA COMMAND CENTER',
+      name: '🐾 OPENCATZ MULTICHAIN COMMAND CENTER',
       type: ChannelType.GuildCategory,
     });
-    console.log('[DISCORD BOOTSTRAP] Created Category: "🏛️ ATHENA COMMAND CENTER"');
+    console.log('[DISCORD BOOTSTRAP] Created Category: "🐾 OPENCATZ MULTICHAIN COMMAND CENTER"');
   }
 
   // Helper to get or create channel under category
-  const getOrCreateChannel = async (name: string, topic: string) => {
+  const getOrCreateChannel = async (name: string, topic: string, legacyName?: string) => {
     let channel = guild.channels.cache.find(
-      c => c.type === ChannelType.GuildText && c.name === name
+      c => c.type === ChannelType.GuildText && (c.name === name || (legacyName && c.name === legacyName))
     );
 
     if (!channel) {
@@ -48,13 +49,15 @@ export async function bootstrapDiscordChannels(guild: Guild): Promise<ChannelSet
   };
 
   const controlRoomId = await getOrCreateChannel(
-    'athena-control-room',
-    '⚙️ Athena Core Command Hub - Chat with AI, wallet management, & risk configuration.'
+    'opencatz-control-room',
+    '⚙️ OpenCatz Core Command Hub - Chat with AI, wallet management, & 9-Lives risk configuration.',
+    'athena-control-room'
   );
 
   const auditOnDemandId = await getOrCreateChannel(
-    'audit-on-demand',
-    '🔎 On-Demand Token Audit Channel - Paste any Solana or EVM Contract Address (CA) here for instant 12-point audit!'
+    'opencatz-audit',
+    '🔎 On-Demand Token Audit Channel - Paste any Solana or EVM Contract Address (CA) here for instant 12-point audit!',
+    'audit-on-demand'
   );
 
   const memeSolanaId = await getOrCreateChannel(
@@ -64,7 +67,7 @@ export async function bootstrapDiscordChannels(guild: Guild): Promise<ChannelSet
 
   const memeEvmId = await getOrCreateChannel(
     'call-meme-robinhood',
-    '🔷 High-Confidence Robinhood Chain Meme Signal Calls (Robinhood Chain L2 DEX)'
+    '🌸 High-Confidence Robinhood Chain & EVM Meme Signal Calls (GMGN + GoPlus)'
   );
 
   const perpsId = await getOrCreateChannel(
@@ -74,17 +77,17 @@ export async function bootstrapDiscordChannels(guild: Guild): Promise<ChannelSet
 
   const nftId = await getOrCreateChannel(
     'call-nft-sniping',
-    '🖼️ NFT Floor Price & Rarity Sniping Alerts (MagicEden, OpenSea)'
+    '🔮 NFT Floor Price & Rarity Sniping Alerts (Catz NFT, OpenSea)'
   );
 
   const lpSolanaId = await getOrCreateChannel(
     'call-lp-solana',
-    '💧 High-Yield Solana Concentrated Liquidity Calls (Meteora DLMM, Orca)'
+    '🌊 High-Yield Solana Concentrated Liquidity Calls (Meteora DLMM)'
   );
 
   const lpEvmId = await getOrCreateChannel(
     'call-lp-robinhood',
-    '🔷 High-Yield EVM Concentrated Liquidity Calls (Robinhood Chain Concentrated Pools)'
+    '🌊 High-Yield EVM Concentrated Liquidity Calls (Robinhood Chain Uniswap V3)'
   );
 
   const predictionId = await getOrCreateChannel(
@@ -94,10 +97,10 @@ export async function bootstrapDiscordChannels(guild: Guild): Promise<ChannelSet
 
   const ctAlphaId = await getOrCreateChannel(
     'call-ct-alpha',
-    '💡 Smart Crypto Twitter (CT) & AI Alpha - Airdrop threads, AI Agent launches, & Smart Money Calls'
+    '☀️ Smart Crypto Twitter (CT) & AI Alpha - Airdrop threads, AI Agent launches, & Smart Money Calls'
   );
 
-  console.log('[DISCORD BOOTSTRAP] All Athena channels are ready!');
+  console.log('[DISCORD BOOTSTRAP] All OpenCatz channels are ready!');
 
   return {
     controlRoomId,

@@ -9,6 +9,7 @@ import {
 import { AthenaHub } from '../../orchestrator/hub.js';
 import { AGENT_DOMAINS } from '../../orchestrator/agent-registry.js';
 import { isDryRun as isDryRunMode } from '../../config/config.js';
+import { globalNFTGatingService } from '../../services/nft-gating-service.js';
 
 export interface DashboardEmbedOptions {
   solBalance?: string | null;
@@ -25,61 +26,64 @@ export function createDashboardComponents(hub: AthenaHub, opts: DashboardEmbedOp
 
   const risk = hub.getRiskManager().getRiskState();
   const executionMode = isDryRunMode() ? 'DRY_RUN (Safe Simulation)' : 'LIVE';
-  const drawdownStr = `Current Drawdown: \`${risk.currentDrawdownPct.toFixed(1)}%\` (Max: \`${risk.maxDrawdownLimitPct.toFixed(1)}%\`)`;
+  const drawdownStr = `Current Drawdown: \`${risk.currentDrawdownPct.toFixed(1)}%\` (Max Limit: \`${risk.maxDrawdownLimitPct.toFixed(1)}%\`)`;
   const solBalanceStr = opts.solBalance ?? '`— (unavailable)`';
   const ethBalanceStr = opts.ethBalance ?? '`— (unavailable)`';
   const activeAlertsStr = `${opts.activeAlerts ?? 0} Active Alerts`;
+  const nftInfo = globalNFTGatingService.getCollectionInfo();
 
   const embed = new EmbedBuilder()
-    .setTitle('🏛️ ATHENA MULTI-AGENT CONTROL CENTER')
-    .setColor(0x00ffaa)
+    .setTitle('🐾 OPENCATZ MULTI-AGENT CONTROL CENTER')
+    .setColor(0xccff00)
     .setDescription(
-      'Welcome to the **Athena Autonomous Multi-Agent Command Center**.\n' +
-      'Control screening agents, risk limits, price alerts, API keys, and burner wallets interactively below.'
+      'Welcome to **Opencatz AI** — Autonomous Multi-Agent Trading Swarm for Catz NFT Holders.\n' +
+      'Control screening agents, 9-Lives risk engine, price alerts, API keys, and burner wallets interactively below.'
     )
     .addFields(
       {
-        name: '⚙️ Operating Mode & Risk Safeguards',
+        name: '🛡️ 9-Lives Risk Engine & Execution Mode',
         value:
           `• **Execution Mode:** \`${executionMode}\`\n` +
-          `• ${drawdownStr}`,
+          `• **9-Lives Status:** ${drawdownStr}`,
         inline: false,
       },
       {
-        name: '🤖 24/7 Specialist Sub-Agents Status (PAUSED by Default)',
+        name: '🐱 24/7 Specialist Sub-Agents Status',
         value:
-          `• 🐣 **Solana Meme Agent:** ${getStatusBadge('meme-solana')}\n` +
-          `• 🔷 **Robinhood Meme Agent:** ${getStatusBadge('meme-robinhood')}\n` +
-          `• 📈 **Perpetual Futures Agent:** ${getStatusBadge('perps')}\n` +
-          `• 💧 **Trade+LP Velocity Engine:** ${getStatusBadge('lp-solana')}\n` +
-          `• 🖼️ **NFT Sniping Agent:** ${getStatusBadge('nft')}\n` +
+          `• 🚀 **Solana Meme Agent:** ${getStatusBadge('meme-solana')}\n` +
+          `• 🌸 **Robinhood Meme Agent:** ${getStatusBadge('meme-robinhood')}\n` +
+          `• 🌊 **Solana LP Velocity Engine:** ${getStatusBadge('lp-solana')}\n` +
+          `• 🌊 **Robinhood LP Velocity Engine:** ${getStatusBadge('lp-robinhood')}\n` +
+          `• 🐋 **Whale Positioning & Perps:** ${getStatusBadge('perps')}\n` +
+          `• 🔮 **NFT Sniping Agent:** ${getStatusBadge('nft')}\n` +
           `• 🎯 **Polymarket Prediction Agent:** ${getStatusBadge('prediction')}\n` +
-          `• 💡 **Smart CT & AI Alpha Agent:** ${getStatusBadge('ct-alpha')}`,
+          `• ☀️ **Smart CT & AI Alpha Agent:** ${getStatusBadge('ct-alpha')}`,
         inline: false,
       },
       {
-        name: '🌐 Connected API Keys & Social Intelligence Status',
+        name: '🌐 Connected API Keys & Social Intelligence',
         value:
-          `• 🐦 **TwexAPI (X/Twitter Scraping):** ${isTwexSet ? '`🟢 CONFIGURED`' : '`⚪ NOT CONFIGURED (fail-closed)`'}\n` +
-          `• 🖼️ **OpenSea API (NFT Data):** ${isOpenSeaSet ? '`🟢 CONFIGURED`' : '`⚪ NOT CONFIGURED (fail-closed)`'}\n` +
-          `• 🧠 **LLM AI Reasoning API:** ${isLlmSet ? '`🟢 CONFIGURED`' : '`⚪ NOT CONFIGURED`'}`,
+          `• 🐦 **Twitter/X Intelligence:** ${isTwexSet ? '`🟢 CONFIGURED`' : '`⚪ NOT CONFIGURED (fail-closed)`'}\n` +
+          `• 🖼️ **OpenSea NFT Stream API:** ${isOpenSeaSet ? '`🟢 CONFIGURED`' : '`⚪ NOT CONFIGURED (fail-closed)`'}\n` +
+          `• 🧠 **LLM AI Reasoning Engine:** ${isLlmSet ? '`🟢 CONFIGURED`' : '`⚪ NOT CONFIGURED`'}`,
         inline: false,
       },
       {
-        name: '🔑 Wallet Balances & Active Alerts',
+        name: '🔑 Wallet Balances & Catz NFT Gating',
         value:
           `• **Solana Balance:** ${solBalanceStr}\n` +
-          `• **EVM Balance:** ${ethBalanceStr}\n` +
-          `• **Active Price Alerts:** \`${activeAlertsStr}\` (Use \`/alert\` or ask in chat)`,
+          `• **Robinhood/EVM Balance:** ${ethBalanceStr}\n` +
+          `• **Catz NFT Gate:** \`${nftInfo.name} (${nftInfo.chain})\` • \`/catz verify\`\n` +
+          `• **Active Price Alerts:** \`${activeAlertsStr}\` (Use \`/alert\` or chat)`,
         inline: false,
       }
     )
-    .setFooter({ text: 'Athena Multi-Agent Intelligence System • Operates in Safe Mode by default' })
+    .setFooter({ text: '🐾 Opencatz AI • "Chill trades, 9 lives, sharp alpha." • opencatz.xyz' })
     .setTimestamp();
 
   // Dropdown Select Menu to Toggle Agents
   const CATEGORY_EMOJI: Record<string, string> = {
-    MEME: '🐣', LP: '💧', PERPS: '📈', NFT: '🖼️', PREDICTION: '🎯', CT_ALPHA: '💡',
+    MEME: '🌸', LP: '🌊', PERPS: '🐋', NFT: '🔮', PREDICTION: '🎯', CT_ALPHA: '☀️',
   };
   const agentSelect = new StringSelectMenuBuilder()
     .setCustomId('select_toggle_agent')
@@ -90,7 +94,7 @@ export function createDashboardComponents(hub: AthenaHub, opts: DashboardEmbedOp
           .setLabel(d.displayName.replace(/-/g, ' '))
           .setValue(d.id)
           .setDescription(d.name)
-          .setEmoji(CATEGORY_EMOJI[d.category] || '🤖')
+          .setEmoji(CATEGORY_EMOJI[d.category] || '🐾')
       )
     );
 
@@ -108,7 +112,7 @@ export function createDashboardComponents(hub: AthenaHub, opts: DashboardEmbedOp
       .setEmoji('⏸️'),
     new ButtonBuilder()
       .setCustomId('btn_emergency_stop')
-      .setLabel('Emergency Stop')
+      .setLabel('9-Lives Stop')
       .setStyle(ButtonStyle.Danger)
       .setEmoji('🛑')
   );

@@ -1,8 +1,9 @@
 import { AthenaHub } from '../orchestrator/hub.js';
+import { globalNFTGatingService } from '../services/nft-gating-service.js';
 
 export async function runAthenaDoctor(): Promise<void> {
   console.log('\n======================================================');
-  console.log('🩺 ATHENA AGENT SYSTEM DOCTOR & DIAGNOSTICS');
+  console.log('🩺 OPENCATZ AI MULTICHAIN DOCTOR & DIAGNOSTICS');
   console.log('======================================================\n');
 
   // 1. Check API Keys Configuration
@@ -28,6 +29,7 @@ export async function runAthenaDoctor(): Promise<void> {
   console.log('\n⚡ 2. WEB3 RPC NODE LATENCY CHECKS:');
   const rpcs = [
     { chain: 'Solana Mainnet', url: process.env.SOLANA_RPC_URL || 'https://api.mainnet-beta.solana.com' },
+    { chain: 'Robinhood Chain', url: process.env.ROBINHOOD_RPC_URL || 'https://rpc.robinhoodchain.com' },
     { chain: 'Base L2', url: process.env.EVM_BASE_RPC_URL || 'https://mainnet.base.org' },
     { chain: 'Ethereum Mainnet', url: process.env.EVM_ETH_RPC_URL || 'https://eth.llamarpc.com' },
   ];
@@ -35,7 +37,7 @@ export async function runAthenaDoctor(): Promise<void> {
   for (const rpc of rpcs) {
     const start = Date.now();
     try {
-      const res = await fetch(rpc.url, {
+      await fetch(rpc.url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: rpc.chain.includes('Solana') ? 'getHealth' : 'eth_blockNumber', params: [] }),
@@ -47,8 +49,14 @@ export async function runAthenaDoctor(): Promise<void> {
     }
   }
 
-  // 3. Sub-Agent Statuses
-  console.log('\n🏛️ 3. SUB-AGENT 24/7 SCREENING STATUSES:');
+  // 3. Catz NFT Gating Contract Status
+  console.log('\n🐱 3. CATZ NFT GATING STATUS:');
+  const info = globalNFTGatingService.getCollectionInfo();
+  console.log(`   • Collection: ${info.name} (${info.symbol}) on ${info.chain} (ID: ${info.chainId})`);
+  console.log(`   • Contract:   ${info.contractAddress}`);
+
+  // 4. Sub-Agent Statuses
+  console.log('\n🐾 4. SUB-AGENT 24/7 SCREENING STATUSES:');
   const hub = new AthenaHub();
   const statuses = hub.getAgentStatuses();
   for (const [name, state] of Object.entries(statuses)) {
@@ -56,10 +64,12 @@ export async function runAthenaDoctor(): Promise<void> {
   }
 
   console.log('\n======================================================');
-  console.log('✅ Diagnostic check completed successfully!');
+  console.log('✅ OpenCatz Diagnostic check completed successfully!');
   console.log('======================================================\n');
 }
 
-if (process.argv[1] && process.argv[1].includes('doctor')) {
+export const runOpencatzDoctor = runAthenaDoctor;
+
+if (process.argv[1] && (process.argv[1].includes('doctor') || process.argv.includes('--doctor'))) {
   runAthenaDoctor().catch(console.error);
 }

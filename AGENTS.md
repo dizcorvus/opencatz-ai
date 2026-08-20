@@ -1,23 +1,26 @@
-# AGENTS.md - Athena Project Guidelines & Agent Instructions
+# AGENTS.md - Opencatz AI Project Guidelines & Agent Instructions
 
-Welcome to the **Athena** codebase! This document outlines project conventions, tech stack, directory layout, and architectural rules for AI agents and developers working on this repository.
+Welcome to the **Opencatz AI** codebase! This document outlines project conventions, tech stack, directory layout, and architectural rules for AI agents and developers working on this repository.
 
 ---
 
 ## 1. Project Overview
 
-**Athena** is an autonomous, multi-agent crypto intelligence and trading ecosystem operated through a **Discord Command Center**, **Terminal TUI**, and **Telegram Notification Bridge**.
+**Opencatz AI** is an autonomous, multi-agent crypto intelligence and trading ecosystem operated through a **Discord Command Center**, **Terminal TUI**, and **Telegram Notification Bridge**, featuring exclusive token gating for **Catz NFT** holders.
 
-- **Core Hub Agent (`#athena-control-room`):** Handles user chat, configuration, portfolio tracking, global risk management, custom price alerts (`/alert`), trade execution, and natural language trade audits.
-- **Swarm Consensus Engine:** Evaluates candidate signals through a 3-Layer Filter (Quant & Liquidity, Catalyst & Sentiment, Security Audit) requiring a **>= 80% Confidence Score** before posting to Discord.
-- **Specialist Screening Sub-Agents:** Run 24/7 background screening (on-demand) and post call signals to dedicated Discord channels:
+- **Core Hub Agent (`#opencatz-control-room`):** Handles user chat, configuration, portfolio tracking, 9-Lives risk management, custom price alerts (`/alert`), trade execution, Catz NFT gating verification (`/catz`), and natural language trade audits.
+- **Swarm Consensus Engine:** Evaluates candidate signals through a 3-Layer Filter (Quant & Liquidity, Catalyst & Sentiment, Security Audit) requiring a **>= 80% Confidence Score** before delivering call cards.
+- **Specialist Screening Sub-Agents:** Run 24/7 background screening and post call signals to dedicated Discord channels:
   - `#call-meme-solana` (Solana DEX tokens / Pump.fun / Raydium / Meteora DLMM)
-  - `#call-meme-robinhood` (EVM L1/L2 tokens / Base / Ethereum / Robinhood L2 / Uniswap)
-  - `#call-perps-futures` (Leverage trading setups / Hyperliquid / CEXs)
-  - `#call-nft-sniping` (EVM NFT floor & rarity alerts / OpenSea)
+  - `#call-meme-robinhood` (Robinhood Chain / EVM L1/L2 tokens / Base / Uniswap)
+  - `#call-lp-solana` (Solana Meteora DLMM Concentrated Liquidity Pools)
+  - `#call-lp-robinhood` (Robinhood Chain Uniswap V3 Concentrated Liquidity Pools)
+  - `#call-whale-tracking` (Hyperliquid L1 institutional positioning & spot flow)
+  - `#call-nft-sniping` (OpenSea EVM NFT floor & rarity alerts / Catz NFT collection)
   - `#call-prediction-markets` (Polymarket prediction market arbitrage & whale bets)
-  - `#call-lp-solana` & `#call-lp-robinhood` (Trade + LP Velocity Concentrated Liquidity Signals)
-- **Position Manager:** Handles post-execution auto-sell targets (Take Profit, Stop Loss, Trailing Stops, and Out-of-Range LP Warnings).
+  - `#call-ct-alpha` (Twitter / X smart CT alpha & sentiment scraper)
+- **Position Manager:** Handles post-execution auto-sell targets (Take Profit 2x/3x, Stop Loss -20%, Dynamic Trailing Stops).
+- **Catz NFT Holder Gating:** Exclusive utilities and VIP privileges on Robinhood Chain for holders of the 4,444 Catz NFT collection (`CATZ` ERC-721 SeaDrop).
 
 ---
 
@@ -27,91 +30,71 @@ Welcome to the **Athena** codebase! This document outlines project conventions, 
 - **Discord Bot SDK:** `discord.js` (v14+)
 - **Blockchain & Crypto Web3 SDKs:**
   - `@solana/web3.js` & `@jup-ag/api` (Solana)
-  - `viem` / `ethers.js` (EVM)
+  - `viem` / `ethers.js` (EVM & Robinhood Chain)
   - `ccxt` (Perpetuals & CEX)
   - Polymarket Gamma API & CLOB SDK (Polygon L2)
   - OpenSea Stream & REST API v2 (EVM NFTs)
-- **Security Audit APIs:** RugCheck API (Solana), GoPlus Security API (EVM)
-- **AI Engine:** OpenRouter / OpenAI / Anthropic Node SDK
-- **Database & State:** SQLite / Prisma ORM / Redis
-- **Protocol:** Model Context Protocol (MCP)
+- **Security Audit APIs:** RugCheck API (Solana), GoPlus Security API (EVM), GMGN API
+- **AI Engine:** OpenRouter / OpenAI / Anthropic / Gemini Node SDK
+- **Database & State:** Atomic JSON State Store (`database/athena_state.json`)
 
 ---
 
 ## 3. Directory Layout
 
 ```
-Athena/
+Opencatz AI/
 ├── .agents/
 │   ├── AGENTS.md                  # Project rules & coding guidelines
-│   └── skills/                    # Athena-specific skills (swarm trading, gmgn)
+│   └── skills/                    # Specialized trading skills
+├── bin/
+│   ├── opencatz.js                # Master OpenCatz CLI binary
+│   └── athena.js                  # Backward-compatible CLI alias
 ├── src/
 │   ├── index.ts                   # Bot initialization & client launcher
-│   ├── orchestrator/              # Athena Core Hub & Global Risk Engine
+│   ├── orchestrator/              # OpenCatz Core Hub & 9-Lives Risk Engine
 │   │   ├── hub.ts                 # AthenaHub: agent states, risk gate, on-demand passes
 │   │   ├── risk-manager.ts        # Drawdown / position-size / correlation guards
-│   │   ├── risk-engine-v2.ts      # Kill-switch circuit breaker (singleton)
+│   │   ├── risk-engine-v2.ts      # 9-Lives Kill-switch circuit breaker (singleton)
 │   │   ├── swarm-consensus.ts     # 3-Layer Signal Quality Filter Engine
 │   │   ├── swarm-learning.ts      # Outcome-driven agent weight recalibration
-│   │   ├── strategy-engine.ts     # Sandboxed .mjs strategy loader (sanitized env)
+│   │   ├── strategy-engine.ts     # Sandboxed .mjs strategy loader
 │   │   ├── agent-registry.ts      # Single source of truth for all 8 agent domains
 │   │   ├── agent-runner.ts        # LLM tool-call loop for chat/TUI/Telegram
 │   │   ├── dispatch.ts            # Per-domain dispatch + LP payload builder
-│   │   └── tool-registry.ts       # LLM function-calling tools (chat commands)
+│   │   └── tool-registry.ts       # LLM function-calling tools
 │   ├── agents/                    # Specialized screening agents (shared contract)
-│   │   ├── shared/
-│   │   │   ├── agent-contract.ts  # ScreeningAgent contract + CallCardPayload
-│   │   │   └── gmgn-meme-helpers.ts # Shared GMGN prefilter/dedupe/signal helpers
+│   │   ├── shared/                # Agent contracts and GMGN helpers
 │   │   ├── meme-solana/           # Solana DEX screening (GMGN + RugCheck)
 │   │   ├── meme-robinhood/        # EVM DEX screening (GMGN + GoPlus)
-│   │   ├── perps/                 # Technical setup screening (Hyperliquid)
-│   │   ├── nft/                   # EVM NFT floor & rarity screening (OpenSea)
-│   │   ├── prediction/            # Polymarket prediction market screening
-│   │   └── ct-alpha/              # X/Twitter smart-CT screening
+│   │   ├── perps/                 # Hyperliquid whale tracking
+│   │   ├── nft/                   # OpenSea & Catz NFT screening
+│   │   ├── prediction/            # Polymarket prediction screening
+│   │   └── ct-alpha/              # Twitter / X smart-CT screening
 │   ├── adapters/                  # Web3 & Exchange execution adapters
-│   │   ├── solana-adapter.ts      # Jupiter swaps + MEV guard (DRY_RUN)
-│   │   ├── evm-adapter.ts         # EVM swaps/sends
-│   │   ├── relay-adapter.ts       # Relay.link quote/swap/send + token maps
-│   │   ├── gmgn-adapter.ts        # GMGN OpenAPI (rank/trenches/signals/audit)
-│   │   ├── hyperliquid-adapter.ts # Perps market data + order execution
-│   │   ├── meteora-dlmm-adapter.ts # Solana LP pools (DexScreener fallback)
-│   │   ├── opensea-adapter.ts     # NFT floor signals + swap aggregator
-│   │   ├── polymarket-adapter.ts  # Gamma/CLOB market data + bets
-│   │   └── mev-execution-guard.ts # Transaction simulation + priority fees
+│   │   ├── solana-adapter.ts      # Jupiter swaps + MEV guard
+│   │   ├── evm-adapter.ts         # EVM & Robinhood Chain swaps
+│   │   ├── relay-adapter.ts       # Relay.link cross-chain swaps & bridges
+│   │   ├── gmgn-adapter.ts        # GMGN OpenAPI
+│   │   ├── hyperliquid-adapter.ts # Perps market data & order flow
+│   │   ├── meteora-dlmm-adapter.ts# Solana Meteora DLMM pools
+│   │   ├── opensea-adapter.ts     # OpenSea NFT signals
+│   │   └── polymarket-adapter.ts  # Polymarket Gamma & CLOB bets
 │   ├── position/                  # Auto TP/SL & Trailing Stop Position Manager
-│   │   └── position-manager.ts
-│   ├── discord/                   # Discord handlers, slash commands & embed views
-│   │   ├── commands/              # Slash command definitions
-│   │   ├── handlers/
-│   │   │   ├── interaction-handler.ts # Thin dispatcher (entry)
-│   │   │   ├── command-handlers.ts    # Slash-command logic + service singletons
-│   │   │   ├── interaction-buttons.ts # Buttons/modals/select menus
-│   │   │   └── message-handler.ts     # Control-room NLU chat
-│   │   ├── embeds/                # Call cards, dashboard, audit embeds
-│   │   └── setup/                 # Channel bootstrap
-│   ├── services/                  # Shared security, price feeds, alerts & LLM
+│   ├── discord/                   # Discord handlers, slash commands & embeds
+│   ├── services/                  # Shared security, feeds, alerts, gating & LLM
+│   │   ├── nft-gating-service.ts  # Catz NFT on-chain holder verification
+│   │   ├── opencatz-system-prompt.ts # OpenCatz multichain system persona
 │   │   ├── state-store.ts         # Persistent JSON state (database/)
-│   │   ├── price-feed-service.ts  # CoinGecko singleton
-│   │   ├── wallet-service.ts      # Wallet keys + balances (singleton)
-│   │   ├── wallet-tracker.ts      # Holdings lifecycle -> PositionManager
-│   │   ├── trade-journal-service.ts # Open/close audit trail
-│   │   ├── security-service.ts    # RugCheck (Solana)
-│   │   ├── goplus-security-service.ts # GoPlus (EVM)
-│   │   ├── token-audit-service.ts # On-demand audit pipeline
-│   │   ├── ai-service.ts          # Multi-provider LLM failover
-│   │   ├── twitter-service.ts     # TwexAPI X/Twitter feeds
-│   │   ├── session-memory.ts      # Audit memory for chat context
-│   │   ├── cron-scheduler.ts      # Process-wide cron singleton
-│   │   └── ...                    # market-regime, health-watcher, skill-loader, api-key-guard, rpc-failover
+│   │   ├── price-feed-service.ts  # CoinGecko price feeds
+│   │   ├── wallet-service.ts      # Wallet keys & balances
+│   │   └── ...                    # security, alerts, ai-service, cron
 │   ├── cli/                       # Terminal TUI + diagnostic doctor
-│   ├── telegram/                  # Telegram notification bridge + bot polling
-│   └── api/                       # Minimal REST server (health + analytics)
-├── strategies/                    # User/LLM-authored strategy .mjs modules
-├── indicators/                    # Custom technical indicator .mjs modules
-├── bin/athena.js                  # `athena` CLI (run/wizard/terminal/deploy/test/build/update/doctor)
-├── scripts/                       # wizard.js (env setup), update-core.mjs (git pull+rebuild)
-├── tests/                         # Vitest suite (247 tests)
-├── .env.example                   # Environment variable template
+│   ├── telegram/                  # Telegram notification bridge
+│   └── api/                       # REST server (health & telemetry)
+├── DESIGN.md                      # OpenCatz unified design system
+├── setup.sh / setup.bat           # One-shot installation scripts
+├── deploy.sh                      # PM2 production deployment script
 ├── package.json
 └── tsconfig.json
 ```
@@ -121,40 +104,12 @@ Athena/
 ## 4. Coding Conventions & Best Practices
 
 1. **Modular Multi-Agent Isolation:**
-   - Keep screening logic decoupled from execution logic. Screening agents MUST pass candidate signals to the `Swarm Consensus Engine` before emitting to Discord call channels or `Athena Core Hub`.
+   - Keep screening decoupled from execution. Screening agents MUST pass candidate signals to the `Swarm Consensus Engine` before emitting cards.
 2. **Safety & Dry-Run First:**
-   - Every trading adapter MUST support a `DRY_RUN` environment check. Never send live transactions unless `DRY_RUN=false` is explicitly set and confirmed.
+   - Every trading adapter MUST support `DRY_RUN=true`. Never send live transactions unless explicitly configured.
 3. **Swarm Consensus Validation:**
    - Require >= 80% confidence score across Quant, Catalyst, and Security audits before delivering signal cards.
-4. **Strict TypeScript Typing:**
-   - Avoid using `any`. Define clear interfaces for Token Signals, Audit Results, Swarm Scores, Discord Command Contexts, and Position States.
-5. **Discord UX Standards:**
-   - Use Discord Rich Embeds with clear color coding (🟢 Green for High Confidence Call, 🔴 Red for Warning/Risk, 🔵 Blue for Status Info).
-   - Provide interactive Action Buttons (`BUY 0.5 SOL`, `PAUSE SCREENING`, `VIEW ON DEXSCREENER`, `BET YES 50 USDC`).
-
----
-
-## 5. Development & Testing Commands
-
-```bash
-# Install dependencies
-npm install
-
-# Run in development mode (with hot reload)
-npm run dev
-
-# Build production bundle
-npm run build
-
-# Run unit tests
-npm test
-```
-
----
-
-## 6. Safety & Security Rules
-
-- **NEVER** commit private keys, mnemonic phrases, API keys, or Discord bot tokens into Git.
-- Use `.env` files and keep `.env.example` updated with mock placeholders.
-- Operating live trading agents should always use dedicated burner wallets with capped funds.
-- **Token & API Cost Optimization**: Reserve LLM API calls strictly for high-value reasoning tasks (e.g. interpreting social sentiment in tweets, drafting final AI Thesis summaries, and handling user chat queries in the command room). Use local deterministic code and mathematical rules for filtering, security checks, and screening to minimize token consumption and keep running costs near zero.
+4. **Discord Embed Field Resilience:**
+   - Never pass empty strings `""`, `null`, or `undefined` to `EmbedBuilder.addFields()`. Always provide safe fallbacks (`|| 'N/A'`) and cap strings at 1000 characters to prevent `@sapphire/shapeshift` validation errors.
+5. **Token & API Cost Optimization:**
+   - Reserve LLM API calls strictly for high-value reasoning and chat queries. Use deterministic local math and rules for screening to maintain near-zero running costs.

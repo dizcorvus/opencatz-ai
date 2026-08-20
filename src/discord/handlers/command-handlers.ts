@@ -498,33 +498,76 @@ export async function handleChatInput(
       }).join('\n');
 
       await interaction.reply({
-        content: `📋 **RECENT ATHENA TRADES (${trades.length}):**\n${historyText}`,
+        content: `📋 **RECENT OPENCATZ TRADES (${trades.length}):**\n${historyText}`,
       });
     } else if (subcommand === 'export') {
       const csvData = tradeJournalService.exportCsv();
       const buffer = Buffer.from(csvData, 'utf-8');
-      const attachment = new AttachmentBuilder(buffer, { name: 'athena_trade_journal.csv' });
+      const attachment = new AttachmentBuilder(buffer, { name: 'opencatz_trade_journal.csv' });
 
       await interaction.reply({
-        content: '📄 **Athena Trade Journal Exported Successfully!** Download your CSV report below for Excel / Notion:',
+        content: '📄 **OpenCatz Trade Journal Exported Successfully!** Download your CSV report below for Excel / Notion:',
         files: [attachment],
       });
     }
+  } else if (commandName === 'catz') {
+    const { globalNFTGatingService } = await import('../../services/nft-gating-service.js');
+    const subcommand = interaction.options.getSubcommand();
+
+    if (subcommand === 'verify') {
+      const wallet = interaction.options.getString('wallet', true);
+      await interaction.deferReply({ ephemeral: true });
+
+      const status = await globalNFTGatingService.verifyHolder(wallet);
+      if (status.isHolder) {
+        const badge = status.holderTier === 'CATZ_LEGENDARY' ? '👑 **LEGENDARY HOLDER**' : status.holderTier === 'CATZ_WHALE' ? '🐋 **WHALE HOLDER**' : '🐱 **VERIFIED CATZ HOLDER**';
+        await interaction.editReply({
+          content: `✅ **VERIFIKASI BERHASIL!**\n\n` +
+            `• **Wallet:** \`${status.walletAddress}\`\n` +
+            `• **Status:** ${badge}\n` +
+            `• **Jumlah Catz NFT:** **${status.balance} Token**\n` +
+            `• **Token IDs:** ${status.tokenIds.length > 0 ? status.tokenIds.map(id => `#${id}`).join(', ') : 'Verified on-chain'}\n` +
+            `• **Benefit:** Full Access ke Opencatz Multichain Intelligence, High-Conviction Calls, & VIP Hub! 🐾⚡`,
+        });
+      } else {
+        await interaction.editReply({
+          content: `❌ **VERIFIKASI GAGAL / BELUM MEMILIKI CATZ NFT**\n\n` +
+            `• **Wallet:** \`${status.walletAddress}\`\n` +
+            `• **Balance:** \`0 CATZ\`\n` +
+            `• **Info:** Pastikan wallet Anda menyimpan Catz NFT pada jaringan **Robinhood Chain (EVM L2 · Chain ID 4663)**.\n` +
+            `• **Mint / Koleksi Resmi:** [OpenSea SeaDrop / opencatz.xyz](https://opencatz.xyz)`,
+        });
+      }
+    } else if (subcommand === 'info') {
+      const info = globalNFTGatingService.getCollectionInfo();
+      const embed = new EmbedBuilder()
+        .setTitle(`🐱 CATZ NFT COLLECTION — OFFICIAL SPECIFICATION`)
+        .setColor(0xccff00)
+        .setDescription(
+          `**Catz NFT** adalah 4,444 koleksi generatif seni piksel retro 24×24 yang menjadi pilar visual ekosistem **Opencatz AI**.\n\n` +
+          `• **Total Supply:** \`4,444 Unique NFTs (1-of-1)\`\n` +
+          `• **Target Chain:** **${info.chain} (EVM L2 · ID ${info.chainId})**\n` +
+          `• **Smart Contract:** \`${info.standard}\`\n` +
+          `• **On-Chain Rendering:** \`100% Fully On-Chain SVG (SSTORE2 Bytecode)\`\n` +
+          `• **Utility:** Gated access to Opencatz AI Multichain Swarm Intelligence, VIP alpha channels, & automated execution modules.\n\n` +
+          `🌐 **Official Portal:** [opencatz.xyz](https://opencatz.xyz)`
+        )
+        .setFooter({ text: 'Opencatz AI • Catz NFT Exclusive Multichain Engine' });
+
+      await interaction.reply({ embeds: [embed] });
+    }
   } else if (commandName === 'update') {
     await interaction.reply({
-      content: '🔄 **Athena Self-Update Sequence Initiated...**\nPulling latest patches, installing dependencies, re-building, and restarting the agent...',
+      content: '🔄 **OpenCatz Self-Update Sequence Initiated...**\nPulling latest patches, installing dependencies, re-building, and restarting the agent...',
       ephemeral: true,
     });
 
-    // Run the update ASYNC (fire-and-forget): the sequence restarts PM2 at the
-    // end, which kills this very process — so we can never await a followUp
-    // after the restart. We only report failures that happen BEFORE the restart.
     try {
       const { runAthenaUpdate } = await import('../../../scripts/update-core.mjs');
       runAthenaUpdate({ noRestart: false });
     } catch (err: any) {
       await interaction.followUp({
-        content: `❌ **Update Exception (before restart):** ${err.message}\n⚠ The bot will restart on its own — full report in ` + '`pm2 logs athena-agent`' + `.`,
+        content: `❌ **Update Exception (before restart):** ${err.message}\n⚠ The bot will restart on its own — full report in ` + '`pm2 logs opencatz-agent`' + `.`,
         ephemeral: true,
       });
     }

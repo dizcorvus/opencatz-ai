@@ -151,7 +151,7 @@ export class StrategyEngine {
 
   // ─── Active strategy per domain ──────────────────────────────────────
 
-  private readActiveMap(): Record<string, boolean> {
+  private readActiveMap(): Record<string, boolean | string> {
     if (!fs.existsSync(ACTIVE_FILE)) return {};
     try {
       return JSON.parse(fs.readFileSync(ACTIVE_FILE, 'utf-8'));
@@ -160,7 +160,7 @@ export class StrategyEngine {
     }
   }
 
-  private writeActiveMap(map: Record<string, boolean>): void {
+  private writeActiveMap(map: Record<string, boolean | string>): void {
     try {
       fs.writeFileSync(ACTIVE_FILE, JSON.stringify(map, null, 2), 'utf-8');
     } catch (err: any) {
@@ -169,19 +169,43 @@ export class StrategyEngine {
   }
 
   public setActiveStrategy(domain: string, strategyId: string): { success: boolean; message: string } {
+    const normalizedDomain = domain.toLowerCase().replace(/[_\s]+/g, '-');
     const strategies = this.listStrategies();
     if (!strategies.some((s) => s.id === strategyId)) {
       return { success: false, message: `Strategy ${strategyId} not found in strategies/.` };
     }
     const map = this.readActiveMap();
-    for (const s of strategies) map[s.id] = s.id === strategyId;
+    map[normalizedDomain] = strategyId;
+    for (const s of strategies) {
+      if (s.id.startsWith(normalizedDomain) || s.id === strategyId) {
+        map[s.id] = s.id === strategyId;
+      }
+    }
+    map[strategyId] = true;
     this.writeActiveMap(map);
     return { success: true, message: `✅ Strategy ${strategyId} is now active for domain ${domain}.` };
   }
 
   public getActiveStrategy(domain: string): AthenaStrategy | null {
+    const normalizedDomain = domain.toLowerCase().replace(/[_\s]+/g, '-');
     const map = this.readActiveMap();
-    const activeId = Object.keys(map).find((k) => map[k] === true);
+
+    // 1. Direct domain-scoped map entry (e.g. map['meme-robinhood'] = 'meme-robinhood-custom')
+    const activeDomainStrategyId = typeof map[normalizedDomain] === 'string' ? map[normalizedDomain] : null;
+    if (activeDomainStrategyId) {
+      const file = path.join(STRATEGIES_DIR, `${activeDomainStrategyId}.mjs`);
+      if (fs.existsSync(file)) {
+        try {
+          const mod = this.loadModule(file);
+          return mod.default || mod;
+        } catch (err: any) {
+          console.warn(`[STRATEGY ENGINE] Failed to load the active strategy ${activeDomainStrategyId}: ${err.message}`);
+        }
+      }
+    }
+
+    // 2. Search for any strategy starting with the normalized domain marked active
+    const activeId = Object.keys(map).find((k) => map[k] === true && k.startsWith(normalizedDomain));
     if (activeId) {
       const file = path.join(STRATEGIES_DIR, `${activeId}.mjs`);
       if (fs.existsSync(file)) {
@@ -193,9 +217,9 @@ export class StrategyEngine {
         }
       }
     }
-    // Fallback: domain-default strategy (e.g. meme-solana-default.mjs) is active
-    // out-of-the-box when no explicit strategy has been set yet.
-    const defaultId = `${domain.toLowerCase().replace(/[_\s]+/g, '-')}-default`;
+
+    // 3. Fallback: domain-default strategy (e.g. meme-solana-default.mjs, meme-robinhood-default.mjs)
+    const defaultId = `${normalizedDomain}-default`;
     const defaultFile = path.join(STRATEGIES_DIR, `${defaultId}.mjs`);
     if (fs.existsSync(defaultFile)) {
       try {

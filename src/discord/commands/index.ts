@@ -266,12 +266,25 @@ export const slashCommands = [
     ),
 
   new SlashCommandBuilder()
+    .setName('catz')
+    .setDescription('Catz NFT Holder Verification & Collection Utilities')
+    .addSubcommand(sub =>
+      sub.setName('verify')
+        .setDescription('Verify wallet ownership of Catz NFT on Robinhood Chain')
+        .addStringOption(opt => opt.setName('wallet').setDescription('EVM wallet address (0x...)').setRequired(true))
+    )
+    .addSubcommand(sub =>
+      sub.setName('info')
+        .setDescription('View official Catz NFT collection details & utility specifications')
+    ),
+
+  new SlashCommandBuilder()
     .setName('menu')
-    .setDescription('Open the Interactive Athena Control Center Dashboard'),
+    .setDescription('Open the Interactive OpenCatz Control Center Dashboard'),
 
   new SlashCommandBuilder()
     .setName('dashboard')
-    .setDescription('Open the Interactive Athena Control Center Dashboard'),
+    .setDescription('Open the Interactive OpenCatz Control Center Dashboard'),
 
   new SlashCommandBuilder()
     .setName('journal')
@@ -291,7 +304,7 @@ export const slashCommands = [
 
   new SlashCommandBuilder()
     .setName('update')
-    .setDescription('Pull latest Athena codebase from Git, re-build TypeScript, and soft-restart'),
+    .setDescription('Pull latest OpenCatz codebase from Git, re-build TypeScript, and soft-restart'),
 
   new SlashCommandBuilder()
     .setName('bridge')

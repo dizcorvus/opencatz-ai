@@ -1,5 +1,5 @@
 /**
- * Athena 2.0 - Advanced Risk Engine & Circuit Breaker (RiskEngineV2)
+ * OpenCatz AI - 9-Lives Risk Engine & Circuit Breaker (RiskEngineV2)
  * Handles per-asset/chain exposure caps, correlation checks, volatility sizing, and real-time kill-switch.
  */
 

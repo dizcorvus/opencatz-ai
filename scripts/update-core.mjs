@@ -88,7 +88,7 @@ export async function runAthenaUpdate({ noRestart = false, cwd = REPO_ROOT } = {
   let restartOk = true;
   if (!noRestart) {
     console.log('\n▶ Restart PM2 agent (detached — the update process is not killed by itself)');
-    const pm2Cmd = 'pm2 restart athena-agent --update-env || npx pm2 restart athena-agent --update-env';
+    const pm2Cmd = 'pm2 restart opencatz-agent --update-env || pm2 restart athena-agent --update-env || npx pm2 restart opencatz-agent --update-env';
     try {
       const child = spawn('sh', ['-c', `sleep 3 && ${pm2Cmd}`], {
         detached: true,

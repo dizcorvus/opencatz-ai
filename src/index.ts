@@ -114,7 +114,7 @@ async function notifyControlRoom(client: any, key: string, content: string): Pro
   controlRoomNotifyCooldown.set(key, now);
   try {
     const channel = client.channels.cache.find(
-      (c: any) => c.type === ChannelType.GuildText && c.name === 'athena-control-room'
+      (c: any) => c.type === ChannelType.GuildText && (c.name === 'opencatz-control-room' || c.name === 'athena-control-room')
     );
     if (channel && 'send' in channel) {
       await channel.send(content);
@@ -517,28 +517,36 @@ if (discordToken && clientId) {
             }
           }
 
-          // 1. Post to Discord Channel
-          const targetChannel = client.channels.cache.find(
-            c => c.type === ChannelType.GuildText && c.name === item.channelName
-          ) as any;
+          // 1. Post to Discord Channel (isolated try-catch per token)
+          try {
+            const targetChannel = client.channels.cache.find(
+              c => c.type === ChannelType.GuildText && c.name === item.channelName
+            ) as any;
 
-          if (targetChannel && 'send' in targetChannel) {
-            const embedData = buildCallEmbed(item.payload);
-            await targetChannel.send(embedData);
-            console.log(`[DISCORD DISPATCH] Posted signal call card for "${item.payload.symbol}" to #${item.channelName}`);
+            if (targetChannel && 'send' in targetChannel) {
+              const embedData = buildCallEmbed(item.payload);
+              await targetChannel.send(embedData);
+              console.log(`[DISCORD DISPATCH] Posted signal call card for "${item.payload.symbol}" to #${item.channelName}`);
+            }
+          } catch (discordSendErr: any) {
+            console.error(`[DISCORD DISPATCH ERROR] Failed to send card for ${item.payload.symbol} to #${item.channelName}:`, discordSendErr.message);
           }
 
           // 2. Post to Telegram Topic
           if (telegramService.isEnabled()) {
-            await telegramService.broadcastSignalCall(
-              item.payload.title,
-              item.payload.symbol,
-              item.payload.contractAddress || 'N/A',
-              item.rawReason,
-              undefined,
-              item.channelName
-            );
-            console.log(`[TELEGRAM DISPATCH] Broadcasted signal call for "${item.payload.symbol}" to topic: ${item.channelName}`);
+            try {
+              await telegramService.broadcastSignalCall(
+                item.payload.title,
+                item.payload.symbol,
+                item.payload.contractAddress || 'N/A',
+                item.rawReason,
+                undefined,
+                item.channelName
+              );
+              console.log(`[TELEGRAM DISPATCH] Broadcasted signal call for "${item.payload.symbol}" to topic: ${item.channelName}`);
+            } catch (teleErr: any) {
+              console.warn(`[TELEGRAM DISPATCH ERROR] Failed for ${item.payload.symbol}: ${teleErr.message}`);
+            }
           }
 
           // 3. Register called tokens for wallet auto-tracking (own-position detection + exit alerts)
@@ -552,9 +560,7 @@ if (discordToken && clientId) {
             console.log(`[POSITION MONITOR] NFT collection di-track: ${item.payload.symbol}`);
           }
 
-          // 4. Feed the Swarm Learning Engine — every posted call is recorded at its
-          //    entry price so outcome tracking (TP/SL via wallet-tracker) can
-          //    recalibrate agent weights over time. (wired 2026-08-08)
+          // 4. Feed the Swarm Learning Engine
           try {
             const { globalSwarmLearning } = await import('./orchestrator/swarm-learning.js');
             const entryPrice = parseFloat(String(item.payload.priceUsd || '0').replace(/[^0-9.]/g, '')) || 0;
@@ -586,7 +592,7 @@ if (discordToken && clientId) {
           console.warn(`[POSITION MONITOR] sync failed this cycle: ${wtErr.message}`);
         }
       } catch (err: any) {
-        console.error('[SUB-AGENTS LOOP ERROR]', err.message);
+        console.error('[SUB-AGENTS LOOP ERROR]', (err as any).errors || err.stack || err.message);
         notifyControlRoom(client, 'loop-error', `⚠️ **SCREENING LOOP ERROR**\n\`${err.message}\``);
       }
     }, 5 * 60 * 1000);
@@ -611,12 +617,15 @@ if (discordToken && clientId) {
 }
 
 function isControlRoomChannel(configuredId: string | undefined, message: any): boolean {
-  if (!configuredId || configuredId === '000000000000000000') return true;
-  return message.channelId === configuredId;
+  if (!configuredId || configuredId === '000000000000000000') {
+    return message.channel?.name === 'opencatz-control-room' || message.channel?.name === 'athena-control-room';
+  }
+  return message.channelId === configuredId || message.channel?.name === 'opencatz-control-room' || message.channel?.name === 'athena-control-room';
 }
 
-console.log('[SYSTEM] Setup complete. All Athena modules ready.');
+console.log('[SYSTEM] Setup complete. All OpenCatz modules ready.');
 console.log('[STATE STORE] Persistent state engine active — positions, alerts, and journal survive restarts.');
+
 
 // Start Athena 2.0 Telemetry & REST API Server
 import { AthenaRESTServer } from './api/server.js';

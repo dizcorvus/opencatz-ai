@@ -273,14 +273,14 @@ function drawProgressHeader(step, total, done) {
     else if (i === step) cells.push(`${C.bold}${C.cyan}[${i}]${C.reset}`);
     else cells.push(`${C.dim}${i}${C.reset}`);
   }
-  console.log(`\n${C.magenta}${C.bold}🏛️  PARTHENON OF ATHENA — MULTICHAIN MASTER ONBOARDING${C.reset}`);
+  console.log(`\n${C.lime}${C.bold}🐾 OPENCATZ AI — MULTICHAIN MASTER ONBOARDING WIZARD${C.reset}`);
   console.log(` ${C.cyan}Step ${step} of ${total} — ${done ? C.green + 'configuring ' + done : 'beginning'}${C.reset}`);
   console.log(` ${cells.join(' ')}\n`);
 }
 
 async function runWizard() {
   console.log('\n======================================================================');
-  console.log('🏛️ ATHENA MULTI-AGENT MULTICHAIN SYSTEM - MASTER ONBOARDING WIZARD');
+  console.log('🐾 OPENCATZ AI MULTI-AGENT SWARM - MASTER ONBOARDING WIZARD');
   console.log('======================================================================\n');
   console.log('💡 Note: API keys are MANDATORY for their respective sub-agents to run. Press ENTER to keep existing values.\n');
 
@@ -322,7 +322,7 @@ async function runWizard() {
     const inputClient = await askQuestion(` 2. Enter DISCORD_CLIENT_ID${defaultClientMsg}: `);
     clientId = inputClient.trim() || clientId;
 
-    const defaultCtrlMsg = controlRoomId ? ` [Default: ${controlRoomId}]` : ' [Optional — alerts are sent here; falls back to #athena-control-room]';
+    const defaultCtrlMsg = controlRoomId ? ` [Default: ${controlRoomId}]` : ' [Optional — alerts are sent here; falls back to #opencatz-control-room]';
     const inputCtrl = await askQuestion(` 3. Enter DISCORD_CHANNEL_CONTROL_ROOM (channel ID)${defaultCtrlMsg}: `);
     controlRoomId = inputCtrl.trim() || controlRoomId;
   }
@@ -340,9 +340,9 @@ async function runWizard() {
     telegramChatId = inputTgChat.trim() || telegramChatId;
   }
 
-  // 4. ATHENA'S REASONING ENGINE
+  // 4. OPENCATZ'S REASONING ENGINE
   drawProgressHeader(4, 9, 'AI provider & model');
-  console.log(` ${C.cyan}${C.bold}🧠 STEP 4: ATHENA'S REASONING ENGINE (AI PROVIDER)${C.reset}`);
+  console.log(` ${C.cyan}${C.bold}🧠 STEP 4: OPENCATZ REASONING ENGINE (AI PROVIDER)${C.reset}`);
   let existingProvider = existingEnv.AI_PROVIDER || '';
   let existingBaseUrl = existingEnv.AI_BASE_URL || '';
   let existingModelName = existingEnv.AI_MODEL_NAME || '';

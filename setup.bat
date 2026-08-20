@@ -1,9 +1,9 @@
 @echo off
 setlocal enabledelayedexpansion
-title Olympian Setup - Athena (Premium Multichain Edition)
+title OpenCatz Setup - Opencatz AI (Multichain Edition)
 
 rem ---------------------------------------------------------------------------
-rem  OLYMPIAN SETUP - Athena (Premium Multichain Edition) one-shot installer
+rem  OPENCATZ SETUP - Opencatz AI (Multichain Edition) one-shot installer
 rem  Steps: 1) Node check (warn-only)  2) git clone/pull  3) npm install
 rem         4) npm run build  5) npm link  6) wizard if .env missing
 rem  Critical failures: pause + exit /b 1
@@ -18,6 +18,7 @@ if defined ESC (
   set "CYAN=%ESC%[0;36m"
   set "YELLOW=%ESC%[1;33m"
   set "BOLD=%ESC%[1m"
+  set "LIME=%ESC%[38;2;204;255;0m"
   set "NC=%ESC%[0m"
 ) else (
   set "GREEN="
@@ -25,20 +26,18 @@ if defined ESC (
   set "CYAN="
   set "YELLOW="
   set "BOLD="
+  set "LIME="
   set "NC="
 )
 
 echo.
-echo %BOLD%                   /\%NC%
-echo %BOLD%                  /  \%NC%
-echo %BOLD%                 / /\ \%NC%
-echo %BOLD%                / /  \ \%NC%
-echo %BOLD%               / /____\ \%NC%
-echo %BOLD%              /__________\%NC%
-echo %BOLD%             ^|  ^|  ^|^|  ^|  ^|%NC%
-echo %BOLD%             ^|  ^|  ^|^|  ^|  ^|%NC%
-echo %CYAN%%BOLD%      PARTHENON OF ATHENA - OLYMPIAN SETUP%NC%
-echo %CYAN%  Multi-Chain Autonomous Crypto Intelligence ^& Trading Ecosystem%NC%
+echo %LIME%%BOLD%       /\_____/\%NC%
+echo %LIME%%BOLD%      /  ■   ■  \      🐾 OPENCATZ AI SETUP 🐾%NC%
+echo %LIME%%BOLD%     ( ==  ^  == )     Autonomous Multichain Trading Swarm%NC%
+echo %LIME%%BOLD%      )    ~    (      Solana • Robinhood Chain • EVM • Perps • NFTs%NC%
+echo %LIME%%BOLD%     (   _____   )     "Chill trades, 9 lives, sharp alpha." • opencatz.xyz%NC%
+echo %LIME%%BOLD%    ( (  )   (  ) )%NC%
+echo %LIME%%BOLD%   (__(__)___(__)__)%NC%
 echo.
 
 rem --- [1/6] Runtime check (warn + continue) ---
@@ -50,7 +49,7 @@ if errorlevel 1 (
   node --version | findstr /R /C:"v2[2-9]" /C:"v[3-9][0-9]" >nul
   if errorlevel 1 (
     for /f "delims=" %%v in ('node --version') do set "NODE_VER=%%v"
-    echo %YELLOW%Warning: found Node !NODE_VER! - Athena requires ^>= 22.12. Install from https://nodejs.org and re-run setup.%NC%
+    echo %YELLOW%Warning: found Node !NODE_VER! - OpenCatz requires ^>= 22.12. Install from https://nodejs.org and re-run setup.%NC%
   ) else (
     echo %GREEN%Node %BOLD%found ^>= v22%NC%
   )
@@ -66,8 +65,8 @@ echo %GREEN%OK: node + npm available%NC%
 rem --- [2/6] Source code ---
 echo %CYAN%%BOLD%--- [2/6] Source code ---%NC%
 if not exist package.json (
-  set "REPO_URL=https://github.com/dizcorvus/athena-ai-multichain.git"
-  if defined ATHENA_REPO_URL set "REPO_URL=%ATHENA_REPO_URL%"
+  set "REPO_URL=https://github.com/dizcorvus/opencatz-ai.git"
+  if defined OPENCATZ_REPO_URL set "REPO_URL=%OPENCATZ_REPO_URL%"
   echo %YELLOW%No repo found. Cloning %BOLD%!REPO_URL!%NC% ...
   git clone "!REPO_URL!" .
   if errorlevel 1 (
@@ -100,7 +99,7 @@ if errorlevel 1 (
   pause
   exit /b 1
 )
-echo %GREEN%Dependencies installed%NC%
+echo %GREEN%OK: dependencies installed%NC%
 
 rem --- [4/6] Build ---
 echo %CYAN%%BOLD%--- [4/6] Build ---%NC%
@@ -110,32 +109,33 @@ if errorlevel 1 (
   pause
   exit /b 1
 )
-echo %GREEN%TypeScript compiled to dist\%NC%
+echo %GREEN%OK: TypeScript compiled to dist/%NC%
 
 rem --- [5/6] CLI link ---
 echo %CYAN%%BOLD%--- [5/6] CLI link ---%NC%
-call npm link
+call npm link >nul 2>&1
 if errorlevel 1 (
-  echo %YELLOW%Warning: npm link failed (skip; use npx or node bin\athena.js).%NC%
+  echo %YELLOW%Warning: npm link failed - continuing (you can run via node bin\opencatz.js)%NC%
 ) else (
-  echo %GREEN%athena CLI linked%NC%
+  echo %GREEN%OK: opencatz CLI linked globally%NC%
 )
 
 rem --- [6/6] Configuration ---
 echo %CYAN%%BOLD%--- [6/6] Configuration ---%NC%
 if not exist .env (
-  echo %YELLOW%No .env found - launching Athena onboarding wizard ...%NC%
+  echo %YELLOW%No .env found - launching OpenCatz onboarding wizard...%NC%
   call npm run wizard
-  if errorlevel 1 echo %YELLOW%Warning: wizard did not complete - you can rerun it with "athena wizard".%NC%
 ) else (
-  echo %YELLOW%.env already exists - skipping wizard (rerun: athena wizard)%NC%
+  echo %YELLOW%.env already exists - skipping wizard (rerun anytime: opencatz wizard)%NC%
 )
 
-rem --- Final summary ---
 echo.
-echo %GREEN%%BOLD%OK: ATHENA IS INSTALLED%NC%
-echo %BOLD%Parthenon:%NC%  athena terminal     ^<-- command center TUI
-echo %BOLD%Athena:%NC%     athena run          ^<-- dev  /  npx pm2 start dist\index.js --name athena-agent
-echo %BOLD%Health:%NC%     athena doctor ^| athena test ^| athena update
+echo %GREEN%%BOLD%======================================================================%NC%
+echo %GREEN%%BOLD%  OPENCATZ AI MULTICHAIN IS INSTALLED%NC%
+echo %GREEN%%BOLD%======================================================================%NC%
+echo.
+echo %BOLD%Terminal:%NC%    opencatz terminal     # command center TUI
+echo %BOLD%OpenCatz:%NC%    opencatz run          # dev mode / opencatz deploy (PM2 daemon)
+echo %BOLD%Health:%NC%      opencatz doctor ^| opencatz test ^| opencatz update
 echo.
 pause

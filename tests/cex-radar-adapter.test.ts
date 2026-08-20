@@ -112,7 +112,9 @@ describe('CexRadarAdapter', () => {
   });
 
   it('prints dihitung dari cost (price × amount) saat field cost tidak ada', async () => {
+    const fetchImpl = mkRestRouter();
     const adapter = new CexRadarAdapter({
+      fetchImpl: fetchImpl as unknown as typeof fetch,
       exchanges: {
         binance: mkFakeExchange({
           fetchTrades: vi.fn(async () => [{ price: 60000, amount: 20, side: 'buy' }]), // $1.2M

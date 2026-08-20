@@ -1,4 +1,4 @@
-import { describe, it, expect, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import fs from 'fs';
 import path from 'path';
 import { StrategyEngine } from '../src/orchestrator/strategy-engine.js';
@@ -21,14 +21,17 @@ export default {
 
 const INVALID_STRATEGY = `export default { id: 'broken', evaluate: 'not-a-function' };`;
 
-afterEach(() => {
+const cleanup = () => {
   for (const f of ['test-momentum.mjs', 'broken.mjs', '.active.json']) {
     const p = path.join(STRAT_DIR, f);
     if (fs.existsSync(p)) fs.unlinkSync(p);
   }
   const bak = path.join(STRAT_DIR, '.backup', 'test-momentum.mjs.bak');
   if (fs.existsSync(bak)) fs.unlinkSync(bak);
-});
+};
+
+beforeEach(cleanup);
+afterEach(cleanup);
 
 describe('StrategyEngine', () => {
   it('writes and validates a strategy module', () => {
