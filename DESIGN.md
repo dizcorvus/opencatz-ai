@@ -50,14 +50,17 @@ Opencatz AI UI components utilize a standardized retro palette across Discord em
 ### Functional Color Semantics:
 1. **High Confidence Signals & TP Wins ($\ge 80\%$ Swarm):** `Robinhood Green (#CCFF00)` & `Jade Spirit (#00E676)`
 2. **Solana Meme Calls (`#call-meme-solana`):** `Jade Spirit (#00E676)`
-3. **Robinhood / EVM Meme Calls (`#call-meme-robinhood`):** `Pastel Pink (#FFB7B2)`
-4. **Concentrated LP Velocity (`#call-lp-solana` / `#call-lp-robinhood`):** `Retro Cyan (#80DEEA)`
-5. **NFT Floor & Rarity Sniping (`#call-nft-sniping`):** `Lavender Purple (#D6C7FF)`
-6. **Smart CT & Twitter/X Sentiment (`#call-ct-alpha`):** `Pastel Yellow (#FFF59D)`
-7. **Whale Tracker & Perps Flows (`#call-whale-tracking`):** `Denim Blue (#0277BD)`
-8. **Polymarket Prediction Arbitrage (`#call-prediction-markets`):** `Prediction Cyan (#00E5FF)`
-9. **9-Lives Circuit Breaker, Honeypot Warnings, Stop Loss:** `Maneki-Neko Lucky Red (#E53935)`
-10. **Realized Gains & Catz NFT VIP Holders:** `Golden Fortune (#FFD700)`
+3. **Robinhood Chain Meme Calls (`#call-meme-robinhood`):** `Pastel Pink (#FFB7B2)`
+4. **Base L2 Meme Calls (`#call-meme-base`):** `Denim Blue (#0277BD)`
+5. **Ethereum Mainnet Meme Calls (`#call-meme-eth`):** `Lavender Purple (#D6C7FF)`
+6. **BNB Chain (BSC) Meme Calls (`#call-meme-bnb`):** `Golden Fortune (#FFD700)`
+7. **Concentrated LP Velocity (`#call-lp-solana` / `#call-lp-robinhood`):** `Retro Cyan (#80DEEA)`
+8. **NFT Floor & Rarity Sniping (`#call-nft-sniping`):** `Royal Violet (#7B1FA2)`
+9. **Smart CT & Twitter/X Sentiment (`#call-ct-alpha`):** `Pastel Yellow (#FFF59D)`
+10. **Whale Tracker & Perps Flows (`#call-whale-tracking`):** `Denim Blue (#0277BD)`
+11. **Polymarket Prediction Arbitrage (`#call-prediction-markets`):** `Prediction Cyan (#00E5FF)`
+12. **9-Lives Circuit Breaker, Honeypot Warnings, Stop Loss:** `Maneki-Neko Lucky Red (#E53935)`
+13. **Realized Gains & Catz NFT VIP Holders:** `Golden Fortune (#FFD700)`
 
 ---
 

@@ -3,15 +3,15 @@ name: athena-swarm-trading
 description: Autonomous multi-agent crypto trading skill for Solana, EVM DEXs, Perps, and NFTs using 3-layer Swarm Consensus, Discord Command Center, and Position Management.
 ---
 
-# Athena Swarm Trading & Intelligence Skill
+# OpenCatz Swarm Trading & Intelligence Skill
 
-This skill defines the operational standards, decision pipelines, and multi-agent coordination rules for the **Athena Crypto Ecosystem**.
+This skill defines the operational standards, decision pipelines, and multi-agent coordination rules for the **Opencatz AI Crypto Ecosystem**.
 
 ---
 
-## 1. Solana Meme Potential Signal Categories
+## 1. Multichain Potential Signal Categories
 
-Screening agents scan across 3 high-potential token opportunities:
+Screening agents scan across high-potential token opportunities:
 1. 🐣 **Established Launches & CTO Tokens:** Tokens with minimum **4 Hours Age** and active bonding curve/DEX liquidity.
 2. 🧟 **Revival & CTO Tokens (Dead Tokens Waking Up):** Established tokens (> 4h age) experiencing a sudden **+500% 1H volume surge**, **2+ GMGN Smart Wallet accumulation**, and dev 0% / CTO (Community Takeover).
 3. 🚀 **Volume Surge & Trend Breakouts:** Tokens breaking key resistance levels confirmed by 1H GMGN Smart Money Net Inflows.
@@ -24,7 +24,7 @@ Screening agents scan across 3 high-potential token opportunities:
 - **Transaction Ratio:** Buy vs Sell transaction ratio evaluation.
 
 ### Layer 2: Catalyst & Social Hype Audit (Twitter/X Sentiment)
-- **Twitter/X Hype Verification:** Uses GMGN Social API & OpenRouter AI sentiment check to audit:
+- **Twitter/X Hype Verification:** Uses GMGN Social API & AI sentiment check to audit:
   - Active X account link presence (MANDATORY).
   - Recycled / Scammer X account flag check (reject if recycled or suspended).
   - Tweet volume & engagement momentum score.
@@ -51,9 +51,20 @@ Flexible thresholds designed to capture **high-potential RUNNER tokens** while a
 
 ## 2. Discord Call & Execution Standards
 
-- **Informational Calls:** Deliver to dedicated channels (`#call-meme-solana`, `#call-meme-robinhood`, `#call-perps-futures`, `#call-nft-sniping`).
-- **Interactive Action Buttons:** Provide `[BUY 0.5 SOL/ETH]`, `[BUY 1.0 SOL/ETH]`, and `[PAUSE CHANNEL]`.
-- **Command Execution:** User buys are executed securely via Athena Core Hub in `#athena-control-room`.
+- **Informational Calls:** Delivered to 11 dedicated channels:
+  - `#call-meme-solana` (Solana DEX)
+  - `#call-meme-robinhood` (Robinhood Chain DEX)
+  - `#call-meme-base` (Base L2 DEX)
+  - `#call-meme-eth` (Ethereum Mainnet DEX)
+  - `#call-meme-bnb` (BNB Chain / BSC DEX)
+  - `#call-lp-solana` (Meteora DLMM Pools)
+  - `#call-lp-robinhood` (Robinhood Uniswap V3 Pools)
+  - `#call-whale-tracking` (Hyperliquid Perps)
+  - `#call-nft-sniping` (OpenSea & Catz NFT)
+  - `#call-prediction-markets` (Polymarket Arbitrage)
+  - `#call-ct-alpha` (Twitter / X Narrative Intelligence)
+- **Interactive Action Buttons:** Provide direct quick execution links and trade actions.
+- **Command Execution:** User trades and portfolio risk management are executed securely via OpenCatz Core Hub in `#opencatz-control-room`.
 
 ---
 
@@ -68,5 +79,5 @@ Upon trade execution:
 
 ## 4. Trade Audit & Diagnostic Logging
 
-- Log every signal, thesis, entry price, execution time, and exit PnL in the database.
-- Support natural language trade diagnostics when queried in Discord.
+- Log every signal, thesis, entry price, execution time, and exit PnL in atomic JSON state (`database/athena_state.json`).
+- Support natural language trade diagnostics when queried in Discord `#opencatz-control-room` or Terminal TUI.
