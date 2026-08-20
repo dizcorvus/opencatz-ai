@@ -83,9 +83,12 @@ export const slashCommands = [
             .setRequired(false)
             .addChoices(
               { name: 'Solana Meme Agent', value: 'meme-solana' },
-              { name: 'Robinhood Meme Agent', value: 'meme-robinhood' },
+              { name: 'Robinhood Chain Meme Agent', value: 'meme-robinhood' },
+              { name: 'Base L2 Meme Agent', value: 'meme-base' },
+              { name: 'Ethereum Meme Agent', value: 'meme-eth' },
+              { name: 'BNB Chain (BSC) Meme Agent', value: 'meme-bsc' },
               { name: 'Solana LP Agent', value: 'lp-solana' },
-              { name: 'EVM LP Agent (Robinhood Chain)', value: 'lp-robinhood' },
+              { name: 'Robinhood LP Agent', value: 'lp-robinhood' },
               { name: 'Whale Tracking Agent (Hyperliquid)', value: 'perps' },
               { name: 'NFT Sniping Agent', value: 'nft' },
               { name: 'Polymarket Prediction Agent', value: 'prediction' },
@@ -102,9 +105,12 @@ export const slashCommands = [
             .setRequired(false)
             .addChoices(
               { name: 'Solana Meme Agent', value: 'meme-solana' },
-              { name: 'Robinhood Meme Agent', value: 'meme-robinhood' },
+              { name: 'Robinhood Chain Meme Agent', value: 'meme-robinhood' },
+              { name: 'Base L2 Meme Agent', value: 'meme-base' },
+              { name: 'Ethereum Meme Agent', value: 'meme-eth' },
+              { name: 'BNB Chain (BSC) Meme Agent', value: 'meme-bsc' },
               { name: 'Solana LP Agent', value: 'lp-solana' },
-              { name: 'EVM LP Agent (Robinhood Chain)', value: 'lp-robinhood' },
+              { name: 'Robinhood LP Agent', value: 'lp-robinhood' },
               { name: 'Whale Tracking Agent (Hyperliquid)', value: 'perps' },
               { name: 'NFT Sniping Agent', value: 'nft' },
               { name: 'Polymarket Prediction Agent', value: 'prediction' },
@@ -114,7 +120,7 @@ export const slashCommands = [
     )
     .addSubcommand(sub =>
       sub.setName('status')
-        .setDescription('View real-time status of all 8 sub-agents (active / paused)')
+        .setDescription('View real-time status of all 11 sub-agents (active / paused)')
     )
     .addSubcommand(sub =>
       sub.setName('trigger')
@@ -125,9 +131,12 @@ export const slashCommands = [
             .setRequired(true)
             .addChoices(
               { name: 'Solana Meme Agent', value: 'meme-solana' },
-              { name: 'Robinhood Meme Agent', value: 'meme-robinhood' },
+              { name: 'Robinhood Chain Meme Agent', value: 'meme-robinhood' },
+              { name: 'Base L2 Meme Agent', value: 'meme-base' },
+              { name: 'Ethereum Meme Agent', value: 'meme-eth' },
+              { name: 'BNB Chain (BSC) Meme Agent', value: 'meme-bsc' },
               { name: 'Solana LP Agent', value: 'lp-solana' },
-              { name: 'EVM LP Agent (Robinhood Chain)', value: 'lp-robinhood' },
+              { name: 'Robinhood LP Agent', value: 'lp-robinhood' },
               { name: 'Whale Tracking Agent (Hyperliquid)', value: 'perps' },
               { name: 'NFT Sniping Agent', value: 'nft' },
               { name: 'Polymarket Prediction Agent', value: 'prediction' },

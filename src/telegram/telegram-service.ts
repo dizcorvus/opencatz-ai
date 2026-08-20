@@ -274,11 +274,11 @@ Use buttons below to toggle agents, view wallet status, or execute withdrawals:`
         hub.toggleChannelScreening('telegram-forum', domain, !active);
         await this.sendMessage(`⚡ Sub-agent domain \`${domain}\` is now **${!active ? 'ACTIVE' : 'PAUSED'}** on Telegram!`, 'Markdown', undefined, threadId);
       } else if (data === 'start_all') {
-        ['meme-solana', 'meme-robinhood', 'lp-solana', 'lp-robinhood', 'perps', 'nft', 'prediction', 'ct-alpha'].forEach(d => hub.toggleChannelScreening('telegram-forum', d, true));
-        await this.sendMessage('⚡ **GLOBAL MASTER SCREENING ACTIVATED!** All 8 Sub-Agents are active on Telegram.', 'Markdown', undefined, threadId);
+        ['meme-solana', 'meme-robinhood', 'meme-base', 'meme-eth', 'meme-bsc', 'lp-solana', 'lp-robinhood', 'perps', 'nft', 'prediction', 'ct-alpha'].forEach(d => hub.toggleChannelScreening('telegram-forum', d, true));
+        await this.sendMessage('⚡ **GLOBAL MASTER SCREENING ACTIVATED!** All 11 Sub-Agents are active on Telegram.', 'Markdown', undefined, threadId);
       } else if (data === 'pause_all') {
-        ['meme-solana', 'meme-robinhood', 'lp-solana', 'lp-robinhood', 'perps', 'nft', 'prediction', 'ct-alpha'].forEach(d => hub.toggleChannelScreening('telegram-forum', d, false));
-        await this.sendMessage('⏸️ **GLOBAL MASTER SCREENING PAUSED!** All 8 Sub-Agents are paused on Telegram.', 'Markdown', undefined, threadId);
+        ['meme-solana', 'meme-robinhood', 'meme-base', 'meme-eth', 'meme-bsc', 'lp-solana', 'lp-robinhood', 'perps', 'nft', 'prediction', 'ct-alpha'].forEach(d => hub.toggleChannelScreening('telegram-forum', d, false));
+        await this.sendMessage('⏸️ **GLOBAL MASTER SCREENING PAUSED!** All 11 Sub-Agents are paused on Telegram.', 'Markdown', undefined, threadId);
       } else if (data === 'balances') {
         const isDryRun = isDryRunMode();
         const hasSol = walletService.hasWallet('solana');

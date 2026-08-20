@@ -62,7 +62,7 @@ Opencatz AI/
 │   │   ├── swarm-consensus.ts     # 3-Layer Signal Quality Filter Engine
 │   │   ├── swarm-learning.ts      # Outcome-driven agent weight recalibration
 │   │   ├── strategy-engine.ts     # Sandboxed .mjs strategy loader
-│   │   ├── agent-registry.ts      # Single source of truth for all 8 agent domains
+│   │   ├── agent-registry.ts      # Single source of truth for all 11 agent domains
 │   │   ├── agent-runner.ts        # LLM tool-call loop for chat/TUI/Telegram
 │   │   ├── dispatch.ts            # Per-domain dispatch + LP payload builder
 │   │   └── tool-registry.ts       # LLM function-calling tools

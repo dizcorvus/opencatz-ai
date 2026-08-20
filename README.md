@@ -61,31 +61,32 @@
                    │   catz nft gating · trade journal │
                    └──────────────────┬────────────────┘
                                       │ candidate signals
-    ┌────────────┬────────────┬───────┼───────┬────────────┬────────────┬────────────┐
-    ▼            ▼            ▼       ▼       ▼            ▼            ▼            ▼
-┌────────┐  ┌────────┐  ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐
-│ SOLANA │  │ EVM/RH │  │ SOL LP │ │ EVM LP │ │ WHALES │ │  NFT   │ │ POLY   │ │ CT-X   │
-│  MEME  │  │  MEME  │  │METEORA │ │UNISWAP │ │ HYPER- │ │ OPENSEA│ │ MARKET │ │ ALPHA  │
-│  GMGN  │  │  GMGN  │  │  DLMM  │ │KRYSTAL │ │ LIQUID │ │  CATZ  │ │ GAMMA  │ │TWITTER │
-│RugCheck│  │ GoPlus │  │  FEE   │ │Fee/TVL │ │ perps  │ │  NFT   │ │  CLOB  │ │  AI    │
-└────┬───┘  └────┬───┘  └────┬───┘ └───┬────┘ └───┬────┘ └───┬────┘ └───┬────┘ └───┬────┘
-     └───────────┴───────────┴─────────┼──────────┴──────────┴──────────┴──────────┘
-                                       ▼
-                   ┌────────────────────────────────────┐
-                   │   SWARM CONSENSUS ENGINE (≥ 80%)   │
-                   │  Quant · Catalyst · Security Audit │
-                   └───────────────────┬────────────────┘
-                                       │ only ≥ 80% confidence
-                                       ▼
-          MULTI-PLATFORM DISPATCH (Discord · Terminal TUI · Telegram)
-   • #call-meme-solana · #call-meme-robinhood · #call-lp-solana · #call-lp-robinhood
-   • #call-whale-tracking · #call-nft-sniping · #call-prediction-markets · #call-ct-alpha
-                                       │
-                                       ▼
-                        WALLET TRACKER (holdings lifecycle)
-                                       │
-                                       ▼
-                 POSITION MANAGER (TP 2x/3x · SL -20% · trailing)
+     ┌──────────┬──────────┬──────────┼──────────┬──────────┬──────────┬──────────┬──────────┬──────────┬──────────┬──────────┐
+     ▼          ▼          ▼          ▼          ▼          ▼          ▼          ▼          ▼          ▼          ▼
+ ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐
+ │ SOLANA │ │ROBINH'D│ │  BASE  │ │  ETH   │ │  BNB   │ │ SOL LP │ │ RH LP  │ │ WHALES │ │  NFT   │ │ POLY   │ │ CT-X   │
+ │  MEME  │ │  MEME  │ │  MEME  │ │  MEME  │ │  MEME  │ │METEORA │ │UNISWAP │ │ HYPER- │ │ OPENSEA│ │ MARKET │ │ ALPHA  │
+ │  GMGN  │ │  GMGN  │ │  GMGN  │ │  GMGN  │ │  GMGN  │ │  DLMM  │ │KRYSTAL │ │ LIQUID │ │  CATZ  │ │ GAMMA  │ │TWITTER │
+ │RugCheck│ │ GoPlus │ │ GoPlus │ │ GoPlus │ │ GoPlus │ │  FEE   │ │Fee/TVL │ │ perps  │ │  NFT   │ │  CLOB  │ │  AI    │
+ └────┬───┘ └───┬────┘ └───┬────┘ └───┬────┘ └───┬────┘ └───┬────┘ └───┬────┘ └───┬────┘ └───┬────┘ └───┬────┘ └───┬────┘
+      └─────────┴──────────┴──────────┴──────────┴──────────┼──────────┴──────────┴──────────┴──────────┴──────────┘
+                                                            ▼
+                                        ┌────────────────────────────────────┐
+                                        │   SWARM CONSENSUS ENGINE (≥ 80%)   │
+                                        │  Quant · Catalyst · Security Audit │
+                                        └───────────────────┬────────────────┘
+                                                            │ only ≥ 80% confidence
+                                                            ▼
+                               MULTI-PLATFORM DISPATCH (Discord · Terminal TUI · Telegram)
+        • #call-meme-solana · #call-meme-robinhood · #call-meme-base · #call-meme-eth · #call-meme-bnb
+        • #call-lp-solana · #call-lp-robinhood · #call-whale-tracking · #call-nft-sniping
+        • #call-prediction-markets · #call-ct-alpha
+                                                            │
+                                                            ▼
+                                             WALLET TRACKER (holdings lifecycle)
+                                                            │
+                                                            ▼
+                                      POSITION MANAGER (TP 2x/3x · SL -20% · trailing)
 ```
 
 ---
@@ -98,7 +99,7 @@
 | **Catz NFT Gating** | `/catz` | `verify <wallet>`, `info` | Verify Catz NFT ownership on Robinhood Chain and inspect collection perks |
 | **Trade Journal** | `/journal` | `summary`, `history`, `export` | View Win-Rate %, PnL summary, recent trades, & download `opencatz_trade_journal.csv` |
 | **Price Alerts** | `/alert` | `set`, `list`, `cancel` | Manage custom real-time price alerts & notifications |
-| **Sub-Agent Toggles** | `/screening` | `start`, `stop` | Toggle 24/7 background sub-agents across all 8 multichain domains |
+| **Sub-Agent Toggles** | `/screening` | `start`, `stop` | Toggle 24/7 background sub-agents across all 11 multichain domains |
 | **Burner Wallets** | `/wallet` | `setup`, `balance`, `withdraw` | Manage Solana & EVM burner wallets, inspect balances, or withdraw funds |
 | **Token Audit** | `/analyze` | `contract:<CA>` | Force 12-point on-demand audit for any Solana or EVM token |
 | **Direct Execution** | `/swap`, `/bridge`, `/send` | Direct On-Chain Swaps | Instant cross-chain bridging via Relay.link and token swaps on Solana / EVM |
