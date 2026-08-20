@@ -31,7 +31,7 @@ describe('runAthenaUpdate', () => {
     expect(mockSpawn).toHaveBeenCalledTimes(1);
     const [shell, args] = mockSpawn.mock.calls[0] as [string, string[]];
     expect(shell).toBe('sh');
-    expect(args[1]).toContain('pm2 restart athena-agent');
+    expect(args[1]).toContain('pm2 restart opencatz-agent');
     expect(result.ok).toBe(true);
     expect(result.restartOk).toBe(true);
   });
