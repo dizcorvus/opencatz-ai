@@ -42,12 +42,12 @@ export function createApiKeyPool(baseVar: string, keys: string[]): ApiKeyPool {
   };
 }
 
-export function loadApiKeyPool(baseVar: string): ApiKeyPool {
+export function loadApiKeyPool(baseVar: string, chainHint?: string): ApiKeyPool {
   const primary = process.env[baseVar] || '';
   const backups = process.env[`${baseVar}_BACKUP_KEYS`] || process.env[`${baseVar.replace(/_API_KEY$/, '')}_BACKUP_KEYS`] || '';
   const commaSeparated = process.env[`${baseVar}S`] || process.env[`${baseVar.replace(/_API_KEY$/, '')}_API_KEYS`] || '';
 
-  // Collect indexed backup keys (e.g. GMGN_API_KEY_1, GMGN_API_KEY_2 ... GMGN_API_KEY_10)
+  // Collect indexed backup keys (e.g. GMGN_API_KEY_1, OPENSEA_API_KEY_1 ... 20)
   const indexedKeys: string[] = [];
   for (let i = 1; i <= 20; i++) {
     const k1 = process.env[`${baseVar}_${i}`];
@@ -56,16 +56,34 @@ export function loadApiKeyPool(baseVar: string): ApiKeyPool {
     if (k2) indexedKeys.push(k2);
   }
 
-  // Collect chain-specific keys if baseVar relates to GMGN
+  // Collect chain-specific keys (e.g. GMGN_API_KEY_ETH, OPENSEA_API_KEY_BASE, etc.)
   const chainKeys: string[] = [];
-  if (baseVar.includes('GMGN')) {
-    for (const suffix of ['ROBINHOOD', 'SOLANA', 'BASE', 'ETH', 'BSC']) {
-      const k = process.env[`GMGN_API_KEY_${suffix}`];
-      if (k) chainKeys.push(k);
+  const normalizedHint = chainHint ? chainHint.toUpperCase().replace(/[-_]/g, '') : '';
+  let hintKey: string | undefined;
+
+  const supportedChains = ['ETH', 'ETHEREUM', 'BASE', 'INK', 'ROBINHOOD', 'RH', 'HYPEREVM', 'HYPER', 'SOLANA', 'SOL', 'BSC', 'POLYGON', 'ARBITRUM'];
+  for (const c of supportedChains) {
+    const k1 = process.env[`${baseVar}_${c}`];
+    const k2 = process.env[`${baseVar.replace(/_API_KEY$/, '')}_API_KEY_${c}`];
+    if (k1) {
+      if (normalizedHint && (c === normalizedHint || (c === 'ETH' && normalizedHint === 'ETHEREUM') || (c === 'RH' && normalizedHint === 'ROBINHOOD'))) {
+        hintKey = k1;
+      } else {
+        chainKeys.push(k1);
+      }
+    }
+    if (k2) {
+      if (normalizedHint && (c === normalizedHint || (c === 'ETH' && normalizedHint === 'ETHEREUM') || (c === 'RH' && normalizedHint === 'ROBINHOOD'))) {
+        hintKey = k2;
+      } else {
+        chainKeys.push(k2);
+      }
     }
   }
 
+  // If a chain hint key is matched, put it at the very front of the queue
   const allRaw = [
+    ...(hintKey ? [hintKey] : []),
     primary,
     ...backups.split(','),
     ...commaSeparated.split(','),
@@ -73,7 +91,7 @@ export function loadApiKeyPool(baseVar: string): ApiKeyPool {
     ...chainKeys,
   ];
 
-  // Deduplicate keys preserving order
+  // Deduplicate keys preserving priority order
   const uniqueKeys = Array.from(new Set(allRaw.map((k) => k.trim()).filter(Boolean)));
   return createApiKeyPool(baseVar, uniqueKeys);
 }

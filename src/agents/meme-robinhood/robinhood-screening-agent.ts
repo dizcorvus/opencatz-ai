@@ -13,7 +13,7 @@ export interface RobinhoodSignal {
 }
 
 export interface RobinhoodScreeningConfig {
-  chains: SolChain[];        // ['robinhood', 'base', 'eth', 'bsc'] — EVM Meme Multi-Chain screening
+  chains: SolChain[];        // ['robinhood', 'base', 'eth', 'ink'] — EVM Meme Multi-Chain screening
   minVolume1hUsd: number;    // 50000 — real 1-HOUR volume (token must be active RIGHT NOW)
   minLiquidityUsd: number;   // 10000
   minMarketCapUsd: number;   // 100000 — required to be above $100k (MC 0/unknown = reject)
@@ -34,7 +34,7 @@ export interface RobinhoodScreeningConfig {
 }
 
 const DEFAULT_CONFIG: RobinhoodScreeningConfig = {
-  chains: ['robinhood', 'base', 'eth', 'bsc'],
+  chains: ['robinhood', 'base', 'eth', 'ink'],
   minVolume1hUsd: 50000,
   minLiquidityUsd: 10000,
   minMarketCapUsd: 100000,
@@ -76,11 +76,11 @@ export class RobinhoodScreeningAgent implements ScreeningAgent<RobinhoodSignal> 
   public updateConfig(partial: Record<string, unknown>): { applied: Record<string, unknown>; rejected: string[] } {
     const { applied, rejected } = validateMemeConfigUpdate(partial);
     if (Array.isArray(partial.chains)) {
-      const validChains = partial.chains.filter((c): c is SolChain => ['robinhood', 'base', 'eth', 'bsc', 'sol'].includes(c as any));
+      const validChains = partial.chains.filter((c): c is SolChain => ['robinhood', 'base', 'eth', 'ink', 'bsc', 'sol'].includes(c as any));
       if (validChains.length > 0) {
         applied.chains = validChains;
       } else {
-        rejected.push('chains: must be an array of valid chains (e.g. ["robinhood", "base", "eth", "bsc"])');
+        rejected.push('chains: must be an array of valid chains (e.g. ["robinhood", "base", "eth", "ink"])');
       }
     }
     this.config = { ...this.config, ...applied };
@@ -242,6 +242,7 @@ export class RobinhoodScreeningAgent implements ScreeningAgent<RobinhoodSignal> 
       robinhood: { label: 'Robinhood Chain', chainId: 4663, dexscreenerChain: 'robinhood' },
       base: { label: 'Base L2', chainId: 8453, dexscreenerChain: 'base' },
       eth: { label: 'Ethereum Mainnet', chainId: 1, dexscreenerChain: 'ethereum' },
+      ink: { label: 'Ink Chain (Kraken L2)', chainId: 57073, dexscreenerChain: 'ink' },
       bsc: { label: 'BNB Chain (BSC)', chainId: 56, dexscreenerChain: 'bsc' },
       sol: { label: 'Solana', chainId: 0, dexscreenerChain: 'solana' },
     };

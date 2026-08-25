@@ -1,18 +1,17 @@
-# 🐾 OPENCATZ AI — Multichain Edition (Catz NFT Exclusive)
+# 🐾 OPENCATZ AI — Multichain Edition
 
 ```
       /\_____/\
      /  ■   ■  \       🐾 OPENCATZ AI (MULTICHAIN EDITION) 🐾
     ( ==  ^  == )      Autonomous Multi-Agent Crypto Intelligence Swarm
-     )    ~    (       Solana • Robinhood Chain • Base • ETH • BNB Chain • Perps • NFTs
+     )    ~    (       Solana • Robinhood • Base • ETH • Ink • Hyperliquid • Polymarket
     (   _____   )      "Chill trades, 9 lives, razor-sharp on-chain instincts."
    ( (  )   (  ) )
   (__(__)___(__)__)
 ```
 
 [![Domain](https://img.shields.io/badge/Domain-opencatz.xyz-brightgreen.svg)](https://opencatz.xyz)
-[![NFT Collection](https://img.shields.io/badge/Catz%20NFT-4%2C444%20Supply-blueviolet.svg)](https://opencatz.xyz)
-[![Chains](https://img.shields.io/badge/Chains-Solana%20%7C%20Robinhood%20%7C%20Base%20%7C%20ETH%20%7C%20BNB%20%7C%20Hyperliquid-7b5cff.svg)](https://opencatz.xyz)
+[![Chains](https://img.shields.io/badge/Chains-Solana%20%7C%20Robinhood%20%7C%20Base%20%7C%20ETH%20%7C%20Ink%20%7C%20Hyperliquid-7b5cff.svg)](https://opencatz.xyz)
 [![Discord](https://img.shields.io/badge/Discord-Community-5865F2.svg)](https://discord.gg/5HMy95ZHuY)
 [![X (Twitter)](https://img.shields.io/badge/X-%40pxidentities-black.svg)](https://x.com/pxidentities/)
 [![Node](https://img.shields.io/badge/Node.js-%3E%3D22.12-green.svg)](https://nodejs.org/)
@@ -31,7 +30,6 @@
 - 💬 **Discord Community:** [discord.gg/5HMy95ZHuY](https://discord.gg/5HMy95ZHuY)
 - 🐦 **Official X (Twitter):** [@pxidentities](https://x.com/pxidentities/)
 - 📖 **Interactive Documentation:** [opencatz.xyz/docs](https://opencatz.xyz/docs)
-- 🐱 **Catz NFT Collection:** 4,444 Programmatic Casual Pixel Art NFTs on Robinhood Chain (ERC-721 SeaDrop)
 
 ---
 
@@ -39,10 +37,10 @@
 
 | Component | Role | What it does |
 | :--- | :--- | :--- |
-| 🐾 **OpenCatz Core Swarm** | Multichain Screening & Reasoning | **3-Layer Swarm Consensus Engine** (Quant & Liquidity, Catalyst & Sentiment, Security Audit) demanding a **≥ 80% Confidence Score** before any signal card is delivered. Eleven specialist screening agents run 24/7 across dedicated channels:<br>• **Solana Memes** (`#call-meme-solana`): Pump.fun graduated, Raydium, Meteora DLMM (GMGN + RugCheck).<br>• **Robinhood Chain Memes** (`#call-meme-robinhood`): Robinhood Chain DEX tokens (GMGN + GoPlus).<br>• **Base L2 Memes** (`#call-meme-base`): Base DEX tokens & Smart Money Flow (GMGN + GoPlus).<br>• **Ethereum Memes** (`#call-meme-eth`): Ethereum Mainnet DEX tokens & Whale Buys (Uniswap + GoPlus).<br>• **BNB Chain Memes** (`#call-meme-bnb`): BNB Chain (BSC) DEX tokens (PancakeSwap + GoPlus).<br>• **Solana LP Velocity** (`#call-lp-solana`): Meteora DLMM Concentrated Liquidity pools.<br>• **Robinhood LP Velocity** (`#call-lp-robinhood`): Uniswap V3 concentrated pools via Krystal Cloud.<br>• **Whale & Perps Tracker** (`#call-whale-tracking`): Hyperliquid L1 institutional positioning & spot flow.<br>• **NFT Sniping** (`#call-nft-sniping`): OpenSea floor surge, rare trait sniping, and Catz NFT tracking.<br>• **Prediction Markets** (`#call-prediction-markets`): Polymarket odds mispricing & whale bets.<br>• **Smart CT Alpha** (`#call-ct-alpha`): Twitter/X sentiment analysis & smart money calls. |
-| 🎮 **Command Center** | Discord · Terminal · Telegram | **1. Discord**: `#opencatz-control-room` natural-language chat, `#opencatz-audit` on-demand 12-point audits, 9-Lives risk views, **23 slash commands** (including `/catz`), interactive dashboard, and 11 dedicated call channels.<br>**2. Terminal TUI** (`opencatz terminal`): Full interactive standalone console with live audits, multichain screening triggers, Catz NFT verification, and portfolio management.<br>**3. Telegram Bridge**: Real-time signal alert broadcast cards with quick inline action buttons. |
+| 🐾 **OpenCatz Core Swarm** | Multichain Screening & Reasoning | **3-Layer Swarm Consensus Engine** (Quant & Liquidity, Catalyst & Sentiment, Security Audit) demanding a **≥ 80% Confidence Score** before any signal card is delivered. **15 specialist screening sub-agents** across 5 Bento categories run 24/7 across dedicated channels:<br>• **Solana Memes** (`#call-meme-solana`): Pump.fun, Raydium, Meteora DLMM (GMGN + RugCheck).<br>• **Robinhood Chain Memes** (`#call-meme-robinhood`): Robinhood Chain DEX tokens (GMGN + GoPlus).<br>• **Base L2 Memes** (`#call-meme-base`): Base DEX tokens & Smart Money Flow (GMGN + GoPlus).<br>• **Ethereum Memes** (`#call-meme-eth`): Ethereum Mainnet DEX tokens & Whale Buys (Uniswap + GoPlus).<br>• **Ink Chain Memes** (`#call-meme-ink`): Ink Chain / Kraken L2 DEX tokens (DexScreener + GoPlus).<br>• **Solana LP Velocity** (`#call-lp-solana`): Meteora DLMM Concentrated Liquidity pools.<br>• **Robinhood LP Velocity** (`#call-lp-robinhood`): Uniswap V3 concentrated pools via Krystal Cloud.<br>• **Ethereum NFT Sniper** (`#call-nft-eth`): Ethereum Mainnet Bluechips & Floor Surges (OpenSea).<br>• **Base NFT Sniper** (`#call-nft-base`): Base L2 Creator Drops & Trending Mints (OpenSea).<br>• **Ink NFT Radar** (`#call-nft-ink`): Ink Chain / Kraken L2 NFT Radar (OpenSea).<br>• **Robinhood NFT Radar** (`#call-nft-robinhood`): Robinhood Chain NFT momentum radar (OpenSea).<br>• **HyperEVM NFT Radar** (`#call-nft-hyperevm`): Hyperliquid HyperEVM L1 Native Collections (OpenSea).<br>• **Whale & Perps Tracker** (`#call-whale-tracking`): Hyperliquid L1 institutional positioning & spot flow.<br>• **Prediction Markets** (`#call-prediction-markets`): Polymarket odds mispricing & whale bets.<br>• **Smart CT Alpha** (`#call-ct-alpha`): Twitter/X sentiment analysis & smart money calls. |
+| 🎮 **Command Center** | Discord · Terminal · Telegram | **1. Discord**: `#opencatz-control-room` natural-language chat, `#opencatz-audit` on-demand 12-point audits, 9-Lives risk views, interactive dashboard, and 15 dedicated call channels.<br>**2. Terminal TUI** (`opencatz terminal`): Full interactive standalone console with live audits, multichain screening triggers, and portfolio management.<br>**3. Telegram Bridge**: Real-time signal alert broadcast cards with quick inline action buttons. |
 | 🛡️ **9-Lives Risk Engine** | Capital Preservation | Automated Stop Loss (**-20%**), Take Profit milestones (**+100% 2x / +200% 3x**), dynamic trailing stops, and instant 9-Lives Circuit Breaker emergency kill-switch. |
-| 🐱 **Catz NFT Holder Gating** | Exclusive Holder Perks | On-chain ERC-721 token verification on Robinhood Chain (`CATZ` 4,444 collection) unlocking VIP Multichain features, private alpha signals, and automated execution modules. |
+| 🔑 **Universal Multi-Key Pool** | Zero-Downtime Key Stacking | `ApiKeyPool` with unlimited primary & backup key stacking, numbered key slots (`KEY_1`..`KEY_20`), dedicated per-chain key priority slots, and instant failover rotation on HTTP 429 / 401 / 403 for GMGN, OpenSea, Krystal Cloud, and GoPlus. |
 | ⚡ **Cat Den Ops** | Deploy & Maintain | **PM2 24/7 daemon** (`opencatz deploy`), self-update engine (`opencatz update`), `opencatz doctor` diagnostics, and interactive `opencatz onboard` wizard. |
 
 ---
@@ -58,18 +56,18 @@
                     │       OPENCATZ CORE HUB           │
                     │   #opencatz-control-room · chat   │
                     │   9-lives risk engine · wallet    │
-                    │   catz nft gating · trade journal │
+                    │   price alerts · trade journal    │
                     └─────────────────┬─────────────────┘
                                       │ candidate signals
-     ┌──────────┬──────────┬──────────┼──────────┬──────────┬──────────┬──────────┬──────────┬──────────┬──────────┐
-     ▼          ▼          ▼          ▼          ▼          ▼          ▼          ▼          ▼          ▼          ▼
- ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐
- │ SOLANA │ │ROBINH'D│ │  BASE  │ │  ETH   │ │  BNB   │ │ SOL LP │ │ RH LP  │ │ WHALES │ │  NFT   │ │ POLY   │ │ CT-X   │
- │  MEME  │ │  MEME  │ │  MEME  │ │  MEME  │ │  MEME  │ │METEORA │ │UNISWAP │ │ HYPER- │ │ OPENSEA│ │ MARKET │ │ ALPHA  │
- │  GMGN  │ │  GMGN  │ │  GMGN  │ │  GMGN  │ │  GMGN  │ │  DLMM  │ │KRYSTAL │ │ LIQUID │ │  CATZ  │ │ GAMMA  │ │TWITTER │
- │RugCheck│ │ GoPlus │ │ GoPlus │ │ GoPlus │ │ GoPlus │ │  FEE   │ │Fee/TVL │ │ perps  │ │  NFT   │ │  CLOB  │ │  AI    │
- └───┬────┘ └───┬────┘ └───┬────┘ └───┬────┘ └───┬────┘ └───┬────┘ └───┬────┘ └───┬────┘ └───┬────┘ └───┬────┘ └───┬────┘
-     └──────────┴──────────┴──────────┼──────────┴──────────┴──────────┴──────────┴──────────┴──────────┴──────────┘
+     ┌──────────┬──────────┬──────────┼──────────┬──────────┬──────────┬──────────┬──────────┐
+     ▼          ▼          ▼          ▼          ▼          ▼          ▼          ▼          ▼
+ ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐
+ │ 5 MEME │ │ 2 LP   │ │ ETH NFT│ │BASE NFT│ │INK NFT │ │ RH NFT │ │HYPERNFT│ │ WHALES │ │POLY/CT │
+ │HUNTERS │ │VELOCITY│ │ OPENSEA│ │ OPENSEA│ │ OPENSEA│ │ OPENSEA│ │ OPENSEA│ │ HYPER- │ │MARKET/ │
+ │SOL/RH/ │ │SOL DLMM│ │  FLOOR │ │ CREATOR│ │ KRAKEN │ │ ROBIN- │ │ HYPER- │ │ LIQUID │ │TWITTER │
+ │BASE/ETH│ │ RH UNI │ │  SURGE │ │  DROPS │ │   L2   │ │  HOOD  │ │  EVM   │ │ PERPS  │ │ ALPHA  │
+ └───┬────┘ └───┬────┘ └───┬────┘ └───┬────┘ └───┬────┘ └───┬────┘ └───┬────┘ └───┬────┘ └───┬────┘
+     └──────────┴──────────┴──────────┼──────────┴──────────┴──────────┴──────────┴──────────┘
                                       │
                                       ▼
                   ┌────────────────────────────────────┐
@@ -79,9 +77,9 @@
                                     │ only ≥ 80% confidence
                                     ▼
        MULTI-PLATFORM DISPATCH (Discord · Terminal TUI · Telegram)
-• #call-meme-solana · #call-meme-robinhood · #call-meme-base · #call-meme-eth · #call-meme-bnb
-• #call-lp-solana · #call-lp-robinhood · #call-whale-tracking · #call-nft-sniping
-• #call-prediction-markets · #call-ct-alpha
+• #call-meme-solana · #call-meme-robinhood · #call-meme-base · #call-meme-eth · #call-meme-ink
+• #call-lp-solana · #call-lp-robinhood · #call-nft-eth · #call-nft-base · #call-nft-ink
+• #call-nft-robinhood · #call-nft-hyperevm · #call-whale-tracking · #call-prediction-markets · #call-ct-alpha
                                     │
                                     ▼
                      WALLET TRACKER (holdings lifecycle)
@@ -97,10 +95,9 @@
 | Category | Command | Subcommands / Format | Description |
 | :--- | :--- | :--- | :--- |
 | **Control Dashboard** | `/menu` / `/dashboard` | Direct Command | Opens the Master Interactive Control Center Embed with Action Buttons & Agent Select Dropdown |
-| **Catz NFT Gating** | `/catz` | `verify <wallet>`, `info` | Verify Catz NFT ownership on Robinhood Chain and inspect collection perks |
 | **Trade Journal** | `/journal` | `summary`, `history`, `export` | View Win-Rate %, PnL summary, recent trades, & download `opencatz_trade_journal.csv` |
 | **Price Alerts** | `/alert` | `set`, `list`, `cancel` | Manage custom real-time price alerts & notifications |
-| **Sub-Agent Toggles** | `/screening` | `start`, `stop` | Toggle 24/7 background sub-agents across all 11 multichain domains |
+| **Sub-Agent Toggles** | `/screening` | `start`, `stop`, `trigger` | Toggle or manually trigger 24/7 background sub-agents across all 15 multichain domains |
 | **Burner Wallets** | `/wallet` | `setup`, `balance`, `withdraw` | Manage Solana & EVM burner wallets, inspect balances, or withdraw funds |
 | **Token Audit** | `/analyze` | `contract:<CA>` | Force 12-point on-demand audit for any Solana or EVM token |
 | **Direct Execution** | `/swap`, `/bridge`, `/send` | Direct On-Chain Swaps | Instant cross-chain bridging via Relay.link and token swaps on Solana / EVM |
@@ -145,8 +142,9 @@ Untuk menghapus proses background daemon PM2, mereset database local, membersihk
 
 ```bash
 opencatz uninstall         # Mode interaktif (dengan konfirmasi tiap tahapan)
-# atau
-npm run clean -- --force   # Mode one-shot otomatis bersih total
+# atau opsi one-shot:
+opencatz uninstall -y      # Langsung hapus semua tanpa pertanyaan
+opencatz uninstall --keep-env --keep-data  # Hapus build/daemon tapi simpan .env & database
 ```
 
 ---

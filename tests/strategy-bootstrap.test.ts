@@ -7,21 +7,27 @@ import { StrategyEngine } from '../src/orchestrator/strategy-engine.js';
 describe('strategy-bootstrap', () => {
   const testDir = path.join(process.cwd(), 'strategies', 'test-bootstrap-temp');
   const mainStrategiesDir = path.join(process.cwd(), 'strategies');
-  const customFile = path.join(mainStrategiesDir, 'meme-solana-custom.mjs');
+  const cleanupCustomFiles = () => {
+    if (fs.existsSync(mainStrategiesDir)) {
+      const files = fs.readdirSync(mainStrategiesDir).filter(f => f.endsWith('-custom.mjs'));
+      for (const f of files) {
+        try { fs.unlinkSync(path.join(mainStrategiesDir, f)); } catch { /* ignore */ }
+      }
+    }
+  };
 
   beforeEach(() => {
     if (!fs.existsSync(testDir)) {
       fs.mkdirSync(testDir, { recursive: true });
     }
+    cleanupCustomFiles();
   });
 
   afterEach(() => {
     if (fs.existsSync(testDir)) {
       fs.rmSync(testDir, { recursive: true, force: true });
     }
-    if (fs.existsSync(customFile)) {
-      fs.unlinkSync(customFile);
-    }
+    cleanupCustomFiles();
   });
 
   it('skips when no prompt file exists', async () => {
@@ -53,7 +59,7 @@ describe('strategy-bootstrap', () => {
       },
     };
 
-    const engine = new StrategyEngine();
+    const engine = new StrategyEngine({ strategiesDir: testDir });
     const res = await bootstrapCustomStrategies({
       strategiesDir: testDir,
       aiService: fakeAi,

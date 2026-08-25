@@ -1,5 +1,5 @@
 ---
-name: athena-swarm-trading
+name: opencatz-swarm-trading
 description: Autonomous multi-agent crypto trading skill for Solana, EVM DEXs, Perps, and NFTs using 3-layer Swarm Consensus, Discord Command Center, and Position Management.
 ---
 
@@ -51,33 +51,14 @@ Flexible thresholds designed to capture **high-potential RUNNER tokens** while a
 
 ## 2. Discord Call & Execution Standards
 
-- **Informational Calls:** Delivered to 11 dedicated channels:
-  - `#call-meme-solana` (Solana DEX)
-  - `#call-meme-robinhood` (Robinhood Chain DEX)
-  - `#call-meme-base` (Base L2 DEX)
-  - `#call-meme-eth` (Ethereum Mainnet DEX)
-  - `#call-meme-bnb` (BNB Chain / BSC DEX)
-  - `#call-lp-solana` (Meteora DLMM Pools)
-  - `#call-lp-robinhood` (Robinhood Uniswap V3 Pools)
-  - `#call-whale-tracking` (Hyperliquid Perps)
-  - `#call-nft-sniping` (OpenSea & Catz NFT)
-  - `#call-prediction-markets` (Polymarket Arbitrage)
-  - `#call-ct-alpha` (Twitter / X Narrative Intelligence)
-- **Interactive Action Buttons:** Provide direct quick execution links and trade actions.
-- **Command Execution:** User trades and portfolio risk management are executed securely via OpenCatz Core Hub in `#opencatz-control-room`.
-
----
-
-## 3. Position Management (Auto TP / SL)
-
-Upon trade execution:
-- **Take Profit (TP):** Scale out 50% at +100% (2x), 25% at +200% (3x).
-- **Stop Loss (SL):** Hard stop loss execution if token drops by configured limit (default -20%).
-- **Trailing Stop:** Adjust stop loss upwards dynamically as high-water mark increases.
-
----
-
-## 4. Trade Audit & Diagnostic Logging
-
-- Log every signal, thesis, entry price, execution time, and exit PnL in atomic JSON state (`database/athena_state.json`).
-- Support natural language trade diagnostics when queried in Discord `#opencatz-control-room` or Terminal TUI.
+- **Informational Calls:** Delivered to 15 dedicated channels across 5 Bento Categories:
+  - **Meme Hunters**: `#call-meme-solana`, `#call-meme-robinhood`, `#call-meme-base`, `#call-meme-eth`, `#call-meme-ink`
+  - **Liquidity & Yield**: `#call-lp-solana`, `#call-lp-robinhood`
+  - **NFT Division (OpenSea EVM)**: `#call-nft-eth`, `#call-nft-base`, `#call-nft-ink`, `#call-nft-robinhood`, `#call-nft-hyperevm`
+  - **Oracles & Derivatives**: `#call-whale-tracking`, `#call-prediction-markets`, `#call-ct-alpha`
+- **Interactive Action Buttons:**
+  - `🚀 Fast Buy (0.1 SOL / 0.05 ETH)`
+  - `📊 Deep Audit`
+  - `🔍 View DexScreener`
+  - `⭐ Add Watchlist`
+  - `🛑 Dismiss Call`

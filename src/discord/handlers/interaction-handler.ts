@@ -4,7 +4,7 @@
  * backward compatibility with existing consumers (index.ts, message-handler.ts).
  */
 import { Interaction } from 'discord.js';
-import { AthenaHub } from '../../orchestrator/hub.js';
+import { OpenCatzHub } from '../../orchestrator/hub.js';
 import { AIService } from '../../services/ai-service.js';
 import {
   priceAlertService,
@@ -26,7 +26,7 @@ export type { WalletService } from '../../services/wallet-service.js';
 
 export async function handleInteraction(
   interaction: Interaction,
-  hub: AthenaHub,
+  hub: OpenCatzHub,
   aiService: AIService
 ): Promise<void> {
   try {

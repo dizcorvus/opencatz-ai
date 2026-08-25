@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { AthenaHub } from '../src/orchestrator/hub.js';
+import { OpenCatzHub } from '../src/orchestrator/hub.js';
 import { CTAlphaAgent } from '../src/agents/ct-alpha/ct-alpha-agent.js';
 import type { AgentReport, ScreeningAgent } from '../src/agents/shared/agent-contract.js';
 import type { MeteoraDLMMAdapter, MeteoraPoolSignal } from '../src/adapters/meteora-dlmm-adapter.js';
@@ -175,16 +175,16 @@ const mkFakeTwitter = (tweets: TweetItem[]) => ({
 
 // ── Tests ─────────────────────────────────────────────────────────────────
 
-describe('AthenaHub registry-driven triggerAgentPass', () => {
+describe('OpenCatzHub registry-driven triggerAgentPass', () => {
   it('unknown domain returns [] without throwing (fail-closed)', async () => {
-    const hub = new AthenaHub();
+    const hub = new OpenCatzHub();
     const results = await hub.triggerAgentPass('does-not-exist');
     expect(results).toEqual([]);
   });
 
   it('alias "solana" resolves to meme-solana factory and returns its reports', async () => {
     const stub = mkStubAgent('meme-solana', [mkReport('SOL')]);
-    const hub = new AthenaHub({ agentFactories: { 'meme-solana': () => stub } });
+    const hub = new OpenCatzHub({ agentFactories: { 'meme-solana': () => stub } });
     const results = await hub.triggerAgentPass('solana');
     expect(stub.runScreeningPass).toHaveBeenCalledTimes(1);
     expect(results).toHaveLength(1);
@@ -193,7 +193,7 @@ describe('AthenaHub registry-driven triggerAgentPass', () => {
 
   it('aliases "robinhood" and "rh" resolve to meme-robinhood', async () => {
     const stub = mkStubAgent('meme-robinhood', [mkReport('PEPE')]);
-    const hub = new AthenaHub({ agentFactories: { 'meme-robinhood': () => stub } });
+    const hub = new OpenCatzHub({ agentFactories: { 'meme-robinhood': () => stub } });
     expect(await hub.triggerAgentPass('robinhood')).toHaveLength(1);
     expect(await hub.triggerAgentPass('rh')).toHaveLength(1);
     expect(stub.runScreeningPass).toHaveBeenCalledTimes(2);
@@ -201,15 +201,20 @@ describe('AthenaHub registry-driven triggerAgentPass', () => {
 
   it('alias "base" resolves to meme-base', async () => {
     const stub = mkStubAgent('meme-base', [mkReport('BRETT')]);
-    const hub = new AthenaHub({ agentFactories: { 'meme-base': () => stub } });
+    const hub = new OpenCatzHub({ agentFactories: { 'meme-base': () => stub } });
     expect(await hub.triggerAgentPass('base')).toHaveLength(1);
   });
 
-  it('all 11 registered domain ids are triggerable via factories', async () => {
-    const ids = ['meme-solana', 'meme-robinhood', 'meme-base', 'meme-eth', 'meme-bsc', 'perps', 'nft', 'prediction', 'ct-alpha', 'lp-solana', 'lp-robinhood'] as const;
+  it('all 15 registered domain ids are triggerable via factories', async () => {
+    const ids = [
+      'meme-solana', 'meme-robinhood', 'meme-base', 'meme-eth', 'meme-ink',
+      'lp-solana', 'lp-robinhood',
+      'nft-eth', 'nft-base', 'nft-ink', 'nft-robinhood', 'nft-hyperevm',
+      'perps', 'prediction', 'ct-alpha'
+    ] as const;
     for (const id of ids) {
       const stub = mkStubAgent(id, [mkReport(id.toUpperCase())]);
-      const hub = new AthenaHub({ agentFactories: { [id]: () => stub } });
+      const hub = new OpenCatzHub({ agentFactories: { [id]: () => stub } });
       const results = await hub.triggerAgentPass(id);
       expect(results, `domain ${id}`).toHaveLength(1);
     }
@@ -217,12 +222,12 @@ describe('AthenaHub registry-driven triggerAgentPass', () => {
 
   it('channel name "call-whale-tracking" resolves to perps', async () => {
     const stub = mkStubAgent('perps', [mkReport('BTC')]);
-    const hub = new AthenaHub({ agentFactories: { perps: () => stub } });
+    const hub = new OpenCatzHub({ agentFactories: { perps: () => stub } });
     expect(await hub.triggerAgentPass('call-whale-tracking')).toHaveLength(1);
   });
 
   it('ct-alpha runs the real agent with injected fake TwitterService (DI, zero network) — NO-CALL MODE default', async () => {
-    const hub = new AthenaHub({
+    const hub = new OpenCatzHub({
       agentFactories: { 'ct-alpha': () => new CTAlphaAgent(mkFakeTwitter([mkTweet()])) },
     });
     const results = await hub.triggerAgentPass('ct-alpha');
@@ -231,7 +236,7 @@ describe('AthenaHub registry-driven triggerAgentPass', () => {
   });
 
   it('lp-solana wraps adapter flow into contract-shaped reports with payload', async () => {
-    const hub = new AthenaHub({
+    const hub = new OpenCatzHub({
       meteoraAdapter: mkMeteoraStub([mkSolPoolWithToken()]),
       gmgnAdapter: mkGmgnStub({ tokX123: mkGmgnToken() }),
     });
@@ -249,7 +254,7 @@ describe('AthenaHub registry-driven triggerAgentPass', () => {
 
   it('lp-robinhood wraps Krystal pool data into LP_ROBINHOOD payload', async () => {
     // Krystal adapter flow: fetch → filterHighYieldPools → payload LP
-    const hub = new AthenaHub({
+    const hub = new OpenCatzHub({
       krystalAdapter: mkKrystalStub([mkKrystalPool()]),
       gmgnAdapter: mkGmgnStub({ '0xweth': mkGmgnToken() }), // WETH = memeToken (base fallback) — MC besar
     });
@@ -269,7 +274,7 @@ describe('AthenaHub registry-driven triggerAgentPass', () => {
   it('lp-robinhood orders meme token first (WETH-PEPE pool -> token0=PEPE, title PEPE-WETH)', async () => {
     // Uniswap v3 mengembalikan token0=WETH (base) — payload harus menaruh meme (PEPE) duluan,
     // konsisten dengan LP solana (Chiikawa-SOL): title & detail ikut token meme.
-    const hub = new AthenaHub({
+    const hub = new OpenCatzHub({
       krystalAdapter: mkKrystalStub([mkKrystalPool({
         pairName: 'WETH-PEPE',
         token0Symbol: 'WETH',
@@ -293,7 +298,7 @@ describe('AthenaHub registry-driven triggerAgentPass', () => {
   });
 
   it('alias "meteora" resolves to lp-solana', async () => {
-    const hub = new AthenaHub({
+    const hub = new OpenCatzHub({
       meteoraAdapter: mkMeteoraStub([mkSolPoolWithToken()]),
       gmgnAdapter: mkGmgnStub({ tokX123: mkGmgnToken() }),
     });
@@ -311,7 +316,7 @@ describe('AthenaHub registry-driven triggerAgentPass', () => {
   });
 
   it('lp-solana: token rug (GMGN) menolak pool', async () => {
-    const hub = new AthenaHub({
+    const hub = new OpenCatzHub({
       meteoraAdapter: mkMeteoraStub([mkSolPoolWithToken()]),
       gmgnAdapter: mkGmgnStub({ tokX123: mkGmgnToken({ rugRatio: 0.8 }) }),
     });
@@ -320,7 +325,7 @@ describe('AthenaHub registry-driven triggerAgentPass', () => {
   });
 
   it('lp-solana: token honeypot (GMGN) menolak pool', async () => {
-    const hub = new AthenaHub({
+    const hub = new OpenCatzHub({
       meteoraAdapter: mkMeteoraStub([mkSolPoolWithToken()]),
       gmgnAdapter: mkGmgnStub({ tokX123: mkGmgnToken({ isHoneypot: true }) }),
     });
@@ -329,7 +334,7 @@ describe('AthenaHub registry-driven triggerAgentPass', () => {
   });
 
   it('lp-solana: token dengan tax > 10% tetap lolos (tax gate dimatikan untuk LP)', async () => {
-    const hub = new AthenaHub({
+    const hub = new OpenCatzHub({
       meteoraAdapter: mkMeteoraStub([mkSolPoolWithToken()]),
       gmgnAdapter: mkGmgnStub({ tokX123: mkGmgnToken({ sellTax: '15' }) }),
     });
@@ -338,7 +343,7 @@ describe('AthenaHub registry-driven triggerAgentPass', () => {
   });
 
   it('lp-solana: token null di GMGN → pool DITOLAK (fail-closed audit)', async () => {
-    const hub = new AthenaHub({
+    const hub = new OpenCatzHub({
       meteoraAdapter: mkMeteoraStub([mkSolPoolWithToken()]),
       gmgnAdapter: mkGmgnStub({}), // token tidak ditemukan
     });
@@ -347,7 +352,7 @@ describe('AthenaHub registry-driven triggerAgentPass', () => {
   });
 
   it('lp-solana: audit keamanan honeypot (GMGN /token/security) menolak pool', async () => {
-    const hub = new AthenaHub({
+    const hub = new OpenCatzHub({
       meteoraAdapter: mkMeteoraStub([mkSolPoolWithToken()]),
       gmgnAdapter: mkGmgnStub({ tokX123: mkGmgnToken() }, { tokX123: mkSafeAudit({ isHoneypot: true }) }),
     });
@@ -356,7 +361,7 @@ describe('AthenaHub registry-driven triggerAgentPass', () => {
   });
 
   it('lp-solana: audit tidak tersedia (null) → pool DITOLAK (fail-closed)', async () => {
-    const hub = new AthenaHub({
+    const hub = new OpenCatzHub({
       meteoraAdapter: mkMeteoraStub([mkSolPoolWithToken()]),
       gmgnAdapter: mkGmgnStub({ tokX123: mkGmgnToken() }, { tokX123: null }),
     });
@@ -365,7 +370,7 @@ describe('AthenaHub registry-driven triggerAgentPass', () => {
   });
 
   it('lp-solana: token aman → post + label keamanan audit terisi', async () => {
-    const hub = new AthenaHub({
+    const hub = new OpenCatzHub({
       meteoraAdapter: mkMeteoraStub([mkSolPoolWithToken()]),
       gmgnAdapter: mkGmgnStub({
         tokX123: mkGmgnToken({ top10HolderRate: 0.15, bundlerRate: 0.02, ratTraderAmountRate: 0.05, devTeamHoldRate: 0.01 }),
@@ -378,7 +383,7 @@ describe('AthenaHub registry-driven triggerAgentPass', () => {
   });
 
   it('lp-robinhood: token meme honeypot menolak pool', async () => {
-    const hub = new AthenaHub({
+    const hub = new OpenCatzHub({
       krystalAdapter: mkKrystalStub([mkKrystalPool({
         pairName: 'WETH-PEPE',
         token0Symbol: 'WETH',
@@ -393,7 +398,7 @@ describe('AthenaHub registry-driven triggerAgentPass', () => {
   });
 
   it('lp-robinhood: audit keamanan honeypot (GMGN /token/security) menolak pool', async () => {
-    const hub = new AthenaHub({
+    const hub = new OpenCatzHub({
       krystalAdapter: mkKrystalStub([mkKrystalPool({
         pairName: 'WETH-PEPE',
         token0Symbol: 'WETH',
@@ -408,7 +413,7 @@ describe('AthenaHub registry-driven triggerAgentPass', () => {
   });
 
   it('lp-robinhood: token tidak bisa dijual (canNotSell) → pool DITOLAK', async () => {
-    const hub = new AthenaHub({
+    const hub = new OpenCatzHub({
       krystalAdapter: mkKrystalStub([mkKrystalPool({
         pairName: 'WETH-PEPE',
         token0Symbol: 'WETH',
@@ -423,7 +428,7 @@ describe('AthenaHub registry-driven triggerAgentPass', () => {
   });
 
   it('lp-robinhood: token null di GMGN → pool DITOLAK (MC tidak bisa diverifikasi)', async () => {
-    const hub = new AthenaHub({
+    const hub = new OpenCatzHub({
       krystalAdapter: mkKrystalStub([mkKrystalPool({
         pairName: 'WETH-PEPE',
         token0Symbol: 'WETH',
@@ -438,7 +443,7 @@ describe('AthenaHub registry-driven triggerAgentPass', () => {
   });
 
   it('lp-robinhood: market cap token meme < $200k → pool DITOLAK', async () => {
-    const hub = new AthenaHub({
+    const hub = new OpenCatzHub({
       krystalAdapter: mkKrystalStub([mkKrystalPool({
         pairName: 'WETH-PEPE',
         token0Symbol: 'WETH',
@@ -453,7 +458,7 @@ describe('AthenaHub registry-driven triggerAgentPass', () => {
   });
 
   it('lp-robinhood: token aman MC besar → post + label keamanan terisi', async () => {
-    const hub = new AthenaHub({
+    const hub = new OpenCatzHub({
       krystalAdapter: mkKrystalStub([mkKrystalPool({
         pairName: 'WETH-PEPE',
         token0Symbol: 'WETH',
@@ -469,7 +474,7 @@ describe('AthenaHub registry-driven triggerAgentPass', () => {
   });
 
   it('factory exception is caught and returns [] (fail-closed)', async () => {
-    const hub = new AthenaHub({
+    const hub = new OpenCatzHub({
       agentFactories: {
         'meme-solana': () => {
           throw new Error('boom');

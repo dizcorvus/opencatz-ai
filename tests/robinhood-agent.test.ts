@@ -298,18 +298,18 @@ describe('RobinhoodScreeningAgent', () => {
     expect(map.size).toBe(0);
   });
 
-  it('supports multi-chain meme screening configuration across ETH, BNB, BASE, and Robinhood', () => {
+  it('supports multi-chain meme screening configuration across ETH, INK, BASE, and Robinhood', () => {
     const agent = new RobinhoodScreeningAgent();
-    expect(agent.getConfig().chains).toEqual(['robinhood', 'base', 'eth', 'bsc']);
+    expect(agent.getConfig().chains).toEqual(['robinhood', 'base', 'eth', 'ink']);
 
-    agent.updateConfig({ chains: ['eth', 'bsc'] });
-    expect(agent.getConfig().chains).toEqual(['eth', 'bsc']);
+    agent.updateConfig({ chains: ['eth', 'ink'] });
+    expect(agent.getConfig().chains).toEqual(['eth', 'ink']);
   });
 
   it('buildPayload produces chain-aware network names and explorer links', () => {
     const agent = new RobinhoodScreeningAgent();
     const ethToken = mkToken({ chain: 'eth', address: '0x123' });
-    const bscToken = mkToken({ chain: 'bsc', address: '0x456' });
+    const inkToken = mkToken({ chain: 'ink', address: '0x456' });
     const baseToken = mkToken({ chain: 'base', address: '0x789' });
 
     const ethPayload = agent.buildPayload(ethToken, 85, 'ETH thesis');
@@ -317,10 +317,10 @@ describe('RobinhoodScreeningAgent', () => {
     expect(ethPayload.gmgnUrl).toContain('gmgn.ai/eth/token/0x123');
     expect(ethPayload.rugcheckUrl).toContain('gopluslabs.io/token-security/1/0x123');
 
-    const bscPayload = agent.buildPayload(bscToken, 88, 'BSC thesis');
-    expect(bscPayload.network).toContain('BNB');
-    expect(bscPayload.gmgnUrl).toContain('gmgn.ai/bsc/token/0x456');
-    expect(bscPayload.rugcheckUrl).toContain('gopluslabs.io/token-security/56/0x456');
+    const inkPayload = agent.buildPayload(inkToken, 88, 'INK thesis');
+    expect(inkPayload.network).toContain('Ink');
+    expect(inkPayload.gmgnUrl).toContain('gmgn.ai/ink/token/0x456');
+    expect(inkPayload.rugcheckUrl).toContain('gopluslabs.io/token-security/57073/0x456');
 
     const basePayload = agent.buildPayload(baseToken, 90, 'Base thesis');
     expect(basePayload.network).toContain('Base');

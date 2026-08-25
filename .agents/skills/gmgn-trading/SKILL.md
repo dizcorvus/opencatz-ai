@@ -1,11 +1,11 @@
 ---
 name: gmgn-trading
-description: GMGN AI OpenAPI integration for multi-chain (Solana, Base, ETH, BSC) smart money tracking, sniper ratio audit, and meme coin entry screening.
+description: GMGN AI OpenAPI integration for multi-chain (Solana, Robinhood, Base, ETH, Ink) smart money tracking, sniper ratio audit, and meme coin entry screening.
 ---
 
 # GMGN AI Screening & Smart Money Trading Skill
 
-This skill defines the screening criteria and smart money tracking standards powered by **GMGN AI (https://gmgn.ai)** for **Solana, Base, Ethereum, and BSC**.
+This skill defines the screening criteria and smart money tracking standards powered by **GMGN AI (https://gmgn.ai)** for **Solana, Robinhood Chain, Base, Ethereum, and Ink Chain**.
 
 ---
 
@@ -27,8 +27,10 @@ Before generating any high-confidence meme call or executing an entry:
 ## 2. Multi-Chain Screening Support (GMGN API)
 
 - **Solana DEXs:** Pump.fun, Raydium, Meteora DLMM.
-- **EVM DEXs (Base & Ethereum):** Aerodrome, Uniswap v3/v4.
-- **BSC DEXs:** PancakeSwap.
+- **Robinhood Chain:** Uniswap V3, Robinhood Swap.
+- **Base L2:** Aerodrome, Uniswap V3.
+- **Ethereum Mainnet:** Uniswap V2/V3.
+- **Ink Chain (Kraken L2):** DexScreener & native DEXs.
 
 ---
 
@@ -37,4 +39,5 @@ Before generating any high-confidence meme call or executing an entry:
 - Provide direct GMGN chart links in call cards:
   `https://gmgn.ai/sol/token/{contract_address}` (Solana)
   `https://gmgn.ai/base/token/{contract_address}` (Base EVM)
+  `https://gmgn.ai/eth/token/{contract_address}` (Ethereum)
 - Include GMGN Smart Money net buy volume & sniper ratio in AI Thesis reasoning.

@@ -1,4 +1,0 @@
-import { OPENCATZ_SYSTEM_PROMPT_BASE } from './opencatz-system-prompt.js';
-
-export const ATHENA_SYSTEM_PROMPT_BASE = OPENCATZ_SYSTEM_PROMPT_BASE;
-export { OPENCATZ_SYSTEM_PROMPT_BASE };

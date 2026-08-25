@@ -1,5 +1,5 @@
 /**
- * Athena 2.0 - System Health Monitoring & Incident Watcher (HealthWatcherService)
+ * OpenCatz AI - System Health Monitoring & Incident Watcher (HealthWatcherService)
  * Tracks sub-agent heartbeats, detects silent failures, and triggers alerts/auto-restart notifications.
  */
 
@@ -19,7 +19,12 @@ export class HealthWatcherService {
   }
 
   private initializeAgents() {
-    const subAgents = ['meme-solana', 'meme-robinhood', 'perps', 'nft', 'prediction', 'ct-alpha', 'lp-solana', 'lp-robinhood'];
+    const subAgents = [
+      'meme-solana', 'meme-robinhood', 'meme-base', 'meme-eth', 'meme-ink',
+      'lp-solana', 'lp-robinhood',
+      'nft-eth', 'nft-base', 'nft-ink', 'nft-robinhood', 'nft-hyperevm',
+      'perps', 'prediction', 'ct-alpha'
+    ];
     subAgents.forEach((domain) => {
       this.agentMap.set(domain, {
         domain,
@@ -69,7 +74,7 @@ export class HealthWatcherService {
       if (now - agent.lastPingAt > maxTimeoutMs) {
         agent.status = 'UNRESPONSIVE';
         allHealthy = false;
-        console.warn(`🚨 ATHENA HEALTH WATCHER: Agent [${agent.domain}] is UNRESPONSIVE! Last ping: ${Math.round((now - agent.lastPingAt) / 1000)}s ago.`);
+        console.warn(`🚨 OPENCATZ HEALTH WATCHER: Agent [${agent.domain}] is UNRESPONSIVE! Last ping: ${Math.round((now - agent.lastPingAt) / 1000)}s ago.`);
       }
       report.push({ ...agent });
     });

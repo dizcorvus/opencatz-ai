@@ -1,4 +1,4 @@
-import type { AthenaHub } from './hub.js';
+import type { OpenCatzHub } from './hub.js';
 import type { AIService } from '../services/ai-service.js';
 import { StrategyEngine } from './strategy-engine.js';
 import fs from 'fs';
@@ -28,7 +28,7 @@ const SETTABLE_ENV_KEYS = [
   'UNISWAP_API_KEY', 'JUPITER_API_KEY', 'RUGCHECK_API_URL',
 ];
 
-export interface AthenaToolDefinition {
+export interface OpenCatzToolDefinition {
   name: string;
   description: string;
   parameters: {
@@ -39,12 +39,12 @@ export interface AthenaToolDefinition {
 }
 
 export class ToolRegistry {
-  private orchestrator?: AthenaHub;
+  private orchestrator?: OpenCatzHub;
   private aiService?: AIService;
   private strategyEngine = new StrategyEngine();
   private walletService?: import('../services/wallet-service.js').WalletService;
 
-  public attachOrchestrator(orchestrator: AthenaHub) {
+  public attachOrchestrator(orchestrator: OpenCatzHub) {
     this.orchestrator = orchestrator;
   }
 
@@ -60,7 +60,7 @@ export class ToolRegistry {
   /**
    * Returns list of tools formatted for LLM Function Calling schemas (OpenAI / OpenRouter format)
    */
-  public getToolDefinitions(): AthenaToolDefinition[] {
+  public getToolDefinitions(): OpenCatzToolDefinition[] {
     return [
       {
         name: 'pause_sub_agent',
@@ -294,7 +294,7 @@ export class ToolRegistry {
           type: 'object',
           properties: {
             name: { type: 'string', description: 'Strategy file name without extension (alphanumeric, dash, underscore only).' },
-            code: { type: 'string', description: 'Full ESM (.mjs) source exporting an AthenaStrategy: { id, name, version, description, params, evaluate(ctx) }.' },
+            code: { type: 'string', description: 'Full ESM (.mjs) source exporting an OpenCatzStrategy: { id, name, version, description, params, evaluate(ctx) }.' },
           },
           required: ['name', 'code'],
         },
@@ -306,7 +306,7 @@ export class ToolRegistry {
           type: 'object',
           properties: {
             name: { type: 'string', description: 'Indicator file name without extension.' },
-            code: { type: 'string', description: 'Full ESM (.mjs) source exporting an AthenaIndicator: { id, name, version, calculate(candles) }.' },
+            code: { type: 'string', description: 'Full ESM (.mjs) source exporting an OpenCatzIndicator: { id, name, version, calculate(candles) }.' },
           },
           required: ['name', 'code'],
         },

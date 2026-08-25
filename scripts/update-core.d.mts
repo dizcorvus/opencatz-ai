@@ -1,17 +1,18 @@
-/**
- * Type declarations for scripts/update-core.mjs (single source of truth for
- * self-update: `athena update` CLI + Discord `/update`).
- */
-export interface UpdateStepLog {
+export interface UpdateOptions {
+  noRestart?: boolean;
+  cwd?: string;
+}
+
+export interface UpdateStep {
   label: string;
   command: string;
   ok: boolean;
 }
 
-export interface AthenaUpdateResult {
+export interface UpdateResult {
   ok: boolean;
   restartOk: boolean;
-  log: UpdateStepLog[];
+  log: UpdateStep[];
 }
 
-export declare function runAthenaUpdate(opts?: { noRestart?: boolean; cwd?: string }): AthenaUpdateResult;
+export declare function runOpenCatzUpdate(options?: UpdateOptions): Promise<UpdateResult>;

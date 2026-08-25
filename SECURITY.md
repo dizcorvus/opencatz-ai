@@ -1,6 +1,6 @@
-# Security Policy & Vulnerability Reporting — Athena AI
+# Security Policy & Vulnerability Reporting — OpenCatz AI
 
-The **Athena AI** team takes code integrity, wallet security, and API credential safety very seriously. This document outlines our security policies, supported versions, and private vulnerability reporting procedures.
+The **OpenCatz AI** team takes code integrity, wallet security, and API credential safety very seriously. This document outlines our security policies, supported versions, and private vulnerability reporting procedures.
 
 ---
 
@@ -11,14 +11,14 @@ Only the latest release on the `master` branch is actively supported with securi
 | Version / Branch | Supported          | Security Maintenance |
 | ---------------- | ------------------ | -------------------- |
 | `master` (v1.0+) | :white_check_mark: | Active               |
-| `< 1.0`          :x:                 | End of Life          |
+| `< 1.0`          | :x:                | End of Life          |
 
 ---
 
 ## Core Security Architectural Guarantees
 
 1. **Dry-Run by Default (`DRY_RUN=true`)**:
-   Athena defaults to realistic simulation mode. Live transactions are never broadcast to any blockchain unless `DRY_RUN=false` and `AUTO_EXECUTE_ENABLED=true` are explicitly set.
+   OpenCatz defaults to realistic simulation mode. Live transactions are never broadcast to any blockchain unless `DRY_RUN=false` and `AUTO_EXECUTE_ENABLED=true` are explicitly set.
 
 2. **Isolated Burner Wallets**:
    Live trading agents MUST use dedicated burner wallets with capped funds. Never connect your primary treasury or cold storage wallets to autonomous execution agents.
@@ -41,7 +41,7 @@ If you discover a potential security vulnerability or credential leak in this co
 Please report the vulnerability privately directly to the project maintainer:
 
 - **Email:** `dizcorvus@gmail.com`
-- **Telegram / Discord Direct Message:** Contact `@dizcorvus` directly in the Parthenon Control Room.
+- **Telegram / Discord Direct Message:** Contact `@dizcorvus` directly in the OpenCatz Control Room.
 
 ### What to Include in Your Report:
 - Detailed description of the vulnerability and potential impact.

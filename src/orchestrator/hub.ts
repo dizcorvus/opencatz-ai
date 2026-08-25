@@ -16,7 +16,7 @@ export interface ChannelStatus {
   minLiquidityUsd: number;
 }
 
-export interface AthenaHubOptions {
+export interface OpenCatzHubOptions {
   /** Optional per-domain agent factories (test DI / custom wiring). Lazy-imports real agents by default. */
   agentFactories?: Partial<Record<AgentDomainId, () => ScreeningAgent | Promise<ScreeningAgent>>>;
   meteoraAdapter?: MeteoraDLMMAdapter;
@@ -24,7 +24,7 @@ export interface AthenaHubOptions {
   gmgnAdapter?: GMGNAdapter;
 }
 
-export class AthenaHub {
+export class OpenCatzHub {
   private riskManager: RiskManager;
   private channelStates: Map<string, ChannelStatus> = new Map();
   private agentStates: Map<string, boolean> = new Map();
@@ -37,7 +37,7 @@ export class AthenaHub {
 
   private stateStore?: any;
 
-  constructor(options: AthenaHubOptions = {}) {
+  constructor(options: OpenCatzHubOptions = {}) {
     this.riskManager = new RiskManager();
     this.agentFactories = options.agentFactories ?? {};
     this.meteoraAdapter = options.meteoraAdapter;
@@ -207,20 +207,44 @@ export class AthenaHub {
         return new RobinhoodScreeningAgent({ chains: ['robinhood'] });
       }
       case 'meme-base': {
-        const { RobinhoodScreeningAgent } = await import('../agents/meme-robinhood/robinhood-screening-agent.js');
-        return new RobinhoodScreeningAgent({ chains: ['base'] });
+        const { BaseScreeningAgent } = await import('../agents/meme-base/base-screening-agent.js');
+        return new BaseScreeningAgent();
       }
       case 'meme-eth': {
-        const { RobinhoodScreeningAgent } = await import('../agents/meme-robinhood/robinhood-screening-agent.js');
-        return new RobinhoodScreeningAgent({ chains: ['eth'] });
+        const { EthScreeningAgent } = await import('../agents/meme-eth/eth-screening-agent.js');
+        return new EthScreeningAgent();
       }
-      case 'meme-bsc': {
-        const { RobinhoodScreeningAgent } = await import('../agents/meme-robinhood/robinhood-screening-agent.js');
-        return new RobinhoodScreeningAgent({ chains: ['bsc'] });
+      case 'meme-ink': {
+        const { InkScreeningAgent } = await import('../agents/meme-ink/ink-screening-agent.js');
+        return new InkScreeningAgent();
       }
-      case 'nft': {
-        const { NFTScreeningAgent } = await import('../agents/nft/nft-screening-agent.js');
-        return new NFTScreeningAgent();
+      case 'lp-solana': {
+        const { LPSolanaAgent } = await import('../agents/lp-solana/lp-solana-agent.js');
+        return new LPSolanaAgent();
+      }
+      case 'lp-robinhood': {
+        const { LPRobinhoodAgent } = await import('../agents/lp-robinhood/lp-robinhood-agent.js');
+        return new LPRobinhoodAgent();
+      }
+      case 'nft-eth': {
+        const { NFTEthAgent } = await import('../agents/nft-eth/nft-eth-agent.js');
+        return new NFTEthAgent();
+      }
+      case 'nft-base': {
+        const { NFTBaseAgent } = await import('../agents/nft-base/nft-base-agent.js');
+        return new NFTBaseAgent();
+      }
+      case 'nft-ink': {
+        const { NFTInkAgent } = await import('../agents/nft-ink/nft-ink-agent.js');
+        return new NFTInkAgent();
+      }
+      case 'nft-robinhood': {
+        const { NFTRobinhoodAgent } = await import('../agents/nft-robinhood/nft-robinhood-agent.js');
+        return new NFTRobinhoodAgent();
+      }
+      case 'nft-hyperevm': {
+        const { NFTHyperEVMAgent } = await import('../agents/nft-hyperevm/nft-hyperevm-agent.js');
+        return new NFTHyperEVMAgent();
       }
       case 'prediction': {
         const { PolymarketAgent } = await import('../agents/prediction/polymarket-agent.js');
@@ -454,7 +478,7 @@ export class AthenaHub {
    * Market-closes all positions and freezes all sub-agents & auto-execute states.
    */
   public executeEmergencyCloseAll(reason = 'User Manual Panic Button (/closeall)'): { closedPositionsCount: number; message: string } {
-    console.error(`🚨 ATHENA HUB: EMERGENCY CLOSE ALL TRIGGERED! Reason: ${reason}`);
+    console.error(`🚨 OPENCATZ HUB: EMERGENCY CLOSE ALL TRIGGERED! Reason: ${reason}`);
     
     // 1. Pause all sub-agents & disable auto-execute
     this.setAllAgentsActive(false);
@@ -471,3 +495,4 @@ export class AthenaHub {
     };
   }
 }
+

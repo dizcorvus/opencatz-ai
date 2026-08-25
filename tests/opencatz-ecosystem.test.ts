@@ -5,16 +5,16 @@ import { RobinhoodScreeningAgent } from '../src/agents/meme-robinhood/robinhood-
 import type { GMGNRawToken } from '../src/adapters/gmgn-adapter.js';
 import { PerpsScreeningAgent } from '../src/agents/perps/perps-screening-agent.js';
 import { HyperliquidAdapter } from '../src/adapters/hyperliquid-adapter.js';
-import { NFTScreeningAgent } from '../src/agents/nft/nft-screening-agent.js';
+import { NFTEthAgent } from '../src/agents/nft-eth/nft-eth-agent.js';
 import { PolymarketAgent } from '../src/agents/prediction/polymarket-agent.js';
 import { PriceAlertService } from '../src/services/price-alert-service.js';
 import { PositionManager } from '../src/position/position-manager.js';
 
-describe('🏛️ ATHENA MULTI-AGENT SYSTEM TEST SUITE', () => {
+describe('🐾 OPENCATZ MULTI-AGENT SYSTEM TEST SUITE', () => {
   it('1. Swarm Consensus Engine: Should pass high confidence signals (>= 80%)', () => {
     const swarm = new SwarmConsensusEngine();
     const result = swarm.evaluateSignal({
-      symbol: 'ATHENA_MEME',
+      symbol: 'OPENCATZ_MEME',
       domain: 'MEME_SOLANA',
       contractAddress: 'So11111111111111111111111111111111111111112',
       liquidityUsd: 25000,
@@ -105,7 +105,7 @@ describe('🏛️ ATHENA MULTI-AGENT SYSTEM TEST SUITE', () => {
   }, 30000);
 
   it('5. EVM NFT Agent: Should evaluate NFT Momentum & Whale Sweeps', async () => {
-    const agent = new NFTScreeningAgent();
+    const agent = new NFTEthAgent();
     const reports = await agent.runScreeningPass();
     expect(Array.isArray(reports)).toBe(true);
     // With real API: returns results only when OPENSEA_API_KEY is configured
@@ -114,7 +114,7 @@ describe('🏛️ ATHENA MULTI-AGENT SYSTEM TEST SUITE', () => {
       // Contract shape: AgentReport<NFTSnipingReport>
       expect(reports[0].confidence).toBeGreaterThanOrEqual(80);
       expect(reports[0].signal.isFloorSurge).toBe(true);
-      expect(reports[0].payload?.domain).toBe('NFT');
+      expect(reports[0].payload?.domain).toBe('NFT-ETH');
     }
   });
 
@@ -127,7 +127,7 @@ describe('🏛️ ATHENA MULTI-AGENT SYSTEM TEST SUITE', () => {
 
   it('7. Price Alert Service: Should parse natural language alert expressions', () => {
     const alertService = new PriceAlertService();
-    const parsed = alertService.parseNaturalLanguageAlert('athena kabari kalau BTC 70000');
+    const parsed = alertService.parseNaturalLanguageAlert('opencatz kabari kalau BTC 70000');
     expect(parsed).not.toBeNull();
     expect(parsed?.symbol).toBe('BTC');
     expect(parsed?.targetPriceUsd).toBe(70000);
@@ -176,7 +176,7 @@ describe('🏛️ ATHENA MULTI-AGENT SYSTEM TEST SUITE', () => {
 
     // Without a TWEX key -> no fabricated tweets
     const noKeySvc = new TwitterService();
-    const empty = await noKeySvc.getHypeScore('ATHENA');
+    const empty = await noKeySvc.getHypeScore('OPENCATZ');
     expect(Array.isArray(empty.topTweets)).toBe(true);
     expect(empty.topTweets.length).toBe(0);
 
@@ -186,13 +186,13 @@ describe('🏛️ ATHENA MULTI-AGENT SYSTEM TEST SUITE', () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
       ok: true,
       json: async () => [{
-        id: 't1', text: '$ATHENA pumping', author: { username: 'whale_user', name: 'Whale' },
+        id: 't1', text: '$OPENCATZ pumping', author: { username: 'whale_user', name: 'Whale' },
         public_metrics: { like_count: 200, retweet_count: 60, reply_count: 15 },
         created_at: nowIso,
       }],
     }));
     const keyedSvc = new TwitterService();
-    const hype = await keyedSvc.getHypeScore('ATHENA');
+    const hype = await keyedSvc.getHypeScore('OPENCATZ');
     vi.unstubAllGlobals();
     expect(hype.topTweets.length).toBe(1);
     expect(hype.topTweets[0].authorUsername).toBe('whale_user');
@@ -440,16 +440,16 @@ describe('🏛️ ATHENA MULTI-AGENT SYSTEM TEST SUITE', () => {
     expect(quote.openseaSwapUrl).toContain('opensea.io/swap');
 
     const manifest = adapter.getAgentToolsManifest();
-    expect(manifest.name).toBe('Athena OpenSea Agent Tools');
+    expect(manifest.name).toBe('OpenCatz OpenSea Agent Tools');
     expect(Array.isArray(manifest.capabilities)).toBe(true);
   });
 
   it('20. Tool Registry & Hub Control: Should execute sub-agent pause, resume, and risk limit tools', async () => {
     const { ToolRegistry } = await import('../src/orchestrator/tool-registry.js');
-    const { AthenaHub } = await import('../src/orchestrator/hub.js');
+    const { OpenCatzHub } = await import('../src/orchestrator/hub.js');
     const { AIService } = await import('../src/services/ai-service.js');
 
-    const hub = new AthenaHub();
+    const hub = new OpenCatzHub();
     const aiService = new AIService();
     const registry = new ToolRegistry();
     registry.attachOrchestrator(hub);
@@ -515,8 +515,8 @@ describe('🏛️ ATHENA MULTI-AGENT SYSTEM TEST SUITE', () => {
   });
 
   it('24. Sub-Agent Domain Normalization: Should correctly synchronize pause/resume across aliases', async () => {
-    const { AthenaHub } = await import('../src/orchestrator/hub.js');
-    const hub = new AthenaHub();
+    const { OpenCatzHub } = await import('../src/orchestrator/hub.js');
+    const hub = new OpenCatzHub();
 
     hub.setAgentActive('solana-meme', false);
     expect(hub.isAgentActive('meme-solana')).toBe(false);
@@ -555,8 +555,8 @@ describe('🏛️ ATHENA MULTI-AGENT SYSTEM TEST SUITE', () => {
   });
 
   it('27. Auto-execute: hub state reflects enablement', async () => {
-    const { AthenaHub } = await import('../src/orchestrator/hub.js');
-    const hub = new AthenaHub();
+    const { OpenCatzHub } = await import('../src/orchestrator/hub.js');
+    const hub = new OpenCatzHub();
     hub.setAutoExecute('meme-solana', true, 0.1);
     const st = hub.isAutoExecuteEnabled('meme-solana');
     expect(st.enabled).toBe(true);
@@ -572,5 +572,3 @@ describe('🏛️ ATHENA MULTI-AGENT SYSTEM TEST SUITE', () => {
     expect(hub.isAutoExecuteEnabled('meme-robinhood').maxTradeAmount).toBe(0.2);
   });
 });
-
-

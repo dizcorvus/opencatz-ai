@@ -40,6 +40,7 @@ const CHAIN_ID_MAP: Record<string, number> = {
   optimism: 10, op: 10, '10': 10,
   polygon: 137, poly: 137, '137': 137,
   bsc: 56, binance: 56, '56': 56,
+  ink: 57073, '57073': 57073,
   robinhood: 5318008, '5318008': 5318008,
 };
 
@@ -60,11 +61,13 @@ export class EVMTradeAdapter {
       ? 'Uniswap / Robinhood L2 Swap Router' 
       : request.chain === 'base' 
       ? 'Aerodrome / Uniswap v3 Base' 
+      : request.chain === 'ink'
+      ? 'Velodrome / Uniswap v3 Ink'
       : request.chain === 'bsc' 
       ? 'PancakeSwap v3' 
       : 'Uniswap v3 Ethereum';
 
-    console.log(`[EVM ADAPTER] Initiating Buy Order on ${String(request.chain).toUpperCase()} via ${dexName} (Amount: ${request.amountEth} ETH/BNB)`);
+    console.log(`[EVM ADAPTER] Initiating Buy Order on ${String(request.chain).toUpperCase()} via ${dexName} (Amount: ${request.amountEth} ETH)`);
 
     if (this.isDryRun) {
       // Realistic dry run: fetch REAL quote from the Uniswap API, report real numbers, do NOT broadcast.

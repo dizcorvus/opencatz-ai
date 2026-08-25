@@ -1,4 +1,4 @@
-import { AthenaHub } from '../orchestrator/hub.js';
+import { OpenCatzHub } from '../orchestrator/hub.js';
 import { isDryRun as isDryRunMode } from '../config/config.js';
 import { WalletService, globalWalletService } from '../services/wallet-service.js';
 import { AIService } from '../services/ai-service.js';
@@ -74,14 +74,14 @@ export class TelegramService {
   }
 
   /**
-   * Auto-bootstrap all 10 Athena Sub-Channels / Forum Topics in Telegram Group
+   * Auto-bootstrap all 10 OpenCatz Sub-Channels / Forum Topics in Telegram Group
    */
   public async bootstrapTelegramTopics(): Promise<Record<string, number | null>> {
     if (!this.isEnabled()) return {};
 
-    console.log('[TELEGRAM BOOTSTRAP] Auto-provisioning Athena Sub-Channels (Forum Topics) in Telegram Group...');
+    console.log('[TELEGRAM BOOTSTRAP] Auto-provisioning OpenCatz Sub-Channels (Forum Topics) in Telegram Group...');
     const topicNames = [
-      'athena-control-room',
+      'opencatz-control-room',
       'audit-on-demand',
       'call-meme-solana',
       'call-meme-robinhood',
@@ -155,7 +155,7 @@ export class TelegramService {
     const safeTitle = sanitizeTgField(title, 150);
     const safeSymbol = sanitizeTgField(symbol, 32);
     const safeThesis = sanitizeTgField(aiThesis, 500);
-    const message = `🚨 *ATHENA CALL: ${safeTitle} ($${safeSymbol})*
+    const message = `🚨 *OPENCATZ CALL: ${safeTitle} ($${safeSymbol})*
 
 📋 *Contract Address (CA):*
 \`${ca}\`
@@ -165,20 +165,20 @@ ${safeThesis}
 
 ${dexUrl ? `📊 [View Chart on DexScreener](${dexUrl})` : ''}
 
-🤖 _Sent via Athena Swarm Consensus_`;
+🤖 _Sent via OpenCatz Swarm Consensus_`;
 
     const threadId = topicName ? this.topics.get(topicName.toLowerCase()) : undefined;
     return this.sendMessage(message, 'Markdown', undefined, threadId);
   }
 
-  public async broadcastInteractiveMenu(hub?: AthenaHub, walletService?: WalletService): Promise<boolean> {
+  public async broadcastInteractiveMenu(hub?: OpenCatzHub, walletService?: WalletService): Promise<boolean> {
     const activeDomains = hub ? hub.getActiveDomains() : [];
     const autoExecuteEnabled = process.env.AUTO_EXECUTE_ENABLED === 'true';
     const risk = hub ? hub.getRiskManager().getRiskState() : null;
 
     const getStatus = (domain: string) => activeDomains.includes(domain) ? '🟢 ACTIVE' : '🔴 PAUSED';
 
-    const text = `🏛️ *ATHENA CONTROL CENTER DASHBOARD (TELEGRAM)*
+    const text = `🏛️ *OPENCATZ CONTROL CENTER DASHBOARD (TELEGRAM)*
 
 ⚙️ *Mode:* ${autoExecuteEnabled ? 'AUTO_EXECUTE' : 'MANUAL EXECUTION — screener/caller, execution via link'}
 🛡️ *Max Drawdown:* ${risk ? `${risk.maxDrawdownLimitPct}%` : 'n/a'}
@@ -225,14 +225,14 @@ Use buttons below to toggle agents, view wallet status, or execute withdrawals:`
       ],
     };
 
-    const threadId = this.topics.get('athena-control-room');
+    const threadId = this.topics.get('opencatz-control-room');
     return this.sendMessage(text, 'Markdown', replyMarkup, threadId);
   }
 
   /**
    * Start long-polling listener for Telegram incoming commands & callback buttons
    */
-  public startPolling(hub: AthenaHub, walletService: WalletService, aiService?: AIService): void {
+  public startPolling(hub: OpenCatzHub, walletService: WalletService, aiService?: AIService): void {
     if (!this.isEnabled()) return;
 
     let offset = 0;
@@ -261,7 +261,7 @@ Use buttons below to toggle agents, view wallet status, or execute withdrawals:`
     poll();
   }
 
-  private async handleTelegramUpdate(update: any, hub: AthenaHub, walletService: WalletService, aiService?: AIService): Promise<void> {
+  private async handleTelegramUpdate(update: any, hub: OpenCatzHub, walletService: WalletService, aiService?: AIService): Promise<void> {
     if (update.callback_query) {
       const query = update.callback_query;
       const data = query.data;
@@ -274,11 +274,11 @@ Use buttons below to toggle agents, view wallet status, or execute withdrawals:`
         hub.toggleChannelScreening('telegram-forum', domain, !active);
         await this.sendMessage(`⚡ Sub-agent domain \`${domain}\` is now **${!active ? 'ACTIVE' : 'PAUSED'}** on Telegram!`, 'Markdown', undefined, threadId);
       } else if (data === 'start_all') {
-        ['meme-solana', 'meme-robinhood', 'meme-base', 'meme-eth', 'meme-bsc', 'lp-solana', 'lp-robinhood', 'perps', 'nft', 'prediction', 'ct-alpha'].forEach(d => hub.toggleChannelScreening('telegram-forum', d, true));
-        await this.sendMessage('⚡ **GLOBAL MASTER SCREENING ACTIVATED!** All 11 Sub-Agents are active on Telegram.', 'Markdown', undefined, threadId);
+        ['meme-solana', 'meme-robinhood', 'meme-base', 'meme-eth', 'meme-ink', 'lp-solana', 'lp-robinhood', 'nft-eth', 'nft-base', 'nft-ink', 'nft-robinhood', 'nft-hyperevm', 'perps', 'prediction', 'ct-alpha'].forEach(d => hub.toggleChannelScreening('telegram-forum', d, true));
+        await this.sendMessage('⚡ **GLOBAL MASTER SCREENING ACTIVATED!** All 15 Sub-Agents are active on Telegram.', 'Markdown', undefined, threadId);
       } else if (data === 'pause_all') {
-        ['meme-solana', 'meme-robinhood', 'meme-base', 'meme-eth', 'meme-bsc', 'lp-solana', 'lp-robinhood', 'perps', 'nft', 'prediction', 'ct-alpha'].forEach(d => hub.toggleChannelScreening('telegram-forum', d, false));
-        await this.sendMessage('⏸️ **GLOBAL MASTER SCREENING PAUSED!** All 11 Sub-Agents are paused on Telegram.', 'Markdown', undefined, threadId);
+        ['meme-solana', 'meme-robinhood', 'meme-base', 'meme-eth', 'meme-ink', 'lp-solana', 'lp-robinhood', 'nft-eth', 'nft-base', 'nft-ink', 'nft-robinhood', 'nft-hyperevm', 'perps', 'prediction', 'ct-alpha'].forEach(d => hub.toggleChannelScreening('telegram-forum', d, false));
+        await this.sendMessage('⏸️ **GLOBAL MASTER SCREENING PAUSED!** All 15 Sub-Agents are paused on Telegram.', 'Markdown', undefined, threadId);
       } else if (data === 'balances') {
         const isDryRun = isDryRunMode();
         const hasSol = walletService.hasWallet('solana');
@@ -286,7 +286,7 @@ Use buttons below to toggle agents, view wallet status, or execute withdrawals:`
         let solAddr = hasSol ? `\`${walletService.getSolanaAddress()}\`` : 'Not Configured';
         let evmAddr = hasEvm ? `\`${walletService.getEvmAddress()}\`` : 'Not Configured';
         await this.sendMessage(
-          `💼 *ATHENA WALLET BALANCES (${isDryRun ? 'SIMULATED' : 'LIVE'}):*\n\n` +
+          `💼 *OPENCATZ WALLET BALANCES (${isDryRun ? 'SIMULATED' : 'LIVE'}):*\n\n` +
           `• *Solana Wallet:* ${solAddr}\n` +
           `• *EVM Wallet:* ${evmAddr}\n\n` +
           `Use \`/withdraw <to> <amount>\` to transfer funds.`,
@@ -332,7 +332,7 @@ Use buttons below to toggle agents, view wallet status, or execute withdrawals:`
         }
       } else if (!text.startsWith('/') && aiService) {
         try {
-          const { ATHENA_SYSTEM_PROMPT_BASE } = await import('../services/athena-system-prompt.js');
+          const { OPENCATZ_SYSTEM_PROMPT_BASE } = await import('../services/opencatz-system-prompt.js');
           const { ToolRegistry } = await import('../orchestrator/tool-registry.js');
           const { runAgent } = await import('../orchestrator/agent-runner.js');
           const { SessionMemoryService } = await import('../services/session-memory.js');
@@ -346,7 +346,7 @@ Use buttons below to toggle agents, view wallet status, or execute withdrawals:`
             ? `Active Sub-Agents right now: ${activeDomains.join(', ')}`
             : 'Active Sub-Agents right now: NONE (all paused)';
           const memoryContext = new SessionMemoryService().buildMemoryContextLine();
-          const systemPrompt = ATHENA_SYSTEM_PROMPT_BASE + `\n\nCurrent Operating Parameters:\n${activeAgentsLine}${memoryContext}`;
+          const systemPrompt = OPENCATZ_SYSTEM_PROMPT_BASE + `\n\nCurrent Operating Parameters:\n${activeAgentsLine}${memoryContext}`;
 
           const agentResult = await runAgent(
             { aiService, toolRegistry, systemPrompt },

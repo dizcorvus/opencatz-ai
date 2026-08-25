@@ -1,4 +1,4 @@
-import { Guild, ChannelType } from 'discord.js';
+import { Guild, ChannelType, CategoryChannel } from 'discord.js';
 
 export interface ChannelSetupResult {
   controlRoomId: string;
@@ -7,118 +7,181 @@ export interface ChannelSetupResult {
   memeRobinhoodId: string;
   memeBaseId: string;
   memeEthId: string;
-  memeBnbId: string;
-  perpsId: string;
-  nftId: string;
+  memeInkId: string;
   lpSolanaId: string;
-  lpEvmId: string;
+  lpRobinhoodId: string;
+  nftEthId: string;
+  nftBaseId: string;
+  nftInkId: string;
+  nftRobinhoodId: string;
+  nftHyperEVMId: string;
+  perpsId: string;
   predictionId: string;
   ctAlphaId: string;
 }
 
 export async function bootstrapDiscordChannels(guild: Guild): Promise<ChannelSetupResult> {
-  console.log(`[DISCORD BOOTSTRAP] Checking & auto-creating OpenCatz channels in guild: "${guild.name}"...`);
+  console.log(`[DISCORD BOOTSTRAP] Checking & auto-creating OpenCatz categorized channels in guild: "${guild.name}"...`);
 
-  // 1. Check or Create Category "🐾 OPENCATZ MULTICHAIN COMMAND CENTER"
-  let category = guild.channels.cache.find(
-    c => c.type === ChannelType.GuildCategory &&
-      (c.name.toLowerCase().includes('opencatz') || c.name.toLowerCase().includes('athena command center'))
-  );
+  // Helper to get or create a category
+  const getOrCreateCategory = async (name: string, searchTerms: string[]): Promise<CategoryChannel> => {
+    let category = guild.channels.cache.find(
+      c => c.type === ChannelType.GuildCategory && searchTerms.some(t => c.name.toLowerCase().includes(t.toLowerCase()))
+    ) as CategoryChannel | undefined;
 
-  if (!category) {
-    category = await guild.channels.create({
-      name: '🐾 OPENCATZ MULTICHAIN COMMAND CENTER',
-      type: ChannelType.GuildCategory,
-    });
-    console.log('[DISCORD BOOTSTRAP] Created Category: "🐾 OPENCATZ MULTICHAIN COMMAND CENTER"');
-  }
+    if (!category) {
+      category = await guild.channels.create({
+        name,
+        type: ChannelType.GuildCategory,
+      });
+      console.log(`[DISCORD BOOTSTRAP] Created Category: "${name}"`);
+    }
+    return category;
+  };
+
+  // 1. Categories
+  const catCommand = await getOrCreateCategory('🐾 OPENCATZ COMMAND CENTER', ['command center', 'opencatz']);
+  const catMeme = await getOrCreateCategory('🚀 MEME COIN CALLS', ['meme coin', 'meme calls']);
+  const catLp = await getOrCreateCategory('💧 LIQUIDITY & YIELD', ['liquidity', 'yield', 'lp']);
+  const catNft = await getOrCreateCategory('🔮 NFT SNIPING & RADAR', ['nft sniping', 'nft radar', 'nft']);
+  const catOracles = await getOrCreateCategory('🎯 ORACLES & DERIVATIVES', ['oracles', 'derivatives', 'prediction']);
 
   // Helper to get or create channel under category
-  const getOrCreateChannel = async (name: string, topic: string, legacyName?: string) => {
+  const getOrCreateChannel = async (categoryId: string, name: string, topic: string, legacyNames?: string[]) => {
     let channel = guild.channels.cache.find(
-      c => c.type === ChannelType.GuildText && (c.name === name || (legacyName && c.name === legacyName))
+      c => c.type === ChannelType.GuildText && (c.name === name || (legacyNames && legacyNames.includes(c.name)))
     );
 
     if (!channel) {
       channel = await guild.channels.create({
         name,
         type: ChannelType.GuildText,
-        parent: category.id,
+        parent: categoryId,
         topic,
       });
       console.log(`[DISCORD BOOTSTRAP] Auto-created Channel: #${name}`);
+    } else if (channel.parentId !== categoryId) {
+      try {
+        if ('setParent' in channel && typeof (channel as any).setParent === 'function') {
+          await (channel as any).setParent(categoryId);
+        }
+      } catch (e: any) {
+        console.warn(`[DISCORD BOOTSTRAP] Could not move #${name} to category: ${e.message}`);
+      }
     }
     return channel.id;
   };
 
+  // Category 1: Command Center
   const controlRoomId = await getOrCreateChannel(
+    catCommand.id,
     'opencatz-control-room',
-    '⚙️ OpenCatz Core Command Hub - Chat with AI, wallet management, & 9-Lives risk configuration.',
-    'athena-control-room'
+    '⚙️ OpenCatz Core Command Hub - Chat with AI, wallet management, & 9-Lives risk configuration.'
   );
 
   const auditOnDemandId = await getOrCreateChannel(
+    catCommand.id,
     'opencatz-audit',
     '🔎 On-Demand Token Audit Channel - Paste any Solana or EVM Contract Address (CA) here for instant 12-point audit!',
-    'audit-on-demand'
+    ['audit-on-demand']
   );
 
+  // Category 2: Meme Coin Calls
   const memeSolanaId = await getOrCreateChannel(
+    catMeme.id,
     'call-meme-solana',
     '🚀 High-Confidence Solana DEX Signal Calls (Pump.fun, Raydium, Meteora)'
   );
 
   const memeRobinhoodId = await getOrCreateChannel(
+    catMeme.id,
     'call-meme-robinhood',
     '🌸 High-Confidence Robinhood Chain Meme Signal Calls (GMGN + GoPlus)'
   );
 
   const memeBaseId = await getOrCreateChannel(
+    catMeme.id,
     'call-meme-base',
     '🔵 High-Confidence Base L2 Meme Signal Calls (GMGN + GoPlus Security)'
   );
 
   const memeEthId = await getOrCreateChannel(
+    catMeme.id,
     'call-meme-eth',
     '💎 High-Confidence Ethereum Mainnet Meme Signal Calls (Uniswap + GoPlus)'
   );
 
-  const memeBnbId = await getOrCreateChannel(
-    'call-meme-bnb',
-    '🟡 High-Confidence BNB Chain (BSC) Meme Signal Calls (PancakeSwap + GoPlus)'
+  const memeInkId = await getOrCreateChannel(
+    catMeme.id,
+    'call-meme-ink',
+    '🐙 High-Confidence Ink Chain (Kraken L2) Meme Signal Calls (DexScreener + GoPlus)'
   );
 
-  const perpsId = await getOrCreateChannel(
-    'call-whale-tracking',
-    '🐋 Smart Trader & Whale Positioning Tracking (Hyperliquid: BTC, ETH, SOL)'
-  );
-
-  const nftId = await getOrCreateChannel(
-    'call-nft-sniping',
-    '🔮 NFT Floor Price & Rarity Sniping Alerts (Catz NFT, OpenSea)'
-  );
-
+  // Category 3: Liquidity & Yield
   const lpSolanaId = await getOrCreateChannel(
+    catLp.id,
     'call-lp-solana',
     '🌊 High-Yield Solana Concentrated Liquidity Calls (Meteora DLMM)'
   );
 
-  const lpEvmId = await getOrCreateChannel(
+  const lpRobinhoodId = await getOrCreateChannel(
+    catLp.id,
     'call-lp-robinhood',
     '🌊 High-Yield Robinhood Chain Concentrated Liquidity Calls (Uniswap V3)'
   );
 
+  // Category 4: NFT Sniping & Radar (OpenSea Multichain EVM)
+  const nftEthId = await getOrCreateChannel(
+    catNft.id,
+    'call-nft-eth',
+    '💎 Ethereum Bluechip NFT Floor Surges & Whale Sweeping Alerts (OpenSea)',
+    ['call-nft-sniping']
+  );
+
+  const nftBaseId = await getOrCreateChannel(
+    catNft.id,
+    'call-nft-base',
+    '🔵 Base L2 Creator Drops, Trending Mints, & Zora/OpenSea NFT Signals'
+  );
+
+  const nftInkId = await getOrCreateChannel(
+    catNft.id,
+    'call-nft-ink',
+    '🐙 Ink Chain (Kraken L2) NFT Radar & Trending Mints (OpenSea)'
+  );
+
+  const nftRobinhoodId = await getOrCreateChannel(
+    catNft.id,
+    'call-nft-robinhood',
+    '👑 Robinhood Chain NFT Momentum & Floor Radar (OpenSea)'
+  );
+
+  const nftHyperEVMId = await getOrCreateChannel(
+    catNft.id,
+    'call-nft-hyperevm',
+    '⚡ Hyperliquid HyperEVM L1 Native NFT Collections & Floor Radar (OpenSea)'
+  );
+
+  // Category 5: Oracles & Derivatives
+  const perpsId = await getOrCreateChannel(
+    catOracles.id,
+    'call-whale-tracking',
+    '🐋 Smart Trader & Whale Positioning Tracking (Hyperliquid: BTC, ETH, SOL)'
+  );
+
   const predictionId = await getOrCreateChannel(
+    catOracles.id,
     'call-prediction-markets',
     '🎯 Polymarket Prediction Market Arbitrage, Odds Mispricing, & Whale Bet Signals'
   );
 
   const ctAlphaId = await getOrCreateChannel(
+    catOracles.id,
     'call-ct-alpha',
     '☀️ Smart Crypto Twitter (CT) & AI Alpha - Airdrop threads, AI Agent launches, & Smart Money Calls'
   );
 
-  console.log('[DISCORD BOOTSTRAP] All OpenCatz dedicated multichain channels are ready!');
+  console.log('[DISCORD BOOTSTRAP] All OpenCatz 5 categories & 17 channels are ready!');
 
   return {
     controlRoomId,
@@ -127,11 +190,15 @@ export async function bootstrapDiscordChannels(guild: Guild): Promise<ChannelSet
     memeRobinhoodId,
     memeBaseId,
     memeEthId,
-    memeBnbId,
-    perpsId,
-    nftId,
+    memeInkId,
     lpSolanaId,
-    lpEvmId,
+    lpRobinhoodId,
+    nftEthId,
+    nftBaseId,
+    nftInkId,
+    nftRobinhoodId,
+    nftHyperEVMId,
+    perpsId,
     predictionId,
     ctAlphaId,
   };

@@ -1,7 +1,7 @@
 import { Keypair, Connection, PublicKey, SystemProgram, Transaction, sendAndConfirmTransaction, LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { createWalletClient, createPublicClient, http, parseEther, formatEther, type WalletClient, type PublicClient, type Chain, type Account } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
-import { mainnet, base, arbitrum, optimism, polygon, bsc, robinhood } from 'viem/chains';
+import { mainnet, base, arbitrum, optimism, polygon, bsc, robinhood, ink } from 'viem/chains';
 
 import { StateStore } from './state-store.js';
 import { isDryRun as isDryRunMode } from '../config/config.js';
@@ -28,13 +28,14 @@ const EVM_CHAINS: Record<number, { chain: Chain; rpcEnvKey: string; explorerBase
   10: { chain: optimism, rpcEnvKey: 'EVM_OP_RPC_URL', explorerBase: 'https://optimistic.etherscan.io/tx/' },
   137: { chain: polygon, rpcEnvKey: 'EVM_POLYGON_RPC_URL', explorerBase: 'https://polygonscan.com/tx/' },
   56: { chain: bsc, rpcEnvKey: 'EVM_BSC_RPC_URL', explorerBase: 'https://bscscan.com/tx/' },
+  57073: { chain: ink, rpcEnvKey: 'EVM_INK_RPC_URL', explorerBase: 'https://explorer.inkonchain.com/tx/' },
   5318008: { chain: robinhood, rpcEnvKey: 'EVM_ROBINHOOD_RPC_URL', explorerBase: 'https://robinhoodchain.blockscout.com/tx/' },
 };
 
 /**
- * WalletService manages private keys for Athena's direct on-chain execution.
+ * WalletService manages private keys for OpenCatz direct on-chain execution.
  * Keys are loaded from .env at startup or set at runtime via /wallet setup or TUI.
- * Keys are persisted safely to local StateStore (database/athena_state.json) so they survive bot updates & process reboots.
+ * Keys are persisted safely to local StateStore (database/opencatz_state.json) so they survive bot updates & process reboots.
  */
 export class WalletService {
   private solanaPrivateKey: string | null = null;

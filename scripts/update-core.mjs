@@ -1,6 +1,6 @@
 /**
- * Athena self-update core — single source of truth for both entry points:
- *   - CLI: `athena update` (bin/athena.js -> npm run update)
+ * OpenCatz self-update core — single source of truth for both entry points:
+ *   - CLI: `opencatz update` (bin/opencatz.js -> npm run update)
  *   - Discord: `/update` (interaction-handler)
  *
  * Steps:
@@ -9,7 +9,7 @@
  *   3. git stash pop (restore local changes; conflicts are non-fatal)
  *   4. npm install
  *   5. npm run build
- *   6. pm2 restart athena-agent (unless --no-restart)
+ *   6. pm2 restart opencatz-agent (unless --no-restart)
  *
  * Fail-closed: pull/build failure => exit code != 0 (Discord shows the error).
  */
@@ -23,7 +23,7 @@ const SELF_DIR = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(SELF_DIR, '..');
 const EXEC_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes per step (npm install can be slow)
 
-export async function runAthenaUpdate({ noRestart = false, cwd = REPO_ROOT } = {}) {
+export async function runOpenCatzUpdate({ noRestart = false, cwd = REPO_ROOT } = {}) {
   const log = [];
   const step = (label, command, { ignore = false } = {}) => {
     console.log(`\n▶ ${label}`);
@@ -42,7 +42,7 @@ export async function runAthenaUpdate({ noRestart = false, cwd = REPO_ROOT } = {
     }
   };
 
-  console.log('🔄 ATHENA SELF-UPDATE');
+  console.log('🔄 OPENCATZ SELF-UPDATE');
   console.log(`   repo: ${cwd} | node: ${process.version}`);
   console.log(`   mode: ${noRestart ? 'without restart (--no-restart)' : 'with pm2 restart'}`);
 
@@ -52,7 +52,7 @@ export async function runAthenaUpdate({ noRestart = false, cwd = REPO_ROOT } = {
     const status = execSync('git status --porcelain', { cwd, encoding: 'utf-8' }).trim();
     if (status.length > 0) {
       console.log('\n⚠ Working tree is dirty — stashing local changes first...');
-      stashed = step('Stash local changes', 'git stash push -m athena-update', { ignore: true });
+      stashed = step('Stash local changes', 'git stash push -m opencatz-update', { ignore: true });
     } else {
       console.log('\n✓ Working tree is clean — no stash needed.');
     }
@@ -76,7 +76,7 @@ export async function runAthenaUpdate({ noRestart = false, cwd = REPO_ROOT } = {
 
   const allOk = pullOk && installOk && buildOk;
 
-  // 5b. Olympian notifications (Telegram + Discord webhook) — non-fatal
+  // 5b. Notifications (Telegram + Discord webhook) — non-fatal
   try {
     const { notifyUpdate } = await import('./notify-update.mjs');
     await notifyUpdate({ ok: allOk, restartOk: null, steps: log, noRestart });
@@ -88,7 +88,7 @@ export async function runAthenaUpdate({ noRestart = false, cwd = REPO_ROOT } = {
   let restartOk = true;
   if (!noRestart) {
     console.log('\n▶ Restart PM2 agent (detached — the update process is not killed by itself)');
-    const pm2Cmd = 'pm2 restart opencatz-agent --update-env || pm2 restart athena-agent --update-env || npx pm2 restart opencatz-agent --update-env';
+    const pm2Cmd = 'pm2 restart opencatz-agent --update-env || npx pm2 restart opencatz-agent --update-env';
     try {
       const child = spawn('sh', ['-c', `sleep 3 && ${pm2Cmd}`], {
         detached: true,
@@ -136,6 +136,6 @@ export async function runAthenaUpdate({ noRestart = false, cwd = REPO_ROOT } = {
 const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 if (isMain) {
   const noRestart = process.argv.includes('--no-restart');
-  const result = await runAthenaUpdate({ noRestart });
+  const result = await runOpenCatzUpdate({ noRestart });
   process.exit(result.ok ? 0 : 1);
 }

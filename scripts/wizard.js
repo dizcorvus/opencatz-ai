@@ -12,8 +12,21 @@ const rl = readline.createInterface({
 const askQuestion = (query) => new Promise((resolve) => rl.question(query, resolve));
 
 const C = {
-  reset: '\x1b[0m', bold: '\x1b[1m', green: '\x1b[32m', yellow: '\x1b[33m',
-  red: '\x1b[31m', cyan: '\x1b[36m', magenta: '\x1b[35m', dim: '\x1b[2m',
+  reset: '\x1b[0m',
+  bold: '\x1b[1m',
+  dim: '\x1b[2m',
+  lime: '\x1b[38;2;204;255;0m',      // #CCFF00 Robinhood Green (Hero)
+  pink: '\x1b[38;2;255;183;178m',    // #FFB7B2 Pastel Pink
+  lavender: '\x1b[38;2;214;199;255m',// #D6C7FF Lavender Purple
+  cyan: '\x1b[38;2;128;222;234m',    // #80DEEA Retro Cyan
+  yellow: '\x1b[38;2;255;245;157m',  // #FFF59D Pastel Yellow
+  gold: '\x1b[38;2;255;215;0m',      // #FFD700 Golden Fortune 24K
+  green: '\x1b[38;2;0;230;118m',     // #00E676 Jade Spirit Green
+  red: '\x1b[38;2;229;57;53m',       // #E53935 Maneki-Neko Red
+  blue: '\x1b[38;2;2;119;189m',      // #0277BD Denim Blue
+  white: '\x1b[38;2;240;244;248m',   // #F0F4F8 Crisp White
+  gray: '\x1b[38;2;120;144;156m',    // #78909C Slate Gray
+  darkGray: '\x1b[38;2;60;72;88m',   // #3C4858 Dark Border Gray
 };
 
 const PROVIDER_PRESETS = {
@@ -271,18 +284,27 @@ function drawProgressHeader(step, total, done) {
   for (let i = 1; i <= total; i++) {
     if (i < step) cells.push(`${C.green}${i}✓${C.reset}`);
     else if (i === step) cells.push(`${C.bold}${C.cyan}[${i}]${C.reset}`);
-    else cells.push(`${C.dim}${i}${C.reset}`);
+    else cells.push(`${C.darkGray}${i}${C.reset}`);
   }
-  console.log(`\n${C.lime}${C.bold}🐾 OPENCATZ AI — MULTICHAIN MASTER ONBOARDING WIZARD${C.reset}`);
-  console.log(` ${C.cyan}Step ${step} of ${total} — ${done ? C.green + 'configuring ' + done : 'beginning'}${C.reset}`);
-  console.log(` ${cells.join(' ')}\n`);
+  console.log(`\n  ${C.lime}${C.bold}🐾 OPENCATZ AI — MULTICHAIN MASTER ONBOARDING WIZARD${C.reset}`);
+  console.log(`  ${C.cyan}Step ${step} of ${total} — ${done ? C.green + 'configuring ' + done : 'beginning'}${C.reset}`);
+  console.log(`  ${cells.join(' ')}\n`);
 }
 
 async function runWizard() {
-  console.log('\n======================================================================');
-  console.log('🐾 OPENCATZ AI MULTI-AGENT SWARM - MASTER ONBOARDING WIZARD');
-  console.log('======================================================================\n');
-  console.log('💡 Note: API keys are MANDATORY for their respective sub-agents to run. Press ENTER to keep existing values.\n');
+  console.clear();
+  console.log(`
+${C.lime}${C.bold}       /\\_____/\\       ${C.reset}${C.lime}${C.bold}🐾 OPENCATZ AI · ONBOARDING WIZARD 🐾${C.reset}
+${C.lime}${C.bold}      /  ${C.pink}■${C.lime}   ${C.pink}■${C.lime}  \\      ${C.reset}${C.darkGray}══════════════════════════════════════════════════════════════${C.reset}
+${C.lime}${C.bold}     ( ==  ${C.pink}^${C.lime}  == )     ${C.reset}${C.cyan}Autonomous 3-Layer Swarm Consensus & Precision Setup${C.reset}
+${C.lime}${C.bold}      )    ${C.yellow}~${C.lime}    (      ${C.reset}${C.lavender}Solana • Robinhood Chain • Base • Ethereum • BNB • Perps${C.reset}
+${C.lime}${C.bold}     (   _____   )     ${C.reset}${C.gold}"Chill trades, 9 lives, sharp alpha." • opencatz.xyz${C.reset}
+${C.lime}${C.bold}    ( (  )   (  ) )    ${C.reset}${C.darkGray}══════════════════════════════════════════════════════════════${C.reset}
+${C.lime}${C.bold}   (__(__)___(__)__)   ${C.reset}${C.green}● Interactive Environment Configuration (.env Generator)${C.reset}
+`);
+  console.log(`  ${C.cyan}──────────────────────────────────────────────────────────────────────────${C.reset}`);
+  console.log(`  ${C.yellow}💡 Note: API keys are MANDATORY for respective agents. Press ENTER to keep existing.${C.reset}`);
+  console.log(`  ${C.cyan}──────────────────────────────────────────────────────────────────────────${C.reset}\n`);
 
   let existingEnv = {};
   if (fs.existsSync(envPath)) {
@@ -391,20 +413,53 @@ async function runWizard() {
   // 5. MARKET DATA & SECURITY APIS
   drawProgressHeader(5, 9, 'market data & security APIs');
   console.log(` ${C.cyan}${C.bold}📊 STEP 5: MARKET DATA & SECURITY APIS${C.reset}`);
+  console.log(`   ${C.dim}Tip: GMGN and OpenSea support unlimited stacked API keys and per-chain slots with automatic failover on rate limits (HTTP 429).${C.reset}`);
   const gmgn = await askKeyWithBackup('GMGN', 'GMGN_API_KEY (smart-money/rank/security for Solana & EVM)', existingEnv.GMGN_API_KEY || '', true);
+  
+  // Optional Per-Chain GMGN Key Overrides
+  let gmgnSolKey = existingEnv.GMGN_API_KEY_SOLANA || '';
+  let gmgnRhKey = existingEnv.GMGN_API_KEY_ROBINHOOD || '';
+  let gmgnBaseKey = existingEnv.GMGN_API_KEY_BASE || '';
+  let gmgnEthKey = existingEnv.GMGN_API_KEY_ETH || '';
+  let gmgnInkKey = existingEnv.GMGN_API_KEY_INK || '';
+  const wantPerChainGmgn = (await askQuestion('   Configure dedicated per-chain GMGN API keys (e.g. for Solana, Robinhood, Base, ETH, Ink)? (y/N) [Default N]: ')) || 'n';
+  if (wantPerChainGmgn.toLowerCase() === 'y') {
+    gmgnSolKey = (await askQuestion(`   GMGN_API_KEY_SOLANA [Default: ${gmgnSolKey ? gmgnSolKey.slice(0, 10) + '...' : 'none'}]: `)).trim() || gmgnSolKey;
+    gmgnRhKey = (await askQuestion(`   GMGN_API_KEY_ROBINHOOD [Default: ${gmgnRhKey ? gmgnRhKey.slice(0, 10) + '...' : 'none'}]: `)).trim() || gmgnRhKey;
+    gmgnBaseKey = (await askQuestion(`   GMGN_API_KEY_BASE [Default: ${gmgnBaseKey ? gmgnBaseKey.slice(0, 10) + '...' : 'none'}]: `)).trim() || gmgnBaseKey;
+    gmgnEthKey = (await askQuestion(`   GMGN_API_KEY_ETH [Default: ${gmgnEthKey ? gmgnEthKey.slice(0, 10) + '...' : 'none'}]: `)).trim() || gmgnEthKey;
+    gmgnInkKey = (await askQuestion(`   GMGN_API_KEY_INK [Default: ${gmgnInkKey ? gmgnInkKey.slice(0, 10) + '...' : 'none'}]: `)).trim() || gmgnInkKey;
+  }
+
   const krystal = await askKeyWithBackup('Krystal Cloud', 'KRYSTAL_CLOUD_API_KEY (EVM LP pool data — mandatory for EVM LP agent)', existingEnv.KRYSTAL_CLOUD_API_KEY || '', true);
   const opensea = await askKeyWithBackup('OpenSea', 'OPENSEA_API_KEY (NFT floor & rarity — mandatory for NFT agent)', existingEnv.OPENSEA_API_KEY || '', true);
+
+  // Optional Per-Chain OpenSea Key Overrides
+  let osEthKey = existingEnv.OPENSEA_API_KEY_ETH || '';
+  let osBaseKey = existingEnv.OPENSEA_API_KEY_BASE || '';
+  let osInkKey = existingEnv.OPENSEA_API_KEY_INK || '';
+  let osRhKey = existingEnv.OPENSEA_API_KEY_ROBINHOOD || '';
+  let osHyperKey = existingEnv.OPENSEA_API_KEY_HYPEREVM || '';
+  const wantPerChainOs = (await askQuestion('   Configure dedicated per-chain OpenSea API keys (e.g. for ETH, Base, Ink, Robinhood, HyperEVM)? (y/N) [Default N]: ')) || 'n';
+  if (wantPerChainOs.toLowerCase() === 'y') {
+    osEthKey = (await askQuestion(`   OPENSEA_API_KEY_ETH [Default: ${osEthKey ? osEthKey.slice(0, 10) + '...' : 'none'}]: `)).trim() || osEthKey;
+    osBaseKey = (await askQuestion(`   OPENSEA_API_KEY_BASE [Default: ${osBaseKey ? osBaseKey.slice(0, 10) + '...' : 'none'}]: `)).trim() || osBaseKey;
+    osInkKey = (await askQuestion(`   OPENSEA_API_KEY_INK [Default: ${osInkKey ? osInkKey.slice(0, 10) + '...' : 'none'}]: `)).trim() || osInkKey;
+    osRhKey = (await askQuestion(`   OPENSEA_API_KEY_ROBINHOOD [Default: ${osRhKey ? osRhKey.slice(0, 10) + '...' : 'none'}]: `)).trim() || osRhKey;
+    osHyperKey = (await askQuestion(`   OPENSEA_API_KEY_HYPEREVM [Default: ${osHyperKey ? osHyperKey.slice(0, 10) + '...' : 'none'}]: `)).trim() || osHyperKey;
+  }
+
   const goplus = await askKeyWithBackup('GoPlus', 'GOPLUS_API_KEY (EVM security audit — mandatory for /audit)', existingEnv.GOPLUS_API_KEY || '', true);
   const twex = await askKeyWithBackup('Twex/Twitter', 'TWEX_API_KEY (X/Twitter CT-Alpha sentiment engine)', existingEnv.TWEX_API_KEY || '', false);
 
   // 5.5 SCREENING STRATEGY
   drawProgressHeader(6, 9, 'screening strategy');
   console.log(`\n ${C.cyan}${C.bold}🧠 STEP 5.5: SCREENING STRATEGY${C.reset}`);
-  console.log('   How strict should Athena be when selecting signals?');
+  console.log('   How strict should OpenCatz be when selecting signals?');
   console.log('   [1] Loosened Default (2x) — more call signals, still >= 80% quality   [Default]');
   console.log('   [2] Standard — strict thresholds (previous defaults)');
   console.log('   [3] Custom Prompt — describe your ideal screening strategy in plain English;');
-  console.log('       Athena writes the code after deploy (auto on first boot, re-runnable anytime via chat)');
+  console.log('       OpenCatz writes the code after deploy (auto on first boot, re-runnable anytime via chat)');
   const stratChoice = (await askQuestion('   Choice [Default 1]: ')) || '1';
   let strategyPreset = 'loosened';
   if (stratChoice === '2') strategyPreset = 'standard';
@@ -491,10 +546,20 @@ async function runWizard() {
     ANTHROPIC_API_KEY: (allKeys[0] || '').trim(),
     GMGN_API_KEY: gmgn.value.trim(),
     GMGN_BACKUP_KEYS: gmgn.backups.join(','),
+    GMGN_API_KEY_SOLANA: gmgnSolKey.trim(),
+    GMGN_API_KEY_ROBINHOOD: gmgnRhKey.trim(),
+    GMGN_API_KEY_BASE: gmgnBaseKey.trim(),
+    GMGN_API_KEY_ETH: gmgnEthKey.trim(),
+    GMGN_API_KEY_INK: gmgnInkKey.trim(),
     KRYSTAL_CLOUD_API_KEY: krystal.value.trim(),
     KRYSTAL_CLOUD_BACKUP_KEYS: krystal.backups.join(','),
     OPENSEA_API_KEY: opensea.value.trim(),
     OPENSEA_BACKUP_KEYS: opensea.backups.join(','),
+    OPENSEA_API_KEY_ETH: osEthKey.trim(),
+    OPENSEA_API_KEY_BASE: osBaseKey.trim(),
+    OPENSEA_API_KEY_INK: osInkKey.trim(),
+    OPENSEA_API_KEY_ROBINHOOD: osRhKey.trim(),
+    OPENSEA_API_KEY_HYPEREVM: osHyperKey.trim(),
     GOPLUS_API_KEY: goplus.value.trim(),
     GOPLUS_BACKUP_KEYS: goplus.backups.join(','),
     TWEX_API_KEY: twex.value.trim(),
@@ -532,7 +597,7 @@ async function runWizard() {
   for (const [label, val] of rows) console.log(`   ${label.padEnd(16)} ${val}`);
   const confirmWrite = (await askQuestion(`\n   Save this configuration to .env? (Y/n) [Default Y]: `)) || 'y';
   if (confirmWrite.toLowerCase() === 'n') {
-    console.log(`\n${C.yellow}Configuration discarded. Rerun 'athena wizard' when ready.${C.reset}`);
+    console.log(`\n${C.yellow}Configuration discarded. Rerun 'opencatz wizard' when ready.${C.reset}`);
     rl.close();
     return;
   }
@@ -569,11 +634,11 @@ async function runWizard() {
   fs.writeFileSync(envPath, mergedLines.join('\n').replace(/\n{3,}/g, '\n\n') + '\n', 'utf8');
 
   console.log(`\n${C.green}${C.bold}========================================================${C.reset}`);
-  console.log(`${C.green}${C.bold} ✅ CONFIGURATION SAVED — ATHENA MULTICHAIN IS READY${C.reset}`);
+  console.log(`${C.green}${C.bold} ✅ CONFIGURATION SAVED — OPENCATZ MULTICHAIN IS READY${C.reset}`);
   console.log(`${C.green}${C.bold}========================================================${C.reset}`);
-  console.log(`   ${C.bold}Parthenon:${C.reset} run \`athena terminal\` to open the command center TUI.`);
-  console.log(`   ${C.bold}Athena:${C.reset} run \`athena run\` (dev) or \`athena deploy\` (24/7 via PM2).`);
-  console.log(`   ${C.bold}Checks:${C.reset} \`athena doctor\` | \`athena test\` | \`athena update\``);
+  console.log(`   ${C.bold}TUI:${C.reset} run \`opencatz terminal\` to open the command center TUI.`);
+  console.log(`   ${C.bold}OpenCatz:${C.reset} run \`npm run dev\` (dev) or \`npm run deploy\` (24/7 via PM2).`);
+  console.log(`   ${C.bold}Checks:${C.reset} \`opencatz doctor\` | \`npm test\` | \`opencatz update\``);
 
   rl.close();
 }

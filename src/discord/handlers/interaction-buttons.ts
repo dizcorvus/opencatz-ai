@@ -12,7 +12,7 @@ import {
   TextInputStyle,
   ActionRowBuilder,
 } from 'discord.js';
-import { AthenaHub } from '../../orchestrator/hub.js';
+import { OpenCatzHub } from '../../orchestrator/hub.js';
 import { createDashboardComponents } from '../embeds/dashboard-embed.js';
 import { priceAlertService, walletService, buildDashboardOptions } from './command-handlers.js';
 
@@ -32,7 +32,7 @@ export async function handleModalSubmit(interaction: ModalSubmitInteraction): Pr
     }
 
     await interaction.reply({
-      content: `✅ **Burner Wallet Private Key Configured in Athena Runtime Memory!**\n• Chain: \`${chainType.toUpperCase()}\`${addressStr}\n• Security Note: Key is stored 100% in-memory and will never be written to disk or logs.`,
+      content: `✅ **Burner Wallet Private Key Configured in OpenCatz Runtime Memory!**\n• Chain: \`${chainType.toUpperCase()}\`${addressStr}\n• Security Note: Key is stored 100% in-memory and will never be written to disk or logs.`,
       ephemeral: true,
     });
   } else if (interaction.customId === 'api_setup_modal') {
@@ -53,7 +53,7 @@ export async function handleModalSubmit(interaction: ModalSubmitInteraction): Pr
   }
 }
 
-export async function handleSelectMenu(interaction: StringSelectMenuInteraction, hub: AthenaHub): Promise<void> {
+export async function handleSelectMenu(interaction: StringSelectMenuInteraction, hub: OpenCatzHub): Promise<void> {
   if (interaction.customId === 'select_toggle_agent') {
     const selectedAgent = interaction.values[0];
     const currentState = hub.isAgentActive(selectedAgent);
@@ -65,13 +65,13 @@ export async function handleSelectMenu(interaction: StringSelectMenuInteraction,
   }
 }
 
-export async function handleButtonPress(interaction: ButtonInteraction, hub: AthenaHub): Promise<void> {
+export async function handleButtonPress(interaction: ButtonInteraction, hub: OpenCatzHub): Promise<void> {
   const customId = interaction.customId;
 
   if (customId === 'btn_setup_api_keys') {
     const modal = new ModalBuilder()
       .setCustomId('api_setup_modal')
-      .setTitle('⚙️ Athena API Key Setup');
+      .setTitle('⚙️ OpenCatz API Key Setup');
 
     const twexInput = new TextInputBuilder()
       .setCustomId('twex_key')

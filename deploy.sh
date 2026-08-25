@@ -19,7 +19,7 @@ fi
 
 # 3. Launch/Restart with PM2 24/7
 echo "⚡ Launching OpenCatz Agent background process with PM2..."
-npx pm2 restart opencatz-agent --update-env || npx pm2 restart athena-agent --update-env || npx pm2 start dist/index.js --name "opencatz-agent"
+npx pm2 restart opencatz-agent --update-env || npx pm2 start dist/index.js --name "opencatz-agent"
 npx pm2 save
 
 echo "======================================================"

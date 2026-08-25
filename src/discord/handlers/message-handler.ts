@@ -1,6 +1,6 @@
 import { Message, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 import { AIService } from '../../services/ai-service.js';
-import { AthenaHub } from '../../orchestrator/hub.js';
+import { OpenCatzHub } from '../../orchestrator/hub.js';
 import { priceAlertService, walletService } from './interaction-handler.js';
 import { isDryRun as isDryRunMode } from '../../config/config.js';
 
@@ -15,37 +15,34 @@ function splitDiscordMessage(text: string, maxLength: number = DISCORD_MAX_LENGT
   if (text.length <= maxLength) return [text];
 
   const chunks: string[] = [];
-  let remaining = text;
+  let currentChunk = '';
 
-  while (remaining.length > 0) {
-    if (remaining.length <= maxLength) {
-      chunks.push(remaining);
-      break;
-    }
+  const lines = text.split('\n');
 
-    let splitIndex = -1;
-
-    // 1. Try to split at the last newline within the limit
-    const lastNewline = remaining.lastIndexOf('\n', maxLength);
-    if (lastNewline > maxLength * 0.3) {
-      splitIndex = lastNewline + 1; // include the newline in current chunk
-    }
-
-    // 2. Fallback: split at the last space within the limit
-    if (splitIndex === -1) {
-      const lastSpace = remaining.lastIndexOf(' ', maxLength);
-      if (lastSpace > maxLength * 0.3) {
-        splitIndex = lastSpace + 1;
+  for (const line of lines) {
+    if ((currentChunk + '\n' + line).length > maxLength) {
+      if (currentChunk.length > 0) {
+        chunks.push(currentChunk.trim());
+        currentChunk = '';
       }
-    }
 
-    // 3. Last resort: hard cut at maxLength
-    if (splitIndex === -1) {
-      splitIndex = maxLength;
+      if (line.length > maxLength) {
+        let remaining = line;
+        while (remaining.length > maxLength) {
+          chunks.push(remaining.substring(0, maxLength));
+          remaining = remaining.substring(maxLength);
+        }
+        currentChunk = remaining;
+      } else {
+        currentChunk = line;
+      }
+    } else {
+      currentChunk = currentChunk ? currentChunk + '\n' + line : line;
     }
+  }
 
-    chunks.push(remaining.substring(0, splitIndex).trimEnd());
-    remaining = remaining.substring(splitIndex).trimStart();
+  if (currentChunk.trim().length > 0) {
+    chunks.push(currentChunk.trim());
   }
 
   return chunks.filter(c => c.length > 0);
@@ -54,7 +51,7 @@ function splitDiscordMessage(text: string, maxLength: number = DISCORD_MAX_LENGT
 export async function handleControlRoomMessage(
   message: Message,
   aiService: AIService,
-  hub: AthenaHub
+  hub: OpenCatzHub
 ): Promise<void> {
   if (message.author.bot) return;
 
@@ -81,7 +78,7 @@ export async function handleControlRoomMessage(
       const agentDomains = ['solana-meme', 'evm-meme', 'solana', 'evm', 'perps', 'nft', 'prediction', 'ct-alpha', 'lp-solana', 'lp-robinhood', 'all'];
       const foundDomain = agentDomains.find(d => lowerQuery.includes(d)) || 'all';
       const result = await toolRegistry.executeToolCall('pause_sub_agent', { agentId: foundDomain });
-      await message.reply(`🔴 **ATHENA CONTROL CENTER**: ${result.message}\n\nSub-agent status updated in Hub Orchestrator state.`);
+      await message.reply(`🔴 **OPENCATZ CONTROL CENTER**: ${result.message}\n\nSub-agent status updated in Hub Orchestrator state.`);
       return;
     }
   }
@@ -92,7 +89,7 @@ export async function handleControlRoomMessage(
       const agentDomains = ['solana-meme', 'evm-meme', 'solana', 'evm', 'perps', 'nft', 'prediction', 'ct-alpha', 'lp-solana', 'lp-robinhood', 'all'];
       const foundDomain = agentDomains.find(d => lowerQuery.includes(d)) || 'all';
       const result = await toolRegistry.executeToolCall('resume_sub_agent', { agentId: foundDomain });
-      await message.reply(`🟢 **ATHENA CONTROL CENTER**: ${result.message}\n\nSub-agent status updated in Hub Orchestrator state.`);
+      await message.reply(`🟢 **OPENCATZ CONTROL CENTER**: ${result.message}\n\nSub-agent status updated in Hub Orchestrator state.`);
       return;
     }
   }
@@ -101,7 +98,7 @@ export async function handleControlRoomMessage(
   if (lowerQuery.includes('jalankan screening') || lowerQuery.includes('run screening') || lowerQuery.includes('trigger screening')) {
     const agentDomains = ['solana-meme', 'evm-meme', 'solana', 'evm', 'perps', 'nft', 'prediction', 'ct-alpha', 'lp-solana', 'lp-robinhood'];
     const foundDomain = agentDomains.find(d => lowerQuery.includes(d)) || 'solana-meme';
-    await message.reply(`⚡ **ATHENA ON-DEMAND SCREENING TRIGGERED** for \`${foundDomain.toUpperCase()}\`...\nScreening pass in progress.`);
+    await message.reply(`⚡ **OPENCATZ ON-DEMAND SCREENING TRIGGERED** for \`${foundDomain.toUpperCase()}\`...\nScreening pass in progress.`);
     const result = await toolRegistry.executeToolCall('trigger_screening_pass', { agentId: foundDomain });
     await message.reply(`✅ **SCREENING COMPLETE** for \`${foundDomain.toUpperCase()}\`: Found **${result.data?.length || 0}** signals passing 3-Layer Swarm Filter.`);
     return;
@@ -113,7 +110,7 @@ export async function handleControlRoomMessage(
     if (numbers && numbers.length > 0) {
       const val = parseFloat(numbers[0]);
       const result = await toolRegistry.executeToolCall('set_risk_limit', { maxDrawdownPct: val });
-      await message.reply(`🛡️ **ATHENA RISK MANAGER UPDATED**: ${result.message}`);
+      await message.reply(`🛡️ **OPENCATZ 9-LIVES RISK MANAGER UPDATED**: ${result.message}`);
       return;
     }
   }
@@ -122,7 +119,7 @@ export async function handleControlRoomMessage(
   if (lowerQuery.includes('status agent') || lowerQuery.includes('status sub agent') || lowerQuery.includes('agent status')) {
     const result = await toolRegistry.executeToolCall('get_agent_statuses', {});
     const statuses = result.data || {};
-    let statusText = `🏛️ **ATHENA SUB-AGENT REAL-TIME STATUS MATRIX**\n\n`;
+    let statusText = `🐾 **OPENCATZ SUB-AGENT REAL-TIME STATUS MATRIX**\n\n`;
     for (const [name, state] of Object.entries(statuses) as [string, any][]) {
       statusText += `• **${name.toUpperCase()}**: ${state.active ? '🟢 ACTIVE (24/7 Running)' : '🔴 PAUSED'}\n`;
     }
@@ -140,7 +137,7 @@ export async function handleControlRoomMessage(
         action: 'screening',
         agentId: foundDomain,
       });
-      await message.reply(`⏰ **ATHENA CRON SCHEDULER**: ${result.message}\nAutomated task scheduled and saved to database.`);
+      await message.reply(`⏰ **OPENCATZ CRON SCHEDULER**: ${result.message}\nAutomated task scheduled and saved to database.`);
       return;
     }
   }
@@ -152,11 +149,11 @@ export async function handleControlRoomMessage(
     const records = memory.getRecentAudits(5);
 
     if (records.length === 0) {
-      await message.reply(`🧠 **ATHENA SESSION MEMORY**: No token audit history is stored in persistent memory yet.`);
+      await message.reply(`🧠 **OPENCATZ SESSION MEMORY**: No token audit history is stored in persistent memory yet.`);
       return;
     }
 
-    let memoryText = `🧠 **ATHENA PERSISTENT AUDIT RECALL (ZERO LLM TOKEN COST)**\n\n`;
+    let memoryText = `🧠 **OPENCATZ PERSISTENT AUDIT RECALL (ZERO LLM TOKEN COST)**\n\n`;
     for (const r of records) {
       memoryText += `• **${r.symbol}** (\`${r.contractAddress.substring(0, 8)}...\` | ${r.chain.toUpperCase()}): ${r.verdict} (Score: ${r.score})\n  *Date:* ${r.timestampIso.slice(0, 16)}\n`;
     }
@@ -180,7 +177,7 @@ export async function handleControlRoomMessage(
           modelName: modelName || '',
           baseUrl: baseUrl || '',
         });
-        await message.reply(`${result.message}\n\n💡 **AI config is now active.** If you set a provider/model, make sure \`AI_BASE_URL\` is also correct (verify via "Athena, what AI are you using?").`);
+        await message.reply(`${result.message}\n\n💡 **AI config is now active.** If you set a provider/model, make sure \`AI_BASE_URL\` is also correct (verify via "OpenCatz, what AI are you using?").`);
       } else {
         const result = await toolRegistry.executeToolCall('set_api_key', { keyName, keyValue });
         await message.reply(`${result.message}\nSub-agent API key status re-evaluated.`);
@@ -198,7 +195,7 @@ export async function handleControlRoomMessage(
       `• **Target Price:** \`$${parsedAlert.targetPriceUsd.toLocaleString()} USD\`\n` +
       `• **Condition:** Price goes \`${parsedAlert.direction}\` target\n` +
       `• **Alert ID:** \`${parsedAlert.id}\`\n\n` +
-      `Athena will notify <@${message.author.id}> in this channel as soon as ${parsedAlert.symbol} reaches target!`
+      `OpenCatz will notify <@${message.author.id}> in this channel as soon as ${parsedAlert.symbol} reaches target!`
     );
     return;
   }
@@ -234,7 +231,7 @@ export async function handleControlRoomMessage(
 
     await message.reply({
       content:
-        `🌉 **ATHENA RELAY.LINK CROSS-CHAIN BRIDGE DIRECT EXECUTION**\n\n` +
+        `🌉 **OPENCATZ RELAY.LINK CROSS-CHAIN BRIDGE DIRECT EXECUTION**\n\n` +
         `• **Bridging:** \`${result.amountIn} ${result.tokenSymbol}\` from **${result.originChainName}** ➡️ **${result.destinationChainName}**\n` +
         `• **Expected Received:** \`~${result.expectedAmountOut} ${result.tokenSymbol}\`\n` +
         `• **Relayer & Gas Fee:** \`~$${result.feeUsd.toFixed(2)} USD\`\n` +
@@ -276,7 +273,7 @@ export async function handleControlRoomMessage(
 
     await message.reply({
       content:
-        `🔄 **ATHENA RELAY.LINK SWAP DIRECT EXECUTION**\n\n` +
+        `🔄 **OPENCATZ RELAY.LINK SWAP DIRECT EXECUTION**\n\n` +
         `• **Swapping:** \`${result.amountIn} ${result.fromToken}\` ➡️ \`~${result.expectedAmountOut} ${result.toToken}\`\n` +
         `• **Chain:** **${result.chainName}**\n` +
         `• **Fee:** \`~$${result.feeUsd.toFixed(2)} USD\`\n` +
@@ -321,7 +318,7 @@ export async function handleControlRoomMessage(
 
     await message.reply({
       content:
-        `📤 **ATHENA RELAY.LINK SEND DIRECT EXECUTION**\n\n` +
+        `📤 **OPENCATZ RELAY.LINK SEND DIRECT EXECUTION**\n\n` +
         `• **Sending:** \`${result.amountIn} ${result.tokenSymbol}\` to \`${shortAddr}\`\n` +
         `• **Chain:** **${result.chainName}**\n` +
         `• **Recipient Receives:** \`~${result.expectedAmountOut} ${result.tokenSymbol}\`\n` +
@@ -352,7 +349,7 @@ export async function handleControlRoomMessage(
     const memory = new SessionMemoryService();
     memory.recordAudit(matchedCa, isSol ? 'SOL_MEME' : 'EVM_TOKEN', isSol ? 'sol' : 'base', audit.success ? 80 : 0, audit.success ? 'REAL-TIME AUDIT' : 'UNAVAILABLE', `Audited ${matchedCa}`);
 
-    await message.reply(`🔎 **ATHENA ON-DEMAND TOKEN AUDIT REPORT**\n📌 **Target Contract:** \`${matchedCa}\` (${chainName})\n\n${audit.content}`);
+    await message.reply(`🔎 **OPENCATZ ON-DEMAND TOKEN AUDIT REPORT**\n📌 **Target Contract:** \`${matchedCa}\` (${chainName})\n\n${audit.content}`);
     return;
   }
 
@@ -362,8 +359,8 @@ export async function handleControlRoomMessage(
   const simHl = process.env.SIMULATION_BALANCE_HYPERLIQUID || '1000.0';
   const autoExecuteEnabled = process.env.AUTO_EXECUTE_ENABLED === 'true';
 
-  // Shared Athena system prompt (persona + architecture) + live operating params
-  const { ATHENA_SYSTEM_PROMPT_BASE } = await import('../../services/athena-system-prompt.js');
+  // Shared OpenCatz system prompt (persona + architecture) + live operating params
+  const { OPENCATZ_SYSTEM_PROMPT_BASE } = await import('../../services/opencatz-system-prompt.js');
   const { getAgentDomain } = await import('../../orchestrator/agent-registry.js');
   const { SessionMemoryService } = await import('../../services/session-memory.js');
   const memoryContext = new SessionMemoryService().buildMemoryContextLine();
@@ -372,7 +369,7 @@ export async function handleControlRoomMessage(
     ? `- Active Sub-Agents: ${activeDomains.map((d) => getAgentDomain(d)?.displayName ?? d).join(', ')}`
     : '- Active Sub-Agents: NONE (all screening agents paused)';
   const risk = hub.getRiskManager().getRiskState();
-  const systemPrompt = ATHENA_SYSTEM_PROMPT_BASE + `
+  const systemPrompt = OPENCATZ_SYSTEM_PROMPT_BASE + `
 Current Operating Parameters:
 - Execution Mode: ${autoExecuteEnabled ? 'AUTO_EXECUTE (bot may execute)' : 'MANUAL EXECUTION — bot is SCREENER/CALLER ONLY, all execution is done by the user via the link provided on the call card'}
 ${activeAgentsLine}
@@ -385,7 +382,7 @@ ${activeAgentsLine}
 - Current Portfolio Drawdown: ${risk.currentDrawdownPct ?? 0}%${memoryContext}`;
 
   try {
-    // Athena is a real agent: LLM picks tools via function-calling (AgentRunner loop)
+    // OpenCatz is a real agent: LLM picks tools via function-calling (AgentRunner loop)
     const { runAgent } = await import('../../orchestrator/agent-runner.js');
     const agentResult = await runAgent(
       { aiService, toolRegistry, systemPrompt },
@@ -408,7 +405,7 @@ ${activeAgentsLine}
       }
     }
   } catch (error: any) {
-    console.error('[ATHENA AI ERROR]', error.message);
+    console.error('[OPENCATZ AI ERROR]', error.message);
 
     const lower = userQuery.toLowerCase();
     const providerConfig = aiService.getConfig();
@@ -419,13 +416,13 @@ ${activeAgentsLine}
     // 1. Dynamic intent: User asking about LLM / AI model
     if (lower.includes('llm') || lower.includes('model') || lower.includes('ai apa') || lower.includes('pakai ai')) {
       await message.reply(
-        `🏛️ **ATHENA LLM ENGINE STATUS REPORT**\n\n` +
+        `🐾 **OPENCATZ LLM ENGINE STATUS REPORT**\n\n` +
         `• **Configured Provider:** \`${providerConfig.provider.toUpperCase()}\` (${providerConfig.baseUrl})\n` +
         `• **Target Model:** \`${providerConfig.modelName}\`\n` +
         `• **Active API Key Hint:** \`${keyHint}\`\n` +
         `• **Error Detail:** ⚠️ \`${error.message || 'Unknown Error'}\`\n\n` +
-        `💡 **Fix:** Run \`athena wizard\` on the VPS to refresh your API keys.\n\n` +
-        `🛡️ **Local Autonomous System:** 95% of Athena's local engine (7 Sub-Agents, GoPlus/RugCheck audits, Swarm Consensus, \`/swap\`, \`/bridge\`, \`/alert\`) keeps operating 100% smoothly!`
+        `💡 **Fix:** Run \`opencatz onboard\` on the VPS to refresh your API keys.\n\n` +
+        `🛡️ **Local Autonomous System:** 95% of OpenCatz's local engine (7 Sub-Agents, GoPlus/RugCheck audits, Swarm Consensus, \`/swap\`, \`/bridge\`, \`/alert\`) keeps operating 100% smoothly!`
       );
       return;
     }
@@ -444,7 +441,7 @@ ${activeAgentsLine}
       lower.includes('analisis')
     );
 
-    const fallbackText = `🏛️ **Athena Multi-Agent Intelligence Hub**\n\n` +
+    const fallbackText = `🐾 **OpenCatz Multi-Agent Intelligence Hub**\n\n` +
       `I received your query: *"${userQuery}"*.\n\n` +
       `📊 **Operating Status:**\n` +
       `• **Mode:** \`DRY_RUN (Safe Simulation Active)\`\n` +
@@ -454,7 +451,7 @@ ${activeAgentsLine}
       `1. Paste a Contract Address for **Real-Time Security Audit**.\n` +
       `2. Ask for price alerts (*"notify me if SOL hits 200"*).\n` +
       `3. Direct on-chain execution: \`/swap\`, \`/bridge\`, or \`/send\`.\n\n` +
-      `*(Note: Cloud AI Error. Run \`athena wizard\` on the VPS to update API keys!)*`;
+      `*(Note: Cloud AI Error. Run \`opencatz onboard\` on the VPS to update API keys!)*`;
 
     void isIndonesian; // input tolerance kept — outputs are always English
 

@@ -4,7 +4,7 @@ import { isDryRun as isDryRunMode } from './config/config.js';
 import { Client, GatewayIntentBits, REST, Routes, ChannelType } from 'discord.js';
 import { buildCallEmbed } from './discord/embeds/call-embed.js';
 import type { CallCardPayload as CallSignalPayload } from './agents/shared/agent-contract.js';
-import { AthenaHub } from './orchestrator/hub.js';
+import { OpenCatzHub } from './orchestrator/hub.js';
 import { dispatchDomain } from './orchestrator/dispatch.js';
 import { SwarmConsensusEngine } from './orchestrator/swarm-consensus.js';
 import { StrategyEngine } from './orchestrator/strategy-engine.js';
@@ -24,7 +24,16 @@ import { EVMTradeAdapter } from './adapters/evm-adapter.js';
 import { GMGNAdapter } from './adapters/gmgn-adapter.js';
 import { SolanaScreeningAgent } from './agents/meme-solana/solana-screening-agent.js';
 import { RobinhoodScreeningAgent } from './agents/meme-robinhood/robinhood-screening-agent.js';
-import { NFTScreeningAgent } from './agents/nft/nft-screening-agent.js';
+import { BaseScreeningAgent } from './agents/meme-base/base-screening-agent.js';
+import { EthScreeningAgent } from './agents/meme-eth/eth-screening-agent.js';
+import { InkScreeningAgent } from './agents/meme-ink/ink-screening-agent.js';
+import { LPSolanaAgent } from './agents/lp-solana/lp-solana-agent.js';
+import { LPRobinhoodAgent } from './agents/lp-robinhood/lp-robinhood-agent.js';
+import { NFTEthAgent } from './agents/nft-eth/nft-eth-agent.js';
+import { NFTBaseAgent } from './agents/nft-base/nft-base-agent.js';
+import { NFTInkAgent } from './agents/nft-ink/nft-ink-agent.js';
+import { NFTRobinhoodAgent } from './agents/nft-robinhood/nft-robinhood-agent.js';
+import { NFTHyperEVMAgent } from './agents/nft-hyperevm/nft-hyperevm-agent.js';
 import { PolymarketAdapter } from './adapters/polymarket-adapter.js';
 import { HyperliquidAdapter } from './adapters/hyperliquid-adapter.js';
 import { CexRadarAdapter } from './adapters/cex-radar-adapter.js';
@@ -55,7 +64,7 @@ console.log(`[CONFIG] DRY_RUN Mode: ${isDryRun ? 'ENABLED (Safe Mode)' : 'DISABL
 // Initialize persistent StateStore (survives bot restarts)
 const stateStore = new StateStore();
 
-const hub = new AthenaHub();
+const hub = new OpenCatzHub();
 const swarmEngine = new SwarmConsensusEngine();
 swarmEngine.attachStateStore(stateStore);
 
@@ -80,7 +89,7 @@ function gateSignal(payload: any): boolean {
   return res.passed;
 }
 
-// Rate-limited Discord notification to #athena-control-room (never spam)
+// Rate-limited Discord notification to #opencatz-control-room (never spam)
 const controlRoomNotifyCooldown = new Map<string, number>();
 const CONTROL_ROOM_NOTIFY_MS = 10 * 60 * 1000; // max 1 notif per key per 10 minutes
 
@@ -114,7 +123,7 @@ async function notifyControlRoom(client: any, key: string, content: string): Pro
   controlRoomNotifyCooldown.set(key, now);
   try {
     const channel = client.channels.cache.find(
-      (c: any) => c.type === ChannelType.GuildText && (c.name === 'opencatz-control-room' || c.name === 'athena-control-room')
+      (c: any) => c.type === ChannelType.GuildText && (c.name === 'opencatz-control-room')
     );
     if (channel && 'send' in channel) {
       await channel.send(content);
@@ -147,11 +156,17 @@ const evmTradeAdapter = new EVMTradeAdapter();
 // Apply persisted per-domain screening overrides (set via chat `set_screening_config`)
 const savedScreeningConfigs = stateStore.getScreeningConfigs();
 const solanaScreeningAgent = new SolanaScreeningAgent(savedScreeningConfigs['meme-solana'] as any);
-const robinhoodScreeningAgent = new RobinhoodScreeningAgent({ chains: ['robinhood'], ...(savedScreeningConfigs['meme-robinhood'] as any) });
-const baseScreeningAgent = new RobinhoodScreeningAgent({ chains: ['base'], ...(savedScreeningConfigs['meme-base'] as any) });
-const ethScreeningAgent = new RobinhoodScreeningAgent({ chains: ['eth'], ...(savedScreeningConfigs['meme-eth'] as any) });
-const bscScreeningAgent = new RobinhoodScreeningAgent({ chains: ['bsc'], ...(savedScreeningConfigs['meme-bsc'] as any) });
-const nftScreeningAgent = new NFTScreeningAgent(openseaAdapter);
+const robinhoodScreeningAgent = new RobinhoodScreeningAgent(savedScreeningConfigs['meme-robinhood'] as any);
+const baseScreeningAgent = new BaseScreeningAgent(savedScreeningConfigs['meme-base'] as any);
+const ethScreeningAgent = new EthScreeningAgent(savedScreeningConfigs['meme-eth'] as any);
+const inkScreeningAgent = new InkScreeningAgent(savedScreeningConfigs['meme-ink'] as any);
+const lpSolanaAgent = new LPSolanaAgent(meteoraAdapter);
+const lpRobinhoodAgent = new LPRobinhoodAgent();
+const nftEthAgent = new NFTEthAgent(openseaAdapter);
+const nftBaseAgent = new NFTBaseAgent(openseaAdapter);
+const nftInkAgent = new NFTInkAgent(openseaAdapter);
+const nftRobinhoodAgent = new NFTRobinhoodAgent(openseaAdapter);
+const nftHyperEVMAgent = new NFTHyperEVMAgent(openseaAdapter);
 const polymarketAgent = new PolymarketAgent(polymarketAdapter);
 
 // Wire shared adapters + singleton agent instances into the Hub so on-demand
@@ -162,8 +177,14 @@ hub.attachAgentFactories({
   'meme-robinhood': () => robinhoodScreeningAgent,
   'meme-base': () => baseScreeningAgent,
   'meme-eth': () => ethScreeningAgent,
-  'meme-bsc': () => bscScreeningAgent,
-  nft: () => nftScreeningAgent,
+  'meme-ink': () => inkScreeningAgent,
+  'lp-solana': () => lpSolanaAgent,
+  'lp-robinhood': () => lpRobinhoodAgent,
+  'nft-eth': () => nftEthAgent,
+  'nft-base': () => nftBaseAgent,
+  'nft-ink': () => nftInkAgent,
+  'nft-robinhood': () => nftRobinhoodAgent,
+  'nft-hyperevm': () => nftHyperEVMAgent,
   prediction: () => polymarketAgent,
   perps: () => perpsScreeningAgent,
   'ct-alpha': () => ctAlphaAgent,
@@ -194,8 +215,7 @@ if (discordToken && clientId) {
       GatewayIntentBits.MessageContent,
     ],
     rest: {
-      // Naikkan timeout REST Discord (default 10s) — VPS pernah timeout saat
-      // restart + bootstrap + reply bersamaan, bikin "Athena is thinking..."
+      // REST Discord timeout
       timeout: 30000,
     },
   });
@@ -215,14 +235,14 @@ if (discordToken && clientId) {
         const stepLines = (report.steps || []).map((s: { label: string; ok: boolean }) => `• **${s.label}:** ${s.ok ? '✅' : '❌'}`).join('\n');
         const restartLine = report.restartOk
           ? '🔄 **PM2 agent restarted — new code is live.**'
-          : '⚠ **PM2 restart failed** — run `athena deploy` manually.';
+          : '⚠ **PM2 restart failed** — run `opencatz deploy` manually.';
         const controlRoomId = process.env.DISCORD_CHANNEL_CONTROL_ROOM;
         const channel = controlRoomId
           ? client.channels.cache.get(controlRoomId)
-          : client.channels.cache.find((c: any) => c.name === 'athena-control-room');
+          : client.channels.cache.find((c: any) => c.name === 'opencatz-control-room');
         if (channel && 'send' in channel) {
           await channel.send(
-            `${report.ok ? '✅' : '❌'} **Athena Self-Update ${report.ok ? 'Complete' : 'GAGAL'}**\n\n` +
+            `${report.ok ? '✅' : '❌'} **OpenCatz Self-Update ${report.ok ? 'Complete' : 'GAGAL'}**\n\n` +
             `${stepLines}\n${restartLine}`
           );
           console.log('[UPDATE REPORT] Laporan update dikirim ke control room.');
@@ -277,7 +297,7 @@ if (discordToken && clientId) {
             const currentPx = alert.lastTriggeredPriceUsd || alert.targetPriceUsd;
             if (channel && 'send' in channel) {
               await channel.send(
-                `🔔 **ATHENA PRICE ALERT TRIGGERED!**\n\n` +
+                `🔔 **OPENCATZ PRICE ALERT TRIGGERED!**\n\n` +
                 `📈 **Asset:** \`${alert.symbol}/USDT\`\n` +
                 `💵 **Target Price Hit:** \`$${alert.targetPriceUsd.toLocaleString()} USD\` (Current: \`$${currentPx.toLocaleString()} USD\`)\n` +
                 `👤 **Alert for:** <@${alert.userId}>\n` +
@@ -386,25 +406,65 @@ if (discordToken && clientId) {
         });
         dispatchedPayloads.push(...ethDispatched);
 
-        const bscDispatched = await dispatchDomain({
-          domain: 'meme-bsc',
-          channelName: 'call-meme-bnb',
-          isActive: () => hub.isAgentActive('meme-bsc'),
-          runPass: () => withScreeningTimeout(bscScreeningAgent.runScreeningPass(), 'meme-bsc'),
-          keyReady: () => apiKeyGuard.checkDomainKeys('meme-bsc'),
+        const inkDispatched = await dispatchDomain({
+          domain: 'meme-ink',
+          channelName: 'call-meme-ink',
+          isActive: () => hub.isAgentActive('meme-ink'),
+          runPass: () => withScreeningTimeout(inkScreeningAgent.runScreeningPass(), 'meme-ink'),
+          keyReady: () => apiKeyGuard.checkDomainKeys('meme-ink'),
           onHalt: (domain, msg) => notifyControlRoom(client, `halt:${domain}`, `⚠️ **${domain.toUpperCase()} TIDAK BISA JALAN**\n${msg}`),
         });
-        dispatchedPayloads.push(...bscDispatched);
+        dispatchedPayloads.push(...inkDispatched);
 
-        const nftDispatched = await dispatchDomain({
-          domain: 'nft',
-          channelName: 'call-nft-sniping',
-          isActive: () => hub.isAgentActive('nft'),
-          runPass: () => withScreeningTimeout(nftScreeningAgent.runScreeningPass(), 'nft'),
-          keyReady: () => apiKeyGuard.checkDomainKeys('nft'),
+        const nftEthDispatched = await dispatchDomain({
+          domain: 'nft-eth',
+          channelName: 'call-nft-eth',
+          isActive: () => hub.isAgentActive('nft-eth'),
+          runPass: () => withScreeningTimeout(nftEthAgent.runScreeningPass(), 'nft-eth'),
+          keyReady: () => apiKeyGuard.checkDomainKeys('nft-eth'),
           onHalt: (domain, msg) => notifyControlRoom(client, `halt:${domain}`, `⚠️ **${domain.toUpperCase()} TIDAK BISA JALAN**\n${msg}`),
         });
-        dispatchedPayloads.push(...nftDispatched);
+        dispatchedPayloads.push(...nftEthDispatched);
+
+        const nftBaseDispatched = await dispatchDomain({
+          domain: 'nft-base',
+          channelName: 'call-nft-base',
+          isActive: () => hub.isAgentActive('nft-base'),
+          runPass: () => withScreeningTimeout(nftBaseAgent.runScreeningPass(), 'nft-base'),
+          keyReady: () => apiKeyGuard.checkDomainKeys('nft-base'),
+          onHalt: (domain, msg) => notifyControlRoom(client, `halt:${domain}`, `⚠️ **${domain.toUpperCase()} TIDAK BISA JALAN**\n${msg}`),
+        });
+        dispatchedPayloads.push(...nftBaseDispatched);
+
+        const nftInkDispatched = await dispatchDomain({
+          domain: 'nft-ink',
+          channelName: 'call-nft-ink',
+          isActive: () => hub.isAgentActive('nft-ink'),
+          runPass: () => withScreeningTimeout(nftInkAgent.runScreeningPass(), 'nft-ink'),
+          keyReady: () => apiKeyGuard.checkDomainKeys('nft-ink'),
+          onHalt: (domain, msg) => notifyControlRoom(client, `halt:${domain}`, `⚠️ **${domain.toUpperCase()} TIDAK BISA JALAN**\n${msg}`),
+        });
+        dispatchedPayloads.push(...nftInkDispatched);
+
+        const nftRobinhoodDispatched = await dispatchDomain({
+          domain: 'nft-robinhood',
+          channelName: 'call-nft-robinhood',
+          isActive: () => hub.isAgentActive('nft-robinhood'),
+          runPass: () => withScreeningTimeout(nftRobinhoodAgent.runScreeningPass(), 'nft-robinhood'),
+          keyReady: () => apiKeyGuard.checkDomainKeys('nft-robinhood'),
+          onHalt: (domain, msg) => notifyControlRoom(client, `halt:${domain}`, `⚠️ **${domain.toUpperCase()} TIDAK BISA JALAN**\n${msg}`),
+        });
+        dispatchedPayloads.push(...nftRobinhoodDispatched);
+
+        const nftHyperEVMDispatched = await dispatchDomain({
+          domain: 'nft-hyperevm',
+          channelName: 'call-nft-hyperevm',
+          isActive: () => hub.isAgentActive('nft-hyperevm'),
+          runPass: () => withScreeningTimeout(nftHyperEVMAgent.runScreeningPass(), 'nft-hyperevm'),
+          keyReady: () => apiKeyGuard.checkDomainKeys('nft-hyperevm'),
+          onHalt: (domain, msg) => notifyControlRoom(client, `halt:${domain}`, `⚠️ **${domain.toUpperCase()} TIDAK BISA JALAN**\n${msg}`),
+        });
+        dispatchedPayloads.push(...nftHyperEVMDispatched);
 
         const predictionDispatched = await dispatchDomain({
           domain: 'prediction',
@@ -440,21 +500,21 @@ if (discordToken && clientId) {
           domain: 'lp-solana',
           channelName: 'call-lp-solana',
           isActive: () => hub.isAgentActive('lp-solana'),
-          runPass: () => withScreeningTimeout(hub.runLPPass('lp-solana'), 'lp-solana'),
+          runPass: () => withScreeningTimeout(lpSolanaAgent.runScreeningPass(), 'lp-solana'),
           keyReady: () => ({ ready: true, statusMessage: '' }),
           onHalt: (domain, msg) => notifyControlRoom(client, `halt:${domain}`, `⚠️ **${domain.toUpperCase()} TIDAK BISA JALAN**\n${msg}`),
         });
         dispatchedPayloads.push(...lpSolanaDispatched);
 
-        const lpEvmDispatched = await dispatchDomain({
+        const lpRobinhoodDispatched = await dispatchDomain({
           domain: 'lp-robinhood',
           channelName: 'call-lp-robinhood',
           isActive: () => hub.isAgentActive('lp-robinhood'),
-          runPass: () => withScreeningTimeout(hub.runLPPass('lp-robinhood'), 'lp-robinhood'),
+          runPass: () => withScreeningTimeout(lpRobinhoodAgent.runScreeningPass(), 'lp-robinhood'),
           keyReady: () => ({ ready: true, statusMessage: '' }),
           onHalt: (domain, msg) => notifyControlRoom(client, `halt:${domain}`, `⚠️ **${domain.toUpperCase()} TIDAK BISA JALAN**\n${msg}`),
         });
-        dispatchedPayloads.push(...lpEvmDispatched);
+        dispatchedPayloads.push(...lpRobinhoodDispatched);
 
         // Real Swarm Consensus gate (>= 80%): every signal must pass with real data
         dispatchedPayloads = dispatchedPayloads.filter((item) => gateSignal(item.payload));
@@ -489,7 +549,7 @@ if (discordToken && clientId) {
             item.channelName === 'call-meme-robinhood' ? 'meme-robinhood' :
             item.channelName === 'call-meme-base' ? 'meme-base' :
             item.channelName === 'call-meme-eth' ? 'meme-eth' :
-            item.channelName === 'call-meme-bnb' ? 'meme-bsc' :
+            item.channelName === 'call-meme-ink' ? 'meme-ink' :
             item.channelName === 'call-whale-tracking' ? 'perps' :
             item.channelName === 'call-prediction-markets' ? 'prediction' :
             undefined;
@@ -515,8 +575,8 @@ if (discordToken && clientId) {
                 if (autoExecDomain === 'meme-solana' && item.payload.contractAddress) {
                   const execRes = await solanaTradeAdapter.executeBuyToken({ outputMint: item.payload.contractAddress, amountSol: autoExec.maxTradeAmount || 0.1, slippageBps: 150 });
                   console.log(`[AUTO-EXECUTE] meme-solana ${item.payload.symbol}: ${execRes.success ? (execRes.simulated ? 'SIMULATED ' : '') + 'ok' : 'FAILED'} ${execRes.error || ''} (out=${execRes.outputTokens}, impact=${execRes.priceImpactPercentage}%)`);
-                } else if ((autoExecDomain === 'meme-robinhood' || autoExecDomain === 'meme-base' || autoExecDomain === 'meme-eth' || autoExecDomain === 'meme-bsc') && item.payload.contractAddress) {
-                  const chainKey = autoExecDomain === 'meme-base' ? 'base' : autoExecDomain === 'meme-eth' ? 'eth' : autoExecDomain === 'meme-bsc' ? 'bsc' : 'robinhood';
+                } else if ((autoExecDomain === 'meme-robinhood' || autoExecDomain === 'meme-base' || autoExecDomain === 'meme-eth' || autoExecDomain === 'meme-ink') && item.payload.contractAddress) {
+                  const chainKey = autoExecDomain === 'meme-base' ? 'base' : autoExecDomain === 'meme-eth' ? 'eth' : autoExecDomain === 'meme-ink' ? 'ink' : 'robinhood';
                   const execRes = await evmTradeAdapter.executeBuyToken({ chain: chainKey as any, tokenAddress: item.payload.contractAddress, amountEth: autoExec.maxTradeAmount || 0.1, slippagePercentage: 1.5 });
                   console.log(`[AUTO-EXECUTE] ${autoExecDomain} ${item.payload.symbol}: ${execRes.success ? (execRes.simulated ? 'SIMULATED ' : '') + 'ok' : 'FAILED'} ${execRes.error || ''} (out=${execRes.outputTokens})`);
                 } else if (autoExecDomain === 'perps' && isDryRun) {
@@ -540,7 +600,7 @@ if (discordToken && clientId) {
                     domain: journalDomain,
                     symbol: item.payload.symbol || 'TOKEN',
                     contractAddressOrId: item.payload.contractAddress || item.payload.symbol || 'N/A',
-                    chain: autoExecDomain === 'meme-solana' ? 'solana' : autoExecDomain === 'meme-robinhood' ? 'robinhood' : autoExecDomain === 'meme-base' ? 'base' : autoExecDomain === 'meme-eth' ? 'eth' : autoExecDomain === 'meme-bsc' ? 'bsc' : autoExecDomain === 'perps' ? 'hyperliquid' : 'polymarket',
+                    chain: autoExecDomain === 'meme-solana' ? 'solana' : autoExecDomain === 'meme-robinhood' ? 'robinhood' : autoExecDomain === 'meme-base' ? 'base' : autoExecDomain === 'meme-eth' ? 'eth' : autoExecDomain === 'meme-ink' ? 'ink' : autoExecDomain === 'perps' ? 'hyperliquid' : 'polymarket',
                     entryTimestamp: new Date().toISOString(),
                     entryPriceUsdOrEth: entryPrice,
                     positionSizeUsd: (autoExec.maxTradeAmount || 0.1) * (entryPrice || 1),
@@ -598,8 +658,8 @@ if (discordToken && clientId) {
             walletTracker.registerTrackedToken('base', item.payload.contractAddress, item.payload.symbol);
           } else if (item.channelName === 'call-meme-eth' && item.payload.contractAddress) {
             walletTracker.registerTrackedToken('eth', item.payload.contractAddress, item.payload.symbol);
-          } else if (item.channelName === 'call-meme-bnb' && item.payload.contractAddress) {
-            walletTracker.registerTrackedToken('bsc', item.payload.contractAddress, item.payload.symbol);
+          } else if (item.channelName === 'call-meme-ink' && item.payload.contractAddress) {
+            walletTracker.registerTrackedToken('ink', item.payload.contractAddress, item.payload.symbol);
           } else if (item.channelName === 'call-lp-robinhood' && item.payload.contractAddress) {
             walletTracker.registerTrackedToken('robinhood', item.payload.contractAddress, item.payload.symbol);
           } else if (item.channelName === 'call-nft-sniping' && item.payload.symbol) {
@@ -666,18 +726,18 @@ if (discordToken && clientId) {
 
 function isControlRoomChannel(configuredId: string | undefined, message: any): boolean {
   if (!configuredId || configuredId === '000000000000000000') {
-    return message.channel?.name === 'opencatz-control-room' || message.channel?.name === 'athena-control-room';
+    return message.channel?.name === 'opencatz-control-room';
   }
-  return message.channelId === configuredId || message.channel?.name === 'opencatz-control-room' || message.channel?.name === 'athena-control-room';
+  return message.channelId === configuredId || message.channel?.name === 'opencatz-control-room';
 }
 
 console.log('[SYSTEM] Setup complete. All OpenCatz modules ready.');
 console.log('[STATE STORE] Persistent state engine active — positions, alerts, and journal survive restarts.');
 
 
-// Start Athena 2.0 Telemetry & REST API Server
-import { AthenaRESTServer } from './api/server.js';
-const apiServer = new AthenaRESTServer();
+// Start OpenCatz Telemetry & REST API Server
+import { OpenCatzRESTServer } from './api/server.js';
+const apiServer = new OpenCatzRESTServer();
 apiServer.start(hub);
 
 // Graceful Shutdown: flush pending state writes to disk before exit

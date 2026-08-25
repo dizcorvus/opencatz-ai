@@ -1,5 +1,5 @@
 /**
- * Athena 2.0 - Market Regime Classifier & Strategy Filter (MarketRegimeFilter)
+ * OpenCatz AI - Market Regime Classifier & Strategy Filter (MarketRegimeFilter)
  * Categorizes macro market state (TRENDING_BULL, TRENDING_BEAR, SIDEWAYS_CHOP, EXTREME_VOLATILITY)
  * to adjust sub-agent strategy behaviors automatically.
  */

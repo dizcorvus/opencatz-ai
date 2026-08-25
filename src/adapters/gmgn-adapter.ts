@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
 import { ApiKeyPool, loadApiKeyPool, createApiKeyPool } from '../services/api-key-pool.js';
 
-export type SolChain = 'sol' | 'base' | 'eth' | 'bsc' | 'robinhood';
+export type SolChain = 'sol' | 'base' | 'eth' | 'bsc' | 'robinhood' | 'ink';
 export type RankInterval = '1m' | '5m' | '1h' | '6h' | '24h';
 
 export interface GMGNRawToken {

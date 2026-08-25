@@ -5,35 +5,39 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 const args = process.argv.slice(2);
-const subCommand = (args[0] || 'run').toLowerCase();
+const subCommand = (args[0] || 'help').toLowerCase();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, '..');
 
-// ANSI Color Tokens from OpenCatz Palette
+// TrueColor 24-bit RGB Color Tokens matching DESIGN.md
 const C = {
   reset: '\x1b[0m',
   bold: '\x1b[1m',
   dim: '\x1b[2m',
-  lime: '\x1b[38;2;204;255;0m',      // #CCFF00 Robinhood Green (Legendary Hero)
+  lime: '\x1b[38;2;204;255;0m',      // #CCFF00 Robinhood Green (Hero Brand)
   pink: '\x1b[38;2;255;183;178m',    // #FFB7B2 Pastel Pink
   lavender: '\x1b[38;2;214;199;255m',// #D6C7FF Lavender Purple
   cyan: '\x1b[38;2;128;222;234m',    // #80DEEA Retro Cyan
   yellow: '\x1b[38;2;255;245;157m',  // #FFF59D Pastel Yellow
-  gold: '\x1b[38;2;255;215;0m',      // #FFD700 Golden Fortune
+  gold: '\x1b[38;2;255;215;0m',      // #FFD700 Golden Fortune 24K
+  green: '\x1b[38;2;0;230;118m',     // #00E676 Jade Spirit Green
   red: '\x1b[38;2;229;57;53m',       // #E53935 Maneki-Neko Red
-  green: '\x1b[38;2;0;230;118m',     // #00E676 Jade Spirit
+  blue: '\x1b[38;2;2;119;189m',      // #0277BD Denim Blue
+  white: '\x1b[38;2;240;244;248m',   // #F0F4F8 Soft Crisp White
+  gray: '\x1b[38;2;120;144;156m',    // #78909C Slate Gray
+  darkGray: '\x1b[38;2;60;72;88m',   // #3C4858 Dark Border Gray
 };
 
 console.log(`
-${C.lime}${C.bold}       /\\_____/\\
-      /  ${C.pink}■${C.lime}   ${C.pink}■${C.lime}  \\      ${C.lime}🐾 OPENCATZ AI CLI 🐾${C.reset}
-${C.lime}     ( ==  ${C.pink}^${C.lime}  == )     ${C.cyan}Autonomous Multi-Agent Trading Swarm${C.reset}
-${C.lime}      )    ${C.yellow}~${C.lime}    (      ${C.lavender}Solana • Robinhood Chain • EVM • Perps • NFTs${C.reset}
-${C.lime}     (   _____   )     ${C.gold}"Chill trades, 9 lives, sharp alpha." • opencatz.xyz${C.reset}
-${C.lime}    ( (  )   (  ) )
-   (__(__)___(__)__)${C.reset}
+${C.lime}${C.bold}       /\\_____/\\       ${C.reset}${C.lime}${C.bold}🐾 OPENCATZ AI · MULTICHAIN MASTER CLI 🐾${C.reset}
+${C.lime}${C.bold}      /  ${C.pink}■${C.lime}   ${C.pink}■${C.lime}  \\      ${C.reset}${C.darkGray}══════════════════════════════════════════════════════════════${C.reset}
+${C.lime}${C.bold}     ( ==  ${C.pink}^${C.lime}  == )     ${C.reset}${C.cyan}Autonomous Multichain Swarm Intelligence${C.reset}
+${C.lime}${C.bold}      )    ${C.yellow}~${C.lime}    (      ${C.reset}${C.lavender}Solana • Robinhood Chain • Base • Ethereum • BNB • Perps${C.reset}
+${C.lime}${C.bold}     (   _____   )     ${C.reset}${C.gold}"Chill trades, 9 lives, sharp alpha." • opencatz.xyz${C.reset}
+${C.lime}${C.bold}    ( (  )   (  ) )    ${C.reset}${C.darkGray}══════════════════════════════════════════════════════════════${C.reset}
+${C.lime}${C.bold}   (__(__)___(__)__)   ${C.reset}${C.green}● Cat Den 24/7 Swarm Active${C.reset} ${C.gray}·${C.reset} ${C.gold}👑 Catz NFT Holder VIP Utilities${C.reset}
 `);
 
 function runCommand(command, cmdArgs) {
@@ -111,15 +115,15 @@ switch (subCommand) {
     console.log(`
 🐾 ${C.lime}${C.bold}OPENCATZ AI CLI — COMMAND CHEATSHEET:${C.reset}
 
-  ${C.cyan}opencatz run${C.reset}          🚀 Start bot in live development mode (tsx watch)
-  ${C.pink}opencatz onboard${C.reset}      🧙‍♂️ Launch interactive setup wizard (.env & keys)
-  ${C.cyan}opencatz terminal${C.reset}     🐾 Open standalone Terminal TUI dashboard
-  ${C.lime}opencatz deploy${C.reset}       🌐 Deploy 24/7 background process via PM2
-  ${C.lavender}opencatz test${C.reset}         🧪 Run Vitest automated test suite
-  ${C.yellow}opencatz build${C.reset}        ⚙️ Compile TypeScript to /dist
-  ${C.cyan}opencatz update${C.reset}       🔄 Git pull, rebuild, and hot-restart daemon
-  ${C.green}opencatz doctor${C.reset}       🩺 Check API keys, network RPCs, and diagnostics
-  ${C.red}opencatz uninstall${C.reset}    🧹 Cleanly remove PM2 process, build artifacts, & DB
+  ${C.cyan}${C.bold}opencatz run${C.reset}          🚀 Start bot in live development mode (tsx watch)
+  ${C.pink}${C.bold}opencatz onboard${C.reset}      🧙‍♂️ Launch interactive setup wizard (.env & keys)
+  ${C.cyan}${C.bold}opencatz terminal${C.reset}     🐾 Open standalone Terminal TUI dashboard
+  ${C.lime}${C.bold}opencatz deploy${C.reset}       🌐 Deploy 24/7 background process via PM2
+  ${C.lavender}${C.bold}opencatz test${C.reset}         🧪 Run Vitest automated test suite
+  ${C.yellow}${C.bold}opencatz build${C.reset}        ⚙️ Compile TypeScript to /dist
+  ${C.cyan}${C.bold}opencatz update${C.reset}       🔄 Git pull, rebuild, and hot-restart daemon
+  ${C.green}${C.bold}opencatz doctor${C.reset}       🩺 Check API keys, network RPCs, and diagnostics
+  ${C.red}${C.bold}opencatz uninstall${C.reset}    🧹 Cleanly remove PM2 process, build artifacts, & DB
 
 For complete documentation, visit: ${C.gold}https://opencatz.xyz/docs${C.reset}
 `);

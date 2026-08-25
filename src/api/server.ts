@@ -1,5 +1,5 @@
 import http from 'node:http';
-import { AthenaHub } from '../orchestrator/hub.js';
+import { OpenCatzHub } from '../orchestrator/hub.js';
 import { globalHealthWatcher } from '../services/health-watcher.js';
 import { globalMarketRegimeFilter } from '../services/market-regime.js';
 import { globalRiskEngineV2 } from '../orchestrator/risk-engine-v2.js';
@@ -9,7 +9,7 @@ import { getExecutionMode } from '../config/config.js';
 import { AGENT_DOMAINS } from '../orchestrator/agent-registry.js';
 import { ToolRegistry } from '../orchestrator/tool-registry.js';
 
-export class AthenaRESTServer {
+export class OpenCatzRESTServer {
   private server: http.Server | null = null;
   private port: number;
   private toolRegistry = new ToolRegistry();
@@ -29,14 +29,14 @@ export class AthenaRESTServer {
     });
   }
 
-  public start(hub: AthenaHub): void {
+  public start(hub: OpenCatzHub): void {
     this.toolRegistry.attachOrchestrator(hub);
 
     this.server = http.createServer(async (req, res) => {
       // Set CORS Headers for website integration
       res.setHeader('Access-Control-Allow-Origin', '*');
       res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-OpenCatz-Api-Key, X-Athena-Api-Key');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-OpenCatz-Api-Key');
       res.setHeader('Content-Type', 'application/json');
 
       // Handle CORS Preflight
@@ -46,10 +46,10 @@ export class AthenaRESTServer {
         return;
       }
 
-      // API Key Authentication Guard (if OPENCATZ_API_KEY / ATHENA_API_KEY environment variable is configured)
-      const authKey = process.env.OPENCATZ_API_KEY || process.env.ATHENA_API_KEY;
+      // API Key Authentication Guard (if OPENCATZ_API_KEY environment variable is configured)
+      const authKey = process.env.OPENCATZ_API_KEY;
       if (authKey && authKey.trim() !== '') {
-        const clientKey = req.headers['x-opencatz-api-key'] || req.headers['x-athena-api-key'] || req.headers['authorization']?.replace('Bearer ', '');
+        const clientKey = req.headers['x-opencatz-api-key'] || req.headers['authorization']?.replace('Bearer ', '');
         if (clientKey !== authKey) {
           res.statusCode = 401;
           res.end(JSON.stringify({ success: false, error: 'Unauthorized: Invalid or missing OPENCATZ_API_KEY' }));
@@ -224,7 +224,7 @@ export class AthenaRESTServer {
     });
 
     this.server.listen(this.port, () => {
-      console.log(`📡 ATHENA 2.0 REST API Server listening on port ${this.port}`);
+      console.log(`📡 OPENCATZ REST API Server listening on port ${this.port}`);
     });
   }
 }
@@ -245,6 +245,4 @@ function parseJsonBody(req: http.IncomingMessage): Promise<any> {
     req.on('error', (err) => reject(err));
   });
 }
-
-export { AthenaRESTServer as OpenCatzRESTServer };
 

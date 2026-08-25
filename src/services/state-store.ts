@@ -34,9 +34,9 @@ export interface TrackedToken {
 }
 
 /**
- * Full Athena persisted state — survives bot restarts
+ * Full OpenCatz persisted state — survives bot restarts
  */
-export interface AthenaPersistedState {
+export interface OpenCatzPersistedState {
   // Core position tracking
   openPositions: Record<string, OpenPosition>;
   activeLpPositions: Record<string, ActiveLPPosition>;
@@ -81,7 +81,7 @@ const CURRENT_VERSION = 2;
 
 export class StateStore {
   private dbFilePath: string;
-  private state: AthenaPersistedState;
+  private state: OpenCatzPersistedState;
   private saveDebounceTimer: ReturnType<typeof setTimeout> | null = null;
   private readonly DEBOUNCE_MS = 1000; // coalesce rapid writes into 1 disk write per second
 
@@ -90,7 +90,11 @@ export class StateStore {
     if (!fs.existsSync(dbDir)) {
       fs.mkdirSync(dbDir, { recursive: true });
     }
-    this.dbFilePath = filePath || path.join(dbDir, 'athena_state.json');
+    if (filePath) {
+      this.dbFilePath = filePath;
+    } else {
+      this.dbFilePath = path.join(dbDir, 'opencatz_state.json');
+    }
     this.state = this.loadFromDisk();
     console.log(`[STATE STORE] Loaded persistent state from ${this.dbFilePath} (${this.state.signalLedger.length} ledger entries, ${Object.keys(this.state.priceAlerts).length} alerts, ${Object.keys(this.state.tradeJournalEntries).length} journal entries)`);
   }
@@ -99,7 +103,7 @@ export class StateStore {
   // DISK I/O
   // ==========================================
 
-  private createEmptyState(): AthenaPersistedState {
+  private createEmptyState(): OpenCatzPersistedState {
     return {
       openPositions: {},
       activeLpPositions: {},
@@ -118,7 +122,7 @@ export class StateStore {
     };
   }
 
-  private loadFromDisk(): AthenaPersistedState {
+  private loadFromDisk(): OpenCatzPersistedState {
     try {
       if (!fs.existsSync(this.dbFilePath)) {
         const initial = this.createEmptyState();
@@ -172,7 +176,7 @@ export class StateStore {
     }
   }
 
-  private saveToDiskSync(state: AthenaPersistedState): void {
+  private saveToDiskSync(state: OpenCatzPersistedState): void {
     try {
       state.lastUpdated = new Date().toISOString();
       const tempPath = `${this.dbFilePath}.tmp`;

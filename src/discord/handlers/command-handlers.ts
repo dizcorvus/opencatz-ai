@@ -14,7 +14,7 @@ import {
   ButtonBuilder,
   ButtonStyle,
 } from 'discord.js';
-import { AthenaHub } from '../../orchestrator/hub.js';
+import { OpenCatzHub } from '../../orchestrator/hub.js';
 import { isDryRun as isDryRunMode } from '../../config/config.js';
 import { globalPriceFeedService } from '../../services/price-feed-service.js';
 import { PriceAlertService } from '../../services/price-alert-service.js';
@@ -39,18 +39,24 @@ export async function buildDashboardOptions(): Promise<import('../embeds/dashboa
     solBalance = null;
   }
   try {
-    const eth = await walletService.getEvmBalance(1);
+    const eth = await walletService.getEvmBalance(8453);
     if (eth) ethBalance = `${eth.balance.toFixed(4)} ETH${eth.simulated ? ' (Simulated)' : ''}`;
   } catch {
     ethBalance = null;
   }
-  const activeAlerts = priceAlertService.listAlerts().filter((a) => !a.triggered).length;
-  return { solBalance, ethBalance, activeAlerts };
+
+  const activeAlerts = priceAlertService.listAlerts().length;
+
+  return {
+    solBalance,
+    ethBalance,
+    activeAlerts,
+  };
 }
 
 export async function handleChatInput(
   interaction: ChatInputCommandInteraction,
-  hub: AthenaHub
+  hub: OpenCatzHub
 ): Promise<void> {
   const commandName = interaction.commandName;
 
@@ -60,7 +66,7 @@ export async function handleChatInput(
       const isReplace = subcommand === 'replace';
       const modal = new ModalBuilder()
         .setCustomId('wallet_setup_modal')
-        .setTitle(isReplace ? '🔄 Replace Athena Burner Wallet' : '🔑 Athena Burner Wallet Setup');
+        .setTitle(isReplace ? '🔄 Replace OpenCatz Burner Wallet' : '🔑 OpenCatz Burner Wallet Setup');
 
       const chainInput = new TextInputBuilder()
         .setCustomId('wallet_chain')
@@ -97,7 +103,7 @@ export async function handleChatInput(
       }
 
       await interaction.reply({
-        content: `📋 **REGISTERED ATHENA BURNER WALLETS**\n\n` +
+        content: `📋 **REGISTERED OPENCATZ BURNER WALLETS**\n\n` +
           `• **Solana Wallet:** ${solAddr}\n` +
           `• **EVM Wallet:** ${evmAddr}\n\n` +
           `💡 *Use \`/wallet replace\` to swap the private key, or \`/wallet remove\` to delete a wallet.*`,
@@ -144,7 +150,7 @@ export async function handleChatInput(
       }
 
       await interaction.reply({
-        content: `💼 **Athena Wallet Balances (${isDryRun ? 'DRY_RUN SIMULATION' : 'LIVE'}):**\n` +
+        content: `💼 **OpenCatz Wallet Balances (${isDryRun ? 'DRY_RUN SIMULATION' : 'LIVE'}):**\n` +
           `• Solana Wallet: ${solAddrStr} | Balance: ${solBalStr}\n` +
           `• EVM Wallet: ${evmAddrStr} | Balance: ${evmBalStr}`,
         ephemeral: true,
@@ -204,7 +210,7 @@ export async function handleChatInput(
     const audit = await runTokenAudit(contract);
 
     await interaction.editReply({
-      content: `🔎 **ATHENA ON-DEMAND TOKEN AUDIT REPORT**\n📌 **Target Contract:** \`${contract}\` (${chainName})\n\n${audit.content}`,
+      content: `🔎 **OPENCATZ ON-DEMAND TOKEN AUDIT REPORT**\n📌 **Target Contract:** \`${contract}\` (${chainName})\n\n${audit.content}`,
     });
   } else if (commandName === 'screening') {
     await interaction.deferReply({ ephemeral: false });
@@ -218,11 +224,16 @@ export async function handleChatInput(
       'call-meme-robinhood': { agent: 'meme-robinhood', name: 'Robinhood Chain Meme Agent' },
       'call-meme-base': { agent: 'meme-base', name: 'Base L2 Meme Agent' },
       'call-meme-eth': { agent: 'meme-eth', name: 'Ethereum Meme Agent' },
-      'call-meme-bnb': { agent: 'meme-bsc', name: 'BNB Chain Meme Agent' },
+      'call-meme-ink': { agent: 'meme-ink', name: 'Ink Chain Meme Agent' },
+      'call-lp-solana': { agent: 'lp-solana', name: 'Solana LP Velocity Agent' },
+      'call-lp-robinhood': { agent: 'lp-robinhood', name: 'Robinhood LP Velocity Agent' },
+      'call-nft-eth': { agent: 'nft-eth', name: '💎 Ethereum NFT Sniper' },
+      'call-nft-base': { agent: 'nft-base', name: '🔵 Base L2 NFT Sniper' },
+      'call-nft-ink': { agent: 'nft-ink', name: '🐙 Ink Chain NFT Radar' },
+      'call-nft-robinhood': { agent: 'nft-robinhood', name: '👑 Robinhood NFT Sniper' },
+      'call-nft-hyperevm': { agent: 'nft-hyperevm', name: '⚡ HyperEVM L1 NFT Radar' },
+      'call-nft-sniping': { agent: 'nft-eth', name: '💎 Ethereum NFT Sniper' }, // legacy alias
       'call-whale-tracking': { agent: 'perps', name: 'Whale Tracking Agent' },
-      'call-nft-sniping': { agent: 'nft', name: 'NFT Sniping Agent' },
-      'call-lp-solana': { agent: 'lp-solana', name: 'Solana LP Agent' },
-      'call-lp-robinhood': { agent: 'lp-robinhood', name: 'Robinhood LP Agent' },
       'call-prediction-markets': { agent: 'prediction', name: 'Polymarket Prediction Agent' },
       'call-ct-alpha': { agent: 'ct-alpha', name: 'Smart CT & AI Alpha Agent' },
     };
@@ -240,11 +251,11 @@ export async function handleChatInput(
           // Fall through — handled by the shared status block below
         } else if (subcommand === 'start') {
           Object.values(channelDomainMap).forEach(d => hub.toggleChannelScreening(interaction.channelId, d.agent, true));
-          await interaction.editReply('⚡ **Global Master Screening Activated!** All 11 Sub-Agent domains are now active.');
+          await interaction.editReply('⚡ **Global Master Screening Activated!** All 15 Sub-Agent domains are now active.');
           return;
         } else {
           Object.values(channelDomainMap).forEach(d => hub.toggleChannelScreening(interaction.channelId, d.agent, false));
-          await interaction.editReply('⏸️ **Global Master Screening Paused!** All 11 Sub-Agent domains are now paused.');
+          await interaction.editReply('⏸️ **Global Master Screening Paused!** All 15 Sub-Agent domains are now paused.');
           return;
         }
       } else {
@@ -278,11 +289,15 @@ export async function handleChatInput(
         { id: 'meme-robinhood', label: 'Robinhood Chain Meme Agent',  emoji: '🌸' },
         { id: 'meme-base',      label: 'Base L2 Meme Agent',          emoji: '🔵' },
         { id: 'meme-eth',       label: 'Ethereum Meme Agent',         emoji: '💎' },
-        { id: 'meme-bsc',       label: 'BNB Chain (BSC) Meme Agent',  emoji: '🟡' },
-        { id: 'lp-solana',      label: 'Solana LP Agent',             emoji: '🌊' },
-        { id: 'lp-robinhood',   label: 'Robinhood LP Agent',          emoji: '💧' },
+        { id: 'meme-ink',       label: 'Ink Chain Meme Agent',        emoji: '🐙' },
+        { id: 'lp-solana',      label: 'Solana LP Velocity Agent',    emoji: '🌊' },
+        { id: 'lp-robinhood',   label: 'Robinhood LP Velocity Agent', emoji: '💧' },
+        { id: 'nft-eth',        label: '💎 Ethereum NFT Sniper',       emoji: '💎' },
+        { id: 'nft-base',       label: '🔵 Base L2 NFT Sniper',        emoji: '🔵' },
+        { id: 'nft-ink',        label: '🐙 Ink Chain NFT Radar',      emoji: '🐙' },
+        { id: 'nft-robinhood',  label: '👑 Robinhood & Catz Sniper',   emoji: '🐱' },
+        { id: 'nft-hyperevm',   label: '⚡ HyperEVM L1 NFT Radar',    emoji: '⚡' },
         { id: 'perps',          label: 'Whale Tracking Agent',        emoji: '🐋' },
-        { id: 'nft',            label: 'NFT Sniping Agent',           emoji: '🔮' },
         { id: 'prediction',     label: 'Polymarket Prediction Agent', emoji: '🎯' },
         { id: 'ct-alpha',       label: 'Smart CT & AI Alpha Agent',   emoji: '☀️' },
       ];
@@ -293,11 +308,11 @@ export async function handleChatInput(
         return `${a.emoji} **${a.label}**  →  ${isActive ? '🟢 ACTIVE' : '🔴 PAUSED'}`;
       }).join('\n');
 
-      const overallLine = activeCount === 11
-        ? '🟢 **All 11 Sub-Agents ACTIVE** — 24/7 Screening Running!'
+      const overallLine = activeCount === ALL_AGENTS.length
+        ? `🟢 **All ${ALL_AGENTS.length} Sub-Agents ACTIVE** — 24/7 Screening Running!`
         : activeCount === 0
         ? '🔴 **All Sub-Agents PAUSED** — No screening running.'
-        : `🟡 **${activeCount}/11 Sub-Agents Active** — Partial screening running.`;
+        : `🟡 **${activeCount}/${ALL_AGENTS.length} Sub-Agents Active** — Partial screening running.`;
 
       await interaction.editReply(
         `## 📡 OpenCatz Multichain Sub-Agent Dashboard\n\n${overallLine}\n\n${statusLines}\n\n` +
@@ -324,11 +339,11 @@ export async function handleChatInput(
       const fmtUsd = (v: number) => `$${v.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
       await interaction.reply({
         content:
-          `⚙️ **ATHENA LIVE RISK SETTINGS**\n` +
+          `⚙️ **OPENCATZ LIVE RISK SETTINGS**\n` +
           `• **Max Drawdown Limit:** \`${risk.maxDrawdownLimitPct}%\` (current drawdown: \`${risk.currentDrawdownPct ?? 0}%\`)\n` +
           `• **Max Position Size:** \`${fmtUsd(risk.maxPositionSizeUsd)}\` per trade\n` +
           `• **Trading Paused:** \`${risk.paused ? 'YES 🚨' : 'No'}\` | Max Sector Exposure: \`${risk.maxSectorExposurePercent}%\`\n\n` +
-          `> 💡 Adjust via chat: *"Athena, set max drawdown 30%"* or *"Athena, set position size 500"*.`,
+          `> 💡 Adjust via chat: *"OpenCatz, set max drawdown 30%"* or *"OpenCatz, set position size 500"*.`,
         ephemeral: true,
       });
     } else if (subcommand === 'status') {
@@ -342,11 +357,11 @@ export async function handleChatInput(
       }).join('\n');
       await interaction.reply({
         content:
-          `🖥️ **ATHENA RUNTIME CONFIGURATION**\n\n` +
+          `🖥️ **OPENCATZ RUNTIME CONFIGURATION**\n\n` +
           `**Mode:** \`${autoExecute ? 'AUTO_EXECUTE' : 'MANUAL_EXECUTION'}\` | Dry-Run: \`${dryRun ? 'ON (safe)' : 'OFF (live)'}\`\n` +
           `**Active Agents:** \`${active.length > 0 ? active.join(', ') : 'NONE'}\`\n\n` +
           `**API Keys:**\n${keys}\n\n` +
-          `> 💡 Set keys via chat: *"Athena, set GMGN_API_KEY=..."*. Protected keys (private keys, RPC) are never exposed.`,
+          `> 💡 Set keys via chat: *"OpenCatz, set GMGN_API_KEY=..."*. Protected keys (private keys, RPC) are never exposed.`,
         ephemeral: true,
       });
     }
@@ -358,8 +373,8 @@ export async function handleChatInput(
       .join('\n');
     await interaction.reply({
       content:
-        `🩺 **ATHENA SYSTEM HEALTH**\n\n${lines}\n\n` +
-        (health.allHealthy ? '> 🟢 All agents healthy.' : '> ⚠️ Some agents are not responding — check `pm2 logs athena-agent`.'),
+        `🩺 **OPENCATZ SYSTEM HEALTH**\n\n${lines}\n\n` +
+        (health.allHealthy ? '> 🟢 All agents healthy.' : '> ⚠️ Some agents are not responding — check `pm2 logs opencatz-agent`.'),
       ephemeral: false,
     });
   } else if (commandName === 'strategy') {
@@ -370,7 +385,7 @@ export async function handleChatInput(
       const list = engine.listStrategies();
       const lines = list.map((s: any) => `• **${s.id}** — ${s.name}${s.active ? ' `🟢 ACTIVE`' : ''}`).join('\n');
       await interaction.reply({
-        content: `🧠 **ATHENA STRATEGY MODULES**\n\n${lines || 'No strategies found.'}\n\n> 💡 Write new strategies via chat: *"Athena, create strategy X"*.`,
+        content: `🧠 **OPENCATZ STRATEGY MODULES**\n\n${lines || 'No strategies found.'}\n\n> 💡 Write new strategies via chat: *"OpenCatz, create strategy X"*.`,
         ephemeral: true,
       });
     } else if (subcommand === 'view') {
@@ -400,7 +415,7 @@ export async function handleChatInput(
       });
       await interaction.reply(`📁 **Channel Created:** <#${newChannel.id}> (\`#${channelName}\`) is ready for your personal notes!`);
     } else if (subcommand === 'rearrange') {
-      await interaction.reply('✨ **Athena Channel Arrangement:** Command Center channels are organized neatly in sequence.');
+      await interaction.reply('✨ **OpenCatz Channel Arrangement:** Command Center channels are organized neatly in sequence.');
     }
   } else if (commandName === 'price') {
     const token = interaction.options.getString('token', true);
@@ -455,7 +470,7 @@ export async function handleChatInput(
       });
 
       await interaction.reply({
-        content: `🔔 **Price Alert Set Successfully!**\n• **Asset:** \`${alert.symbol}\`\n• **Target Price:** \`$${alert.targetPriceUsd.toLocaleString()} USD\`\n• **Trigger Condition:** Price goes \`${alert.direction}\` target\n• **ID:** \`${alert.id}\`\nAthena will notify <@${interaction.user.id}> as soon as price reaches target!`,
+        content: `🔔 **Price Alert Set Successfully!**\n• **Asset:** \`${alert.symbol}\`\n• **Target Price:** \`$${alert.targetPriceUsd.toLocaleString()} USD\`\n• **Trigger Condition:** Price goes \`${alert.direction}\` target\n• **ID:** \`${alert.id}\`\nOpenCatz will notify <@${interaction.user.id}> as soon as price reaches target!`,
       });
     } else if (subcommand === 'list') {
       const alerts = priceAlertService.listAlerts(interaction.user.id);
@@ -487,7 +502,7 @@ export async function handleChatInput(
       const stats = tradeJournalService.getSummaryStats();
       await interaction.reply({
         content:
-          `📊 **ATHENA TRADE JOURNAL PERFORMANCE SUMMARY**\n\n` +
+          `📊 **OPENCATZ TRADE JOURNAL PERFORMANCE SUMMARY**\n\n` +
           `• **Total Trades Logged:** \`${stats.totalTrades}\` (\`${stats.openTradesCount}\` Open, \`${stats.winCount + stats.lossCount}\` Closed)\n` +
           `• **Win Rate:** \`${stats.winRatePct.toFixed(1)}%\` (${stats.winCount} Wins / ${stats.lossCount} Losses)\n` +
           `• **Total Realized PnL:** \`+$${stats.totalRealizedPnlUsd.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD\`\n` +
@@ -516,52 +531,7 @@ export async function handleChatInput(
         files: [attachment],
       });
     }
-  } else if (commandName === 'catz') {
-    const { globalNFTGatingService } = await import('../../services/nft-gating-service.js');
-    const subcommand = interaction.options.getSubcommand();
 
-    if (subcommand === 'verify') {
-      const wallet = interaction.options.getString('wallet', true);
-      await interaction.deferReply({ ephemeral: true });
-
-      const status = await globalNFTGatingService.verifyHolder(wallet);
-      if (status.isHolder) {
-        const badge = status.holderTier === 'CATZ_LEGENDARY' ? '👑 **LEGENDARY HOLDER**' : status.holderTier === 'CATZ_WHALE' ? '🐋 **WHALE HOLDER**' : '🐱 **VERIFIED CATZ HOLDER**';
-        await interaction.editReply({
-          content: `✅ **VERIFIKASI BERHASIL!**\n\n` +
-            `• **Wallet:** \`${status.walletAddress}\`\n` +
-            `• **Status:** ${badge}\n` +
-            `• **Jumlah Catz NFT:** **${status.balance} Token**\n` +
-            `• **Token IDs:** ${status.tokenIds.length > 0 ? status.tokenIds.map(id => `#${id}`).join(', ') : 'Verified on-chain'}\n` +
-            `• **Benefit:** Full Access ke Opencatz Multichain Intelligence, High-Conviction Calls, & VIP Hub! 🐾⚡`,
-        });
-      } else {
-        await interaction.editReply({
-          content: `❌ **VERIFIKASI GAGAL / BELUM MEMILIKI CATZ NFT**\n\n` +
-            `• **Wallet:** \`${status.walletAddress}\`\n` +
-            `• **Balance:** \`0 CATZ\`\n` +
-            `• **Info:** Pastikan wallet Anda menyimpan Catz NFT pada jaringan **Robinhood Chain (EVM L2 · Chain ID 4663)**.\n` +
-            `• **Mint / Koleksi Resmi:** [OpenSea SeaDrop / opencatz.xyz](https://opencatz.xyz)`,
-        });
-      }
-    } else if (subcommand === 'info') {
-      const info = globalNFTGatingService.getCollectionInfo();
-      const embed = new EmbedBuilder()
-        .setTitle(`🐱 CATZ NFT COLLECTION — OFFICIAL SPECIFICATION`)
-        .setColor(0xccff00)
-        .setDescription(
-          `**Catz NFT** adalah 4,444 koleksi generatif seni piksel retro 24×24 yang menjadi pilar visual ekosistem **Opencatz AI**.\n\n` +
-          `• **Total Supply:** \`4,444 Unique NFTs (1-of-1)\`\n` +
-          `• **Target Chain:** **${info.chain} (EVM L2 · ID ${info.chainId})**\n` +
-          `• **Smart Contract:** \`${info.standard}\`\n` +
-          `• **On-Chain Rendering:** \`100% Fully On-Chain SVG (SSTORE2 Bytecode)\`\n` +
-          `• **Utility:** Gated access to Opencatz AI Multichain Swarm Intelligence, VIP alpha channels, & automated execution modules.\n\n` +
-          `🌐 **Official Portal:** [opencatz.xyz](https://opencatz.xyz)`
-        )
-        .setFooter({ text: 'Opencatz AI • Catz NFT Exclusive Multichain Engine' });
-
-      await interaction.reply({ embeds: [embed] });
-    }
   } else if (commandName === 'update') {
     await interaction.reply({
       content: '🔄 **OpenCatz Self-Update Sequence Initiated...**\nPulling latest patches, installing dependencies, re-building, and restarting the agent...',
@@ -569,8 +539,8 @@ export async function handleChatInput(
     });
 
     try {
-      const { runAthenaUpdate } = await import('../../../scripts/update-core.mjs');
-      runAthenaUpdate({ noRestart: false });
+      const { runOpenCatzUpdate } = await import('../../../scripts/update-core.mjs');
+      runOpenCatzUpdate({ noRestart: false });
     } catch (err: any) {
       await interaction.followUp({
         content: `❌ **Update Exception (before restart):** ${err.message}\n⚠ The bot will restart on its own — full report in ` + '`pm2 logs opencatz-agent`' + `.`,
@@ -602,7 +572,7 @@ export async function handleChatInput(
         `⚡ **Est. Speed:** \`~${result.estimatedDurationSeconds} seconds\`\n` +
         `💡 **Execution Mode:** ${result.simulated ? '`DRY_RUN (Simulated Direct On-Chain Intent)`' : '`Live Broadcast`'}`
       )
-      .setFooter({ text: 'Powered by Relay.link Direct Intent Engine • Athena Multi-Agent Hub' });
+      .setFooter({ text: 'Powered by Relay.link Direct Intent Engine • OpenCatz Multi-Agent Hub' });
 
     const actionRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
@@ -637,7 +607,7 @@ export async function handleChatInput(
         `⚡ **Est. Speed:** \`~${result.estimatedDurationSeconds} seconds\`\n` +
         `💡 **Execution Mode:** ${result.simulated ? '`DRY_RUN (Simulated Direct On-Chain Swap)`' : '`Live Broadcast`'}`
       )
-      .setFooter({ text: 'Powered by Relay.link Swap Engine • Athena Multi-Agent Hub' });
+      .setFooter({ text: 'Powered by Relay.link Swap Engine • OpenCatz Multi-Agent Hub' });
 
     const actionRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
@@ -673,7 +643,7 @@ export async function handleChatInput(
         `⚡ **Est. Speed:** \`~${result.estimatedDurationSeconds} seconds\`\n` +
         `💡 **Execution Mode:** ${result.simulated ? '`DRY_RUN (Simulated Direct On-Chain Transfer)`' : '`Live Broadcast`'}`
       )
-      .setFooter({ text: 'Powered by Relay.link Transfer Engine • Athena Multi-Agent Hub' });
+      .setFooter({ text: 'Powered by Relay.link Transfer Engine • OpenCatz Multi-Agent Hub' });
 
     const actionRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
@@ -685,3 +655,4 @@ export async function handleChatInput(
     await interaction.reply({ embeds: [embed], components: [actionRow] });
   }
 }
+

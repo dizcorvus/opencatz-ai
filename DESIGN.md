@@ -2,22 +2,20 @@
 
 > **Official Visual & Identity Design System for Opencatz AI**
 > *Unified Design System for Discord Embeds, Terminal TUI, and Multi-Platform Clients*
-> *Exclusive Edition for Catz NFT Holders across Solana, EVM / Robinhood Chain, Perps, and NFTs*
 
 ---
 
 ## 1. 🎨 Executive Brand Overview
 
-**Opencatz AI** is an autonomous, multi-agent crypto intelligence and trading ecosystem operating across **Solana, Robinhood Chain (EVM L2), Base, Ethereum, BNB Chain (BSC), Hyperliquid, and Polymarket**:
+**Opencatz AI** is an autonomous, multi-agent crypto intelligence and trading ecosystem operating across **Solana, Robinhood Chain (EVM L2), Base, Ethereum, Ink Chain (Kraken L2), Hyperliquid, and Polymarket**:
 
 - **Art Direction:** Retro 8-bit / 24×24 pixel art aesthetic, crisp outlines (`#0B0E14`), casual pixel personality traits, and witty feline charm.
 - **Hero Palette:** High-energy **Robinhood Green (`#CCFF00`)** anchored against deep **Solid Obsidian Black (`#0B0E14`)** and harmonized pastel & neon counter-tones.
 - **Mascot Persona:** **OpenCatz** — The chillest, most laid-back yet mathematically razor-sharp DeFi cat oracle in the crypto space with sunglasses and 9 lives.
-- **NFT Gating:** Token-gated utility for **Catz NFT** (`CATZ` 4,444 collection on Robinhood Chain / OpenSea SeaDrop).
 
 ### 🐾 The 3 Feline Pillars & Philosophy:
 1. **The Prowl (Intelligence & Night Vision):** DEX pools and on-chain liquidity are dark, noisy, and hazardous. OpenCatz's 3-Layer Swarm Consensus acts as feline night vision — stalking candidates 24/7 with patient stealth and only pouncing when Swarm Confidence purrs at $\ge 80\%$.
-2. **The Cat Den (Command Center & Scratching Post):** Multi-channel central hub (`#opencatz-control-room`, `#opencatz-audit`, Terminal TUI, Telegram bridge) for natural language chat, instant 12-point token audits, and wallet controls.
+2. **The Command Center (Control & Scratching Post):** Central hub (`#opencatz-control-room`, `#opencatz-audit`, Terminal TUI, Telegram bridge) for natural language chat, instant 12-point token audits, and wallet controls.
 3. **The Nine Lives Engine (Resilience & Risk):** Capital preservation is sacred. OpenCatz protects traders with a 9-Lives safety net: automated Stop-Loss (-20%), Take-Profit milestone scaling (2x/3x), dynamic trailing stops, and an instant 9-Lives Circuit Breaker kill-switch.
 
 ---
@@ -53,14 +51,13 @@ Opencatz AI UI components utilize a standardized retro palette across Discord em
 3. **Robinhood Chain Meme Calls (`#call-meme-robinhood`):** `Pastel Pink (#FFB7B2)`
 4. **Base L2 Meme Calls (`#call-meme-base`):** `Denim Blue (#0277BD)`
 5. **Ethereum Mainnet Meme Calls (`#call-meme-eth`):** `Lavender Purple (#D6C7FF)`
-6. **BNB Chain (BSC) Meme Calls (`#call-meme-bnb`):** `Golden Fortune (#FFD700)`
+6. **Ink Chain (Kraken L2) Meme Calls (`#call-meme-ink`):** `Golden Fortune (#FFD700)`
 7. **Concentrated LP Velocity (`#call-lp-solana` / `#call-lp-robinhood`):** `Retro Cyan (#80DEEA)`
-8. **NFT Floor & Rarity Sniping (`#call-nft-sniping`):** `Royal Violet (#7B1FA2)`
+8. **NFT Floor & Momentum Radar (`#call-nft-*`):** `Royal Violet (#7B1FA2)` & `Lavender Purple (#D6C7FF)`
 9. **Smart CT & Twitter/X Sentiment (`#call-ct-alpha`):** `Pastel Yellow (#FFF59D)`
 10. **Whale Tracker & Perps Flows (`#call-whale-tracking`):** `Denim Blue (#0277BD)`
 11. **Polymarket Prediction Arbitrage (`#call-prediction-markets`):** `Prediction Cyan (#00E5FF)`
 12. **9-Lives Circuit Breaker, Honeypot Warnings, Stop Loss:** `Maneki-Neko Lucky Red (#E53935)`
-13. **Realized Gains & Catz NFT VIP Holders:** `Golden Fortune (#FFD700)`
 
 ---
 
@@ -72,8 +69,8 @@ Opencatz AI UI components utilize a standardized retro palette across Discord em
       /\_____/\
      /  ■   ■  \       🕶️ OPENCATZ AI · MULTICHAIN COMMAND CENTER 🕶️
     ( ==  ^  == )      3-Layer Swarm Consensus & Precision Execution
-     )    ~    (       Solana • Robinhood Chain • Base • ETH • BNB • Perps • NFTs
-    (   _____   )      Cat Den 24/7 Agent Daemon Active
+     )    ~    (       Solana • Robinhood • Base • ETH • Ink • Perps • NFTs
+    (   _____   )      24/7 Multi-Agent Swarm Active
    ( (  )   (  ) )
   (__(__)___(__)__)
 ```
@@ -106,15 +103,31 @@ export const OPENCATZ_COLORS = {
 
 ## 5. 🤖 Discord Command Center Channel Layout
 
-- **Category:** `🐾 OPENCATZ MULTICHAIN COMMAND CENTER`
-- **Core Channels:**
-  - `#opencatz-control-room` — Main natural language chat, wallet balances, risk settings, and execution intents.
-  - `#opencatz-audit` / `#audit-on-demand` — Instant 12-point token audit upon pasting contract address (CA).
-  - `#call-meme-solana` — High-velocity Solana DEX tokens (Pump.fun, Raydium, Meteora).
-  - `#call-meme-robinhood` — High-velocity Robinhood Chain & EVM meme tokens (GMGN + GoPlus).
-  - `#call-lp-solana` — Solana Meteora DLMM Concentrated Liquidity pools.
-  - `#call-lp-robinhood` — EVM Robinhood Chain Concentrated Liquidity pools (Uniswap V3 / Krystal).
-  - `#call-whale-tracking` — Hyperliquid L1 institutional positioning & spot flows.
-  - `#call-nft-sniping` — OpenSea floor drops and rare trait snipes for Catz NFT & EVM collections.
-  - `#call-prediction-markets` — Polymarket prediction market arbitrage & whale bets.
-  - `#call-ct-alpha` — Crypto Twitter (X) smart money & sentiment scraper.
+The 17 Discord channels are structured across 5 organized Bento categories:
+
+1. **🐾 OPENCATZ COMMAND CENTER**
+   - `#opencatz-control-room` — Main natural language chat, wallet balances, risk settings, and execution intents.
+   - `#opencatz-audit` — Instant 12-point token audit upon pasting contract address (CA).
+
+2. **🚀 MEME COIN CALLS**
+   - `#call-meme-solana` — Solana DEX tokens (Pump.fun, Raydium, Meteora).
+   - `#call-meme-robinhood` — Robinhood Chain DEX tokens (GMGN + GoPlus).
+   - `#call-meme-base` — Base L2 DEX tokens & Smart Money Flow (GMGN + GoPlus).
+   - `#call-meme-eth` — Ethereum Mainnet DEX tokens & Whale Buys.
+   - `#call-meme-ink` — Ink Chain / Kraken L2 DEX tokens.
+
+3. **💧 LIQUIDITY & YIELD**
+   - `#call-lp-solana` — Solana Meteora DLMM Concentrated Liquidity pools.
+   - `#call-lp-robinhood` — Robinhood Chain Uniswap V3 concentrated pools (Krystal Cloud).
+
+4. **🔮 NFT SNIPING & RADAR (OpenSea EVM Stack)**
+   - `#call-nft-eth` — Ethereum Mainnet Bluechips & Floor Surges >= 20%.
+   - `#call-nft-base` — Base L2 Creator Drops & Trending Mints.
+   - `#call-nft-ink` — Ink Chain / Kraken L2 NFT Radar.
+   - `#call-nft-robinhood` — Robinhood Chain NFT momentum radar.
+   - `#call-nft-hyperevm` — Hyperliquid HyperEVM L1 Native Collections.
+
+5. **🎯 ORACLES & DERIVATIVES**
+   - `#call-whale-tracking` — Hyperliquid L1 institutional positioning & spot flows.
+   - `#call-prediction-markets` — Polymarket prediction market arbitrage & whale bets.
+   - `#call-ct-alpha` — Crypto Twitter (X) smart money & sentiment scraper.

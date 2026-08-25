@@ -1,16 +1,16 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { AthenaRESTServer } from '../src/api/server.js';
-import { AthenaHub } from '../src/orchestrator/hub.js';
+import { OpenCatzRESTServer } from '../src/api/server.js';
+import { OpenCatzHub } from '../src/orchestrator/hub.js';
 
-describe('AthenaRESTServer', () => {
-  let server: AthenaRESTServer;
-  let hub: AthenaHub;
+describe('OpenCatzRESTServer', () => {
+  let server: OpenCatzRESTServer;
+  let hub: OpenCatzHub;
   const testPort = 3099;
 
   beforeEach(() => {
-    delete process.env.ATHENA_API_KEY;
-    hub = new AthenaHub();
-    server = new AthenaRESTServer(testPort);
+    delete process.env.OPENCATZ_API_KEY;
+    hub = new OpenCatzHub();
+    server = new OpenCatzRESTServer(testPort);
     server.start(hub);
   });
 
@@ -26,13 +26,13 @@ describe('AthenaRESTServer', () => {
     expect(data.status).toBeDefined();
   });
 
-  it('rejects unauthorized requests when ATHENA_API_KEY is set', async () => {
-    process.env.ATHENA_API_KEY = 'secret-passphrase';
+  it('rejects unauthorized requests when OPENCATZ_API_KEY is set', async () => {
+    process.env.OPENCATZ_API_KEY = 'secret-passphrase';
     const res = await fetch(`http://localhost:${testPort}/health`);
     expect(res.status).toBe(401);
 
     const authorizedRes = await fetch(`http://localhost:${testPort}/health`, {
-      headers: { 'X-Athena-Api-Key': 'secret-passphrase' },
+      headers: { 'X-OpenCatz-Api-Key': 'secret-passphrase' },
     });
     expect(authorizedRes.status).toBe(200);
   });

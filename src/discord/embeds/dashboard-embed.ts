@@ -6,10 +6,9 @@ import {
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
 } from 'discord.js';
-import { AthenaHub } from '../../orchestrator/hub.js';
+import { OpenCatzHub } from '../../orchestrator/hub.js';
 import { AGENT_DOMAINS } from '../../orchestrator/agent-registry.js';
 import { isDryRun as isDryRunMode } from '../../config/config.js';
-import { globalNFTGatingService } from '../../services/nft-gating-service.js';
 
 export interface DashboardEmbedOptions {
   solBalance?: string | null;
@@ -17,7 +16,7 @@ export interface DashboardEmbedOptions {
   activeAlerts?: number;
 }
 
-export function createDashboardComponents(hub: AthenaHub, opts: DashboardEmbedOptions = {}) {
+export function createDashboardComponents(hub: OpenCatzHub, opts: DashboardEmbedOptions = {}) {
   const isTwexSet = Boolean(process.env.TWEX_API_KEY);
   const isOpenSeaSet = Boolean(process.env.OPENSEA_API_KEY);
   const isLlmSet = Boolean(process.env.OPENAI_API_KEY || process.env.OPENROUTER_API_KEY);
@@ -30,13 +29,12 @@ export function createDashboardComponents(hub: AthenaHub, opts: DashboardEmbedOp
   const solBalanceStr = opts.solBalance ?? '`— (unavailable)`';
   const ethBalanceStr = opts.ethBalance ?? '`— (unavailable)`';
   const activeAlertsStr = `${opts.activeAlerts ?? 0} Active Alerts`;
-  const nftInfo = globalNFTGatingService.getCollectionInfo();
 
   const embed = new EmbedBuilder()
     .setTitle('🐾 OPENCATZ MULTI-AGENT CONTROL CENTER')
     .setColor(0xccff00)
     .setDescription(
-      'Welcome to **Opencatz AI** — Autonomous Multi-Agent Trading Swarm for Catz NFT Holders.\n' +
+      'Welcome to **Opencatz AI** — Autonomous Multi-Agent Crypto Intelligence & Trading Swarm.\n' +
       'Control screening agents, 9-Lives risk engine, price alerts, API keys, and burner wallets interactively below.'
     )
     .addFields(
@@ -48,16 +46,12 @@ export function createDashboardComponents(hub: AthenaHub, opts: DashboardEmbedOp
         inline: false,
       },
       {
-        name: '🐱 24/7 Specialist Sub-Agents Status',
+        name: '🐱 24/7 Specialist Sub-Agents Status (15 Agents Active)',
         value:
-          `• 🚀 **Solana Meme Agent:** ${getStatusBadge('meme-solana')}\n` +
-          `• 🌸 **Robinhood Meme Agent:** ${getStatusBadge('meme-robinhood')}\n` +
-          `• 🌊 **Solana LP Velocity Engine:** ${getStatusBadge('lp-solana')}\n` +
-          `• 🌊 **Robinhood LP Velocity Engine:** ${getStatusBadge('lp-robinhood')}\n` +
-          `• 🐋 **Whale Positioning & Perps:** ${getStatusBadge('perps')}\n` +
-          `• 🔮 **NFT Sniping Agent:** ${getStatusBadge('nft')}\n` +
-          `• 🎯 **Polymarket Prediction Agent:** ${getStatusBadge('prediction')}\n` +
-          `• ☀️ **Smart CT & AI Alpha Agent:** ${getStatusBadge('ct-alpha')}`,
+          `**🚀 Meme Hunters:** SOL ${getStatusBadge('meme-solana')} • RH ${getStatusBadge('meme-robinhood')} • BASE ${getStatusBadge('meme-base')} • ETH ${getStatusBadge('meme-eth')} • INK ${getStatusBadge('meme-ink')}\n` +
+          `**💧 Liquidity & Yield:** SOL LP ${getStatusBadge('lp-solana')} • RH LP ${getStatusBadge('lp-robinhood')}\n` +
+          `**🔮 NFT Division (OpenSea EVM):** ETH ${getStatusBadge('nft-eth')} • BASE ${getStatusBadge('nft-base')} • INK ${getStatusBadge('nft-ink')} • RH ${getStatusBadge('nft-robinhood')} • HYPER ${getStatusBadge('nft-hyperevm')}\n` +
+          `**🎯 Oracles & Alpha:** 🐋 Perps ${getStatusBadge('perps')} • 🎯 Poly ${getStatusBadge('prediction')} • ☀️ CT ${getStatusBadge('ct-alpha')}`,
         inline: false,
       },
       {
@@ -69,11 +63,10 @@ export function createDashboardComponents(hub: AthenaHub, opts: DashboardEmbedOp
         inline: false,
       },
       {
-        name: '🔑 Wallet Balances & Catz NFT Gating',
+        name: '🔑 Wallet Balances & Price Alerts',
         value:
           `• **Solana Balance:** ${solBalanceStr}\n` +
           `• **Robinhood/EVM Balance:** ${ethBalanceStr}\n` +
-          `• **Catz NFT Gate:** \`${nftInfo.name} (${nftInfo.chain})\` • \`/catz verify\`\n` +
           `• **Active Price Alerts:** \`${activeAlertsStr}\` (Use \`/alert\` or chat)`,
         inline: false,
       }

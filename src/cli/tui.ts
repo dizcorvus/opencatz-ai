@@ -1,45 +1,21 @@
 import dotenv from 'dotenv';
 import readline from 'readline';
 dotenv.config();
-import { AthenaHub } from '../orchestrator/hub.js';
+import { OpenCatzHub } from '../orchestrator/hub.js';
 import { SwarmConsensusEngine } from '../orchestrator/swarm-consensus.js';
 import { AIService } from '../services/ai-service.js';
 import { globalWalletService } from '../services/wallet-service.js';
 import { StateStore } from '../services/state-store.js';
-import { globalNFTGatingService } from '../services/nft-gating-service.js';
+import { THEME, getOpenCatzHeaderBanner, drawDivider } from './theme.js';
 
 const stateStore = new StateStore();
-const hub = new AthenaHub();
+const hub = new OpenCatzHub();
 const swarmEngine = new SwarmConsensusEngine();
 const aiService = new AIService();
 const walletService = globalWalletService;
 walletService.attachStateStore(stateStore);
 
-// OpenCatz ANSI Color Palette
-const C = {
-  reset: '\x1b[0m',
-  bold: '\x1b[1m',
-  dim: '\x1b[2m',
-  lime: '\x1b[38;2;204;255;0m',      // #CCFF00 Robinhood Green (Hero)
-  pink: '\x1b[38;2;255;183;178m',    // #FFB7B2 Pastel Pink
-  lavender: '\x1b[38;2;214;199;255m',// #D6C7FF Lavender Purple
-  cyan: '\x1b[38;2;128;222;234m',    // #80DEEA Retro Cyan
-  yellow: '\x1b[38;2;255;245;157m',  // #FFF59D Pastel Yellow
-  gold: '\x1b[38;2;255;215;0m',      // #FFD700 Golden Fortune
-  red: '\x1b[38;2;229;57;53m',       // #E53935 Maneki-Neko Red
-  green: '\x1b[38;2;0;230;118m',     // #00E676 Jade Spirit
-  blue: '\x1b[38;2;2;119;189m',      // #0277BD Denim Blue
-};
-
-const OPENCATZ_TUI_ASCII = `
-${C.lime}${C.bold}      /\\_____/\\
-     /  ${C.pink}■${C.lime}   ${C.pink}■${C.lime}  \\       ${C.lime}🐾 OPENCATZ AI COMMAND CENTER 🐾${C.reset}
-    ( ==  ${C.pink}^${C.lime}  == )      ${C.cyan}Autonomous Multichain Swarm Intelligence${C.reset}
-     )    ${C.yellow}~${C.lime}    (       ${C.lavender}Solana • Robinhood Chain • Base • ETH • BNB • Perps • NFTs${C.reset}
-    (   _____   )      ${C.gold}"Chill trades, 9 lives, sharp alpha." • opencatz.xyz${C.reset}
-   ( (  )   (  ) )
-  (__(__)___(__)__)${C.reset}
-`;
+const C = THEME;
 
 export async function launchTUI(): Promise<void> {
   const rl = readline.createInterface({
@@ -51,26 +27,26 @@ export async function launchTUI(): Promise<void> {
 
   while (true) {
     console.clear();
-    console.log(OPENCATZ_TUI_ASCII);
-    console.log(`${C.cyan}${C.bold}========================================================================${C.reset}`);
-    console.log(`${C.lime}🌿 Mode:${C.reset} MANUAL EXECUTION (screener/caller) | ${C.yellow}🐱 AI Companion:${C.reset} ${aiService.getConfig().provider} (${aiService.getConfig().modelName})`);
-    console.log(`${C.cyan}------------------------------------------------------------------------${C.reset}`);
-    console.log(` ${C.lime}[1]${C.reset} 🔑 Burner Wallet & Treasury Manager (Solana & Robinhood/EVM)`);
-    console.log(` ${C.pink}[2]${C.reset} 🔍 On-Demand 3-Layer Swarm Token Audit (Input CA)`);
-    console.log(` ${C.cyan}[3]${C.reset} ⚡ Background Screening Control (11 Multichain Specialist Agents)`);
-    console.log(` ${C.yellow}[4]${C.reset} 🧠 Cat Den Command Room Chat (Natural Language AI Hub)`);
-    console.log(` ${C.lime}[5]${C.reset} 🛡️ 9-Lives Risk Management & Safeguards`);
-    console.log(` ${C.gold}[6]${C.reset} 📊 Trade Journal & Realized PnL Analytics (View Summary)`);
-    console.log(` ${C.red}[7]${C.reset} 🛑 9-Lives Circuit Breaker (Halt All Active Agents)`);
-    console.log(` ${C.green}[8]${C.reset} ▶️ Run Local Screening Pass (Test One Agent)`);
-    console.log(` ${C.lavender}[9]${C.reset} 🐱 Catz NFT Holder Gating & Verification`);
-    console.log(` ${C.red}[0]${C.reset} ❌ Exit OpenCatz Control Center`);
-    console.log(`${C.cyan}------------------------------------------------------------------------${C.reset}`);
+    console.log(getOpenCatzHeaderBanner('Autonomous 3-Layer Swarm Consensus & Precision Execution'));
+    console.log(drawDivider('═', 78, C.cyan));
+    console.log(`  ${C.lime}${C.bold}🌿 Mode:${C.reset} ${C.white}MANUAL EXECUTION (Screener/Caller)${C.reset} ${C.darkGray}|${C.reset} ${C.yellow}${C.bold}🐱 AI Brain:${C.reset} ${C.white}${aiService.getConfig().provider.toUpperCase()} (${aiService.getConfig().modelName})${C.reset}`);
+    console.log(drawDivider('─', 78, C.darkGray));
+    console.log(`  ${C.lime}${C.bold}[1]${C.reset} ${C.white}🔑 Burner Wallet & Treasury Manager (Solana & Robinhood/EVM)${C.reset}`);
+    console.log(`  ${C.pink}${C.bold}[2]${C.reset} ${C.white}🔍 On-Demand 3-Layer Swarm Token Audit (Input Contract Address)${C.reset}`);
+    console.log(`  ${C.cyan}${C.bold}[3]${C.reset} ${C.white}⚡ Background Screening Control (15 Multichain Specialist Agents)${C.reset}`);
+    console.log(`  ${C.yellow}${C.bold}[4]${C.reset} ${C.white}🧠 Command Room Chat Assistant (Natural Language Swarm Assistant)${C.reset}`);
+    console.log(`  ${C.lime}${C.bold}[5]${C.reset} ${C.white}🛡️ 9-Lives Risk Management & Portfolio Drawdown Guards${C.reset}`);
+    console.log(`  ${C.gold}${C.bold}[6]${C.reset} ${C.white}📊 Trade Journal & Realized PnL Analytics (View Performance)${C.reset}`);
+    console.log(`  ${C.red}${C.bold}[7]${C.reset} ${C.white}🛑 9-Lives Emergency Circuit Breaker (Halt All Active Agents)${C.reset}`);
+    console.log(`  ${C.green}${C.bold}[8]${C.reset} ${C.white}▶️ Run Local Agent Screening Pass (Instant Single-Agent Test)${C.reset}`);
+    console.log(`  ${C.lavender}${C.bold}[9]${C.reset} ${C.white}🩺 System Diagnostics & Doctor Health Check (APIs, RPCs & Hub)${C.reset}`);
+    console.log(`  ${C.red}${C.bold}[0]${C.reset} ${C.gray}❌ Exit OpenCatz Terminal Control Center${C.reset}`);
+    console.log(drawDivider('─', 78, C.darkGray));
 
-    const choice = await prompt(`${C.bold}🐾 Select Command Option (0-9): ${C.reset}`);
+    const choice = await prompt(`  ${C.lime}${C.bold}🐾 Select Command Option (0-9): ${C.reset}`);
 
-    if (choice === '0') {
-      console.log(`\n${C.yellow}May OpenCatz 9 lives protect your bags. Purr-fect trading! 👋🐾${C.reset}\n`);
+    if (choice.trim() === '0') {
+      console.log(`\n  ${C.gold}${C.bold}🐾 May OpenCatz 9 lives protect your bags. Purr-fect trading! 👋${C.reset}\n`);
       rl.close();
       break;
     }
@@ -78,58 +54,60 @@ export async function launchTUI(): Promise<void> {
     switch (choice.trim()) {
       case '1': {
         console.clear();
-        console.log(`${C.cyan}=== 🔑 OPENCATZ TREASURY & BURNER WALLETS ===${C.reset}`);
+        console.log(getOpenCatzHeaderBanner('Treasury & Burner Wallets Manager'));
+        console.log(drawDivider('═', 78, C.lime));
         const hasSol = walletService.hasWallet('solana');
         const hasEvm = walletService.hasWallet('evm');
-        console.log(`• Solana Wallet:        ${hasSol ? C.green + walletService.getSolanaAddress() + C.reset : C.red + 'Not Configured' + C.reset}`);
-        console.log(`• Robinhood/EVM Wallet: ${hasEvm ? C.green + walletService.getEvmAddress() + C.reset : C.red + 'Not Configured' + C.reset}\n`);
-        console.log('[1] Import / Replace Solana Private Key');
-        console.log('[2] Import / Replace EVM / Robinhood Private Key');
-        console.log('[3] Remove / Clear Solana Private Key');
-        console.log('[4] Remove / Clear EVM Private Key');
-        console.log('[5] 💸 Execute Instant Withdrawal (Transfer Native Funds)');
-        console.log('[0] Back to OpenCatz Menu\n');
-        const walletSub = await prompt('Select Treasury Action (0-5): ');
+        console.log(`  ${C.white}• Solana Wallet:        ${hasSol ? C.green + C.bold + walletService.getSolanaAddress() + C.reset : C.red + 'Not Configured' + C.reset}`);
+        console.log(`  ${C.white}• Robinhood/EVM Wallet: ${hasEvm ? C.green + C.bold + walletService.getEvmAddress() + C.reset : C.red + 'Not Configured' + C.reset}\n`);
+        console.log(`  ${C.lime}[1]${C.reset} Import / Replace Solana Private Key`);
+        console.log(`  ${C.lime}[2]${C.reset} Import / Replace EVM / Robinhood Private Key`);
+        console.log(`  ${C.red}[3]${C.reset} Remove / Clear Solana Private Key`);
+        console.log(`  ${C.red}[4]${C.reset} Remove / Clear EVM Private Key`);
+        console.log(`  ${C.gold}[5]${C.reset} 💸 Execute Instant Withdrawal (Transfer Native Funds)`);
+        console.log(`  ${C.gray}[0]${C.reset} Back to Main Menu\n`);
+        const walletSub = await prompt(`  ${C.cyan}Select Treasury Action (0-5): ${C.reset}`);
         if (walletSub === '1' || walletSub === '2') {
           const chain = walletSub === '1' ? 'solana' : 'evm';
-          const pk = await prompt(`Enter ${chain.toUpperCase()} Private Key: `);
+          const pk = await prompt(`  ${C.yellow}Enter ${chain.toUpperCase()} Private Key: ${C.reset}`);
           if (pk.trim()) {
             walletService.setKey(chain, pk.trim());
-            console.log(`${C.green}✅ ${chain.toUpperCase()} Private Key imported and active!${C.reset}`);
+            console.log(`  ${C.green}✅ ${chain.toUpperCase()} Private Key imported and persisted safely!${C.reset}`);
           }
         } else if (walletSub === '3' || walletSub === '4') {
           const chain = walletSub === '3' ? 'solana' : 'evm';
           walletService.removeKey(chain);
-          console.log(`${C.yellow}🗑️ ${chain.toUpperCase()} Private Key removed from memory!${C.reset}`);
+          console.log(`  ${C.yellow}🗑️ ${chain.toUpperCase()} Private Key removed from active memory!${C.reset}`);
         } else if (walletSub === '5') {
-          const to = await prompt('Destination Recipient Wallet Address: ');
-          const amtStr = await prompt('Amount of Native Token (SOL / ETH) to Withdraw: ');
+          const to = await prompt(`  ${C.yellow}Destination Recipient Wallet Address: ${C.reset}`);
+          const amtStr = await prompt(`  ${C.yellow}Amount of Native Token (SOL / ETH) to Withdraw: ${C.reset}`);
           const amt = parseFloat(amtStr);
           if (to.trim() && !isNaN(amt) && amt > 0) {
-            console.log(`${C.yellow}Executing withdrawal...${C.reset}`);
+            console.log(`  ${C.cyan}Executing transfer...${C.reset}`);
             try {
               if (!to.startsWith('0x')) {
                 const res = await walletService.sendSol(to.trim(), amt);
-                console.log(`${C.green}✅ Solana Withdrawal Complete! Tx: ${res.txHash}${C.reset}`);
+                console.log(`  ${C.green}✅ Solana Withdrawal Complete! Tx: ${res.txHash}${C.reset}`);
               } else {
                 const res = await walletService.sendEvm(4663, to.trim(), amt);
-                console.log(`${C.green}✅ Robinhood Chain Withdrawal Complete! Tx: ${res.txHash}${C.reset}`);
+                console.log(`  ${C.green}✅ Robinhood Chain Withdrawal Complete! Tx: ${res.txHash}${C.reset}`);
               }
             } catch (err: any) {
-              console.log(`${C.red}❌ Withdrawal failed: ${err.message}${C.reset}`);
+              console.log(`  ${C.red}❌ Withdrawal failed: ${err.message}${C.reset}`);
             }
           }
         }
-        await prompt(`\n${C.yellow}Press Enter to return to Menu...${C.reset}`);
+        await prompt(`\n  ${C.gray}Press Enter to return to Menu...${C.reset}`);
         break;
       }
 
       case '2': {
         console.clear();
-        console.log(`${C.cyan}=== 🔍 ON-DEMAND SWARM TOKEN AUDIT ===${C.reset}`);
-        const ca = await prompt('Enter Token Contract Address (CA): ');
+        console.log(getOpenCatzHeaderBanner('3-Layer Swarm Token Security Audit'));
+        console.log(drawDivider('═', 78, C.pink));
+        const ca = await prompt(`  ${C.pink}${C.bold}Enter Token Contract Address (CA): ${C.reset}`);
         if (ca.trim()) {
-          console.log(`${C.yellow}Executing 3-Layer Swarm Consensus Audit (Quant + Catalyst + Security)...${C.reset}`);
+          console.log(`\n  ${C.yellow}Executing 3-Layer Swarm Audit (Quant + Catalyst + Security)...${C.reset}`);
           const isSol = !ca.trim().startsWith('0x');
           let liquidityUsd = 0;
           let volume1hUsd = 0;
@@ -157,10 +135,10 @@ export async function launchTUI(): Promise<void> {
               securityPassed = audit !== null && audit.buyTaxPct <= 5 && audit.sellTaxPct <= 5;
             }
           } catch (err: any) {
-            console.log(`${C.red}⚠️ Real audit data unavailable: ${err?.message}${C.reset}`);
+            console.log(`  ${C.red}⚠️ Real audit data error: ${err?.message}${C.reset}`);
           }
           const res = swarmEngine.evaluateSignal({
-            symbol: 'CUSTOM',
+            symbol: 'AUDIT',
             domain: isSol ? 'MEME_SOLANA' : 'MEME_EVM',
             contractAddress: ca.trim(),
             liquidityUsd,
@@ -168,18 +146,19 @@ export async function launchTUI(): Promise<void> {
             securityAuditPassed: securityPassed,
             socialHypeScore,
           });
-          console.log(`\n${C.green}🐾 OpenCatz Swarm Verdict:${C.reset}`);
-          console.log(`• Real Liquidity: $${liquidityUsd} | Real 1h Vol: $${volume1hUsd} | Security: ${securityPassed ? 'PASS' : 'FAIL/UNAVAILABLE'}`);
-          console.log(`• Confidence Score: ${C.bold}${res.confidenceScore}%${C.reset} (${res.passed ? C.green + 'APPROVED (>=80%)' : C.red + 'REJECTED'}${C.reset})`);
-          console.log(`• Audit Reasoning: ${res.reason}`);
+          console.log(`\n  ${C.lime}${C.bold}🐾 OpenCatz Swarm Audit Verdict:${C.reset}`);
+          console.log(`  ${C.white}• Liquidity: $${liquidityUsd.toLocaleString()} | 1h Vol: $${volume1hUsd.toLocaleString()} | Security: ${securityPassed ? C.green + 'PASS' : C.red + 'FAIL/UNAVAILABLE'}${C.reset}`);
+          console.log(`  ${C.white}• Confidence Score: ${C.bold}${res.confidenceScore}%${C.reset} (${res.passed ? C.green + 'APPROVED (>=80%)' : C.red + 'REJECTED (<80%)'}${C.reset})`);
+          console.log(`  ${C.white}• Audit Thesis: ${C.cyan}${res.reason}${C.reset}`);
         }
-        await prompt(`\n${C.yellow}Press Enter to return to Menu...${C.reset}`);
+        await prompt(`\n  ${C.gray}Press Enter to return to Menu...${C.reset}`);
         break;
       }
 
       case '3': {
         console.clear();
-        console.log(`${C.cyan}=== ⚡ BACKGROUND SCREENING SUB-AGENTS CONTROL ===${C.reset}`);
+        console.log(getOpenCatzHeaderBanner('Background Screening Agents Control'));
+        console.log(drawDivider('═', 78, C.cyan));
         const { AGENT_DOMAINS } = await import('../orchestrator/agent-registry.js');
         const subAgentsList = AGENT_DOMAINS.map((d, i) => ({
           id: String(i + 1),
@@ -189,36 +168,37 @@ export async function launchTUI(): Promise<void> {
         const activeDomains = hub.getActiveDomains();
         subAgentsList.forEach(a => {
           const isActive = activeDomains.includes(a.domain);
-          console.log(`[${a.id}] ${a.label}: ${isActive ? C.green + '🟢 ACTIVE' + C.reset : C.red + '🔴 PAUSED' + C.reset}`);
+          console.log(`  ${C.cyan}[${a.id}]${C.reset} ${C.white}${a.label.padEnd(46)}${C.reset}: ${isActive ? C.green + C.bold + '🟢 ACTIVE' + C.reset : C.red + '🔴 PAUSED' + C.reset}`);
         });
-        console.log('[A] ⚡ Activate ALL Agents');
-        console.log('[P] ⏸️ Pause ALL Agents');
-        console.log('[0] Back to OpenCatz Menu\n');
-        const agentChoice = await prompt(`Select Option (1-${subAgentsList.length}, A, P, 0): `);
+        console.log(`\n  ${C.lime}[A]${C.reset} ⚡ Activate ALL Agents`);
+        console.log(`  ${C.yellow}[P]${C.reset} ⏸️ Pause ALL Agents`);
+        console.log(`  ${C.gray}[0]${C.reset} Back to Main Menu\n`);
+        const agentChoice = await prompt(`  ${C.cyan}Select Option (1-${subAgentsList.length}, A, P, 0): ${C.reset}`);
         if (agentChoice.toUpperCase() === 'A') {
           subAgentsList.forEach(a => hub.toggleChannelScreening('tui-terminal', a.domain, true));
-          console.log(`${C.green}⚡ All ${subAgentsList.length} Sub-Agents activated in OpenCatz TUI!${C.reset}`);
+          console.log(`  ${C.green}⚡ All ${subAgentsList.length} Sub-Agents activated in OpenCatz TUI!${C.reset}`);
         } else if (agentChoice.toUpperCase() === 'P') {
           subAgentsList.forEach(a => hub.toggleChannelScreening('tui-terminal', a.domain, false));
-          console.log(`${C.yellow}⏸️ All ${subAgentsList.length} Sub-Agents paused in OpenCatz TUI!${C.reset}`);
+          console.log(`  ${C.yellow}⏸️ All ${subAgentsList.length} Sub-Agents paused in OpenCatz TUI!${C.reset}`);
         } else {
           const selected = subAgentsList.find(a => a.id === agentChoice.trim());
           if (selected) {
             const currentActive = activeDomains.includes(selected.domain);
             hub.toggleChannelScreening('tui-terminal', selected.domain, !currentActive);
-            console.log(`${C.green}✅ ${selected.domain} is now ${!currentActive ? 'ACTIVE' : 'PAUSED'}!${C.reset}`);
+            console.log(`  ${C.green}✅ ${selected.domain} is now ${!currentActive ? 'ACTIVE' : 'PAUSED'}!${C.reset}`);
           }
         }
-        await prompt(`\n${C.yellow}Press Enter to return to Menu...${C.reset}`);
+        await prompt(`\n  ${C.gray}Press Enter to return to Menu...${C.reset}`);
         break;
       }
 
       case '4': {
         console.clear();
-        console.log(`${C.cyan}=== 🧠 CAT DEN COMMAND ROOM CHAT ===${C.reset}`);
-        console.log(`${C.yellow}Ask OpenCatz anything about trades, on-chain sentiment, or portfolio (type 'exit' to quit):${C.reset}\n`);
+        console.log(getOpenCatzHeaderBanner('Cat Den Swarm Assistant Chat'));
+        console.log(drawDivider('═', 78, C.yellow));
+        console.log(`  ${C.yellow}Ask OpenCatz anything about tokens, risk limits, or portfolio (type 'exit' to quit):${C.reset}\n`);
         while (true) {
-          const chatMsg = await prompt(`${C.pink}You: ${C.reset}`);
+          const chatMsg = await prompt(`  ${C.pink}${C.bold}You: ${C.reset}`);
           if (chatMsg.toLowerCase() === 'exit') break;
           try {
             const { OPENCATZ_SYSTEM_PROMPT_BASE } = await import('../services/opencatz-system-prompt.js');
@@ -249,9 +229,9 @@ Current Operating Parameters:
             const aiRes = agentResult.text || (agentResult.toolResults.length > 0
               ? agentResult.toolResults.map((t) => `• ${t.name}: ${t.success ? '✅' : '❌'} ${t.message}`).join('\n')
               : '[No response from AI.]');
-            console.log(`${C.lime}OpenCatz:${C.reset} ${aiRes}\n`);
+            console.log(`  ${C.lime}${C.bold}OpenCatz:${C.reset} ${aiRes}\n`);
           } catch (err: any) {
-            console.log(`${C.lime}OpenCatz:${C.reset} Order acknowledged: "${chatMsg}". Operating in DRY_RUN safe simulation.\n`);
+            console.log(`  ${C.lime}${C.bold}OpenCatz:${C.reset} Order acknowledged: "${chatMsg}". Operating in DRY_RUN safe simulation.\n`);
           }
         }
         break;
@@ -259,98 +239,81 @@ Current Operating Parameters:
 
       case '5': {
         console.clear();
+        console.log(getOpenCatzHeaderBanner('9-Lives Risk Management Engine'));
+        console.log(drawDivider('═', 78, C.lime));
         const risk = hub.getRiskManager().getRiskState();
-        console.log(`${C.cyan}=== 🛡️ 9-LIVES RISK MANAGEMENT & SAFEGUARDS ===${C.reset}`);
-        console.log(`• Max Portfolio Drawdown Limit: ${risk.maxDrawdownLimitPct}% (current: ${risk.currentDrawdownPct ?? 0}%)`);
-        console.log(`• Max Position Size: $${risk.maxPositionSizeUsd} per trade`);
-        console.log(`• Max Sector Exposure: ${risk.maxSectorExposurePercent}% | Max Correlated Positions: ${risk.maxCorrelatedPositions}`);
-        console.log(`• 9-Lives Circuit Breaker: ${risk.paused ? 'ACTIVE (TRADING HALTED)' : 'NORMAL (RUNNING)'}`);
-        console.log(`• Position Manager: Auto TP (2x/3x), Stop Loss (-20%), Dynamic Trailing Stops`);
-        await prompt(`\n${C.yellow}Press Enter to return to Menu...${C.reset}`);
+        console.log(`  ${C.white}• Max Portfolio Drawdown Limit : ${C.lime}${C.bold}${risk.maxDrawdownLimitPct}%${C.reset} (Current: ${risk.currentDrawdownPct ?? 0}%)`);
+        console.log(`  ${C.white}• Max Position Size            : ${C.lime}${C.bold}$${risk.maxPositionSizeUsd} USD${C.reset}`);
+        console.log(`  ${C.white}• Max Sector Exposure          : ${C.lime}${C.bold}${risk.maxSectorExposurePercent}%${C.reset} | Max Correlated: ${risk.maxCorrelatedPositions}`);
+        console.log(`  ${C.white}• 9-Lives Circuit Breaker      : ${risk.paused ? C.red + 'ACTIVE (TRADING HALTED)' : C.green + 'NORMAL (RUNNING)'}${C.reset}`);
+        console.log(`  ${C.white}• Position Manager Strategy    : ${C.gold}Auto TP (2x/3x), Stop Loss (-20%), Dynamic Trailing Stop${C.reset}`);
+        await prompt(`\n  ${C.gray}Press Enter to return to Menu...${C.reset}`);
         break;
       }
 
       case '6': {
         console.clear();
-        console.log(`${C.cyan}=== 📊 TRADE JOURNAL & PNL ANALYTICS ===${C.reset}`);
+        console.log(getOpenCatzHeaderBanner('Trade Journal & Realized PnL'));
+        console.log(drawDivider('═', 78, C.gold));
         const { TradeJournalService } = await import('../services/trade-journal-service.js');
         const stats = new TradeJournalService().getSummaryStats();
-        console.log(`• Total Logged Trades: ${C.green}${stats.totalTrades}${C.reset} (${stats.openTradesCount} Open, ${stats.winCount + stats.lossCount} Closed)`);
-        console.log(`• Win Rate: ${C.green}${stats.winRatePct.toFixed(1)}%${C.reset} (${stats.winCount} Wins / ${stats.lossCount} Losses)`);
-        console.log(`• Total Realized PnL: ${C.green}$${stats.totalRealizedPnlUsd.toFixed(2)} USD${C.reset}`);
-        console.log(`• Best Trade: ${C.green}+$${stats.bestTradeUsd.toFixed(2)} USD${C.reset} | Worst: ${C.red}-$${Math.abs(stats.worstTradeUsd).toFixed(2)} USD${C.reset}`);
-        await prompt(`\n${C.yellow}Press Enter to return to Menu...${C.reset}`);
+        console.log(`  ${C.white}• Total Logged Trades : ${C.green}${C.bold}${stats.totalTrades}${C.reset} (${stats.openTradesCount} Open, ${stats.winCount + stats.lossCount} Closed)`);
+        console.log(`  ${C.white}• Swarm Win Rate      : ${C.green}${C.bold}${stats.winRatePct.toFixed(1)}%${C.reset} (${stats.winCount} Wins / ${stats.lossCount} Losses)`);
+        console.log(`  ${C.white}• Total Realized PnL  : ${C.gold}${C.bold}$${stats.totalRealizedPnlUsd.toFixed(2)} USD${C.reset}`);
+        console.log(`  ${C.white}• Best Trade Outcome  : ${C.green}+$${stats.bestTradeUsd.toFixed(2)} USD${C.reset} | Worst: ${C.red}-$${Math.abs(stats.worstTradeUsd).toFixed(2)} USD${C.reset}`);
+        await prompt(`\n  ${C.gray}Press Enter to return to Menu...${C.reset}`);
         break;
       }
 
       case '7': {
         console.clear();
-        console.log(`${C.red}=== 🛑 9-LIVES EMERGENCY CIRCUIT BREAKER ===${C.reset}`);
-        console.log(`${C.red}9-Lives Protection engaged! All screening agents and pending orders halted!${C.reset}`);
+        console.log(getOpenCatzHeaderBanner('9-Lives Emergency Circuit Breaker'));
+        console.log(drawDivider('═', 78, C.red));
+        console.log(`  ${C.red}${C.bold}🚨 9-Lives Protection engaged! All screening agents and pending orders halted!${C.reset}`);
         hub.getActiveDomains().forEach(d => hub.toggleChannelScreening('tui-terminal', d, false));
-        await prompt(`\n${C.yellow}Press Enter to return to Menu...${C.reset}`);
+        await prompt(`\n  ${C.gray}Press Enter to return to Menu...${C.reset}`);
         break;
       }
 
       case '8': {
         console.clear();
-        console.log(`${C.cyan}=== ▶️ RUN SCREENING PASS (LOCAL TEST) ===${C.reset}`);
+        console.log(getOpenCatzHeaderBanner('Local Single-Agent Screening Test'));
+        console.log(drawDivider('═', 78, C.green));
         const { AGENT_DOMAINS } = await import('../orchestrator/agent-registry.js');
-        AGENT_DOMAINS.forEach((d, i) => console.log(`[${i + 1}] ${d.displayName} (${d.channel})`));
-        console.log('[0] Back\n');
-        const sel = await prompt('Select Agent (1-8): ');
+        AGENT_DOMAINS.forEach((d, i) => console.log(`  ${C.cyan}[${i + 1}]${C.reset} ${C.white}${d.displayName.padEnd(30)}${C.reset} ${C.gray}(${d.channel})${C.reset}`));
+        console.log(`  ${C.gray}[0] Back${C.reset}\n`);
+        const sel = await prompt(`  ${C.cyan}Select Agent (1-${AGENT_DOMAINS.length}): ${C.reset}`);
         const chosen = AGENT_DOMAINS[parseInt(sel) - 1];
-        if (!chosen) { await prompt(`${C.red}Invalid. Press Enter...${C.reset}`); break; }
-        console.log(`\n${C.yellow}Running ${chosen.displayName} screening pass...${C.reset}`);
+        if (!chosen) { await prompt(`  ${C.red}Invalid selection. Press Enter...${C.reset}`); break; }
+        console.log(`\n  ${C.yellow}Running ${chosen.displayName} screening pass...${C.reset}`);
         const results = await hub.triggerAgentPass(chosen.id);
         if (results.length === 0) {
-          console.log(`${C.yellow}No signals passed. (Data unavailable or filtered out — check logs.)${C.reset}`);
+          console.log(`  ${C.yellow}No signals passed 3-Layer 80% Filter in this test run.${C.reset}`);
         }
         for (const r of results) {
           const payload = (r as any).payload;
           if (payload) {
-            console.log(`\n${C.green}✅ ${payload.symbol} (${payload.title}) — ${payload.confidenceScore}%${C.reset}`);
-            console.log(`   MC: ${payload.marketCap} | Liq: ${payload.liquidity} | Vol1h: ${payload.volume1h}`);
-            console.log(`   Tx: ${payload.txRatio} | Dev: ${payload.devHoldingPct} | Bundler: ${payload.bundlerPct}`);
-            console.log(`   Thesis: ${payload.aiThesis}`);
+            console.log(`\n  ${C.green}${C.bold}✅ ${payload.symbol} (${payload.title}) — Confidence: ${payload.confidenceScore}%${C.reset}`);
+            console.log(`     MC: ${payload.marketCap} | Liquidity: ${payload.liquidity} | 1h Vol: ${payload.volume1h}`);
+            console.log(`     Thesis: ${C.cyan}${payload.aiThesis}${C.reset}`);
           } else {
-            console.log(`\n${C.green}✅ Signal: ${r.reason}${C.reset}`);
+            console.log(`\n  ${C.green}✅ Signal: ${r.reason}${C.reset}`);
           }
         }
-        await prompt(`\n${C.yellow}Press Enter to return to Menu...${C.reset}`);
+        await prompt(`\n  ${C.gray}Press Enter to return to Menu...${C.reset}`);
         break;
       }
 
       case '9': {
         console.clear();
-        console.log(`${C.lavender}=== 🐱 CATZ NFT HOLDER GATING & VERIFICATION ===${C.reset}`);
-        const info = globalNFTGatingService.getCollectionInfo();
-        console.log(`• Collection:   ${C.bold}${info.name} (${info.symbol})${C.reset}`);
-        console.log(`• Supply:       ${info.totalSupply} Unique 24x24 Pixel Art NFTs`);
-        console.log(`• Chain:        ${info.chain} (Chain ID: ${info.chainId})`);
-        console.log(`• Contract:     ${info.contractAddress}`);
-        console.log(`• Standard:     ${info.standard} (100% Fully On-Chain SVG)\n`);
-
-        const wallet = await prompt('Enter EVM Wallet Address to Verify (0x...): ');
-        if (wallet.trim()) {
-          console.log(`${C.yellow}Checking on-chain Catz NFT holdings on Robinhood Chain...${C.reset}`);
-          const status = await globalNFTGatingService.verifyHolder(wallet.trim());
-          if (status.isHolder) {
-            console.log(`\n${C.green}🎉 VERIFIED CATZ HOLDER!${C.reset}`);
-            console.log(`• Tier: ${status.holderTier}`);
-            console.log(`• Balance: ${status.balance} CATZ NFT`);
-            console.log(`• VIP Privileges: Full Multichain Access Unlocked 🐾⚡`);
-          } else {
-            console.log(`\n${C.red}❌ No Catz NFT found in wallet: ${status.walletAddress}${C.reset}`);
-            console.log(`• Info: Mint or buy on OpenSea / Robinhood Chain (opencatz.xyz)`);
-          }
-        }
-        await prompt(`\n${C.yellow}Press Enter to return to Menu...${C.reset}`);
+        const { runOpenCatzDoctor } = await import('./doctor.js');
+        await runOpenCatzDoctor();
+        await prompt(`\n  ${C.gray}Press Enter to return to Menu...${C.reset}`);
         break;
       }
 
       default:
-        await prompt(`${C.red}Invalid option. Press Enter to try again...${C.reset}`);
+        await prompt(`  ${C.red}Invalid option. Press Enter to try again...${C.reset}`);
         break;
     }
   }

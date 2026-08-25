@@ -3,7 +3,7 @@ import { SlashCommandBuilder } from 'discord.js';
 export const slashCommands = [
   new SlashCommandBuilder()
     .setName('wallet')
-    .setDescription('Manage Athena burner wallets & view balances')
+    .setDescription('Manage OpenCatz burner wallets & view balances')
     .addSubcommand(sub =>
       sub.setName('setup')
         .setDescription('Safely setup/import burner wallet Private Key via secure modal popup')
@@ -86,11 +86,15 @@ export const slashCommands = [
               { name: 'Robinhood Chain Meme Agent', value: 'meme-robinhood' },
               { name: 'Base L2 Meme Agent', value: 'meme-base' },
               { name: 'Ethereum Meme Agent', value: 'meme-eth' },
-              { name: 'BNB Chain (BSC) Meme Agent', value: 'meme-bsc' },
-              { name: 'Solana LP Agent', value: 'lp-solana' },
-              { name: 'Robinhood LP Agent', value: 'lp-robinhood' },
+              { name: 'Ink Chain Meme Agent', value: 'meme-ink' },
+              { name: 'Solana LP Velocity Agent', value: 'lp-solana' },
+              { name: 'Robinhood LP Velocity Agent', value: 'lp-robinhood' },
+              { name: '💎 Ethereum NFT Sniper', value: 'nft-eth' },
+              { name: '🔵 Base L2 NFT Sniper', value: 'nft-base' },
+              { name: '🐙 Ink Chain NFT Radar', value: 'nft-ink' },
+              { name: '👑 Robinhood NFT Sniper', value: 'nft-robinhood' },
+              { name: '⚡ HyperEVM L1 NFT Radar', value: 'nft-hyperevm' },
               { name: 'Whale Tracking Agent (Hyperliquid)', value: 'perps' },
-              { name: 'NFT Sniping Agent', value: 'nft' },
               { name: 'Polymarket Prediction Agent', value: 'prediction' },
               { name: 'Smart CT & AI Alpha Agent', value: 'ct-alpha' }
             )
@@ -108,11 +112,15 @@ export const slashCommands = [
               { name: 'Robinhood Chain Meme Agent', value: 'meme-robinhood' },
               { name: 'Base L2 Meme Agent', value: 'meme-base' },
               { name: 'Ethereum Meme Agent', value: 'meme-eth' },
-              { name: 'BNB Chain (BSC) Meme Agent', value: 'meme-bsc' },
-              { name: 'Solana LP Agent', value: 'lp-solana' },
-              { name: 'Robinhood LP Agent', value: 'lp-robinhood' },
+              { name: 'Ink Chain Meme Agent', value: 'meme-ink' },
+              { name: 'Solana LP Velocity Agent', value: 'lp-solana' },
+              { name: 'Robinhood LP Velocity Agent', value: 'lp-robinhood' },
+              { name: '💎 Ethereum NFT Sniper', value: 'nft-eth' },
+              { name: '🔵 Base L2 NFT Sniper', value: 'nft-base' },
+              { name: '🐙 Ink Chain NFT Radar', value: 'nft-ink' },
+              { name: '👑 Robinhood NFT Sniper', value: 'nft-robinhood' },
+              { name: '⚡ HyperEVM L1 NFT Radar', value: 'nft-hyperevm' },
               { name: 'Whale Tracking Agent (Hyperliquid)', value: 'perps' },
-              { name: 'NFT Sniping Agent', value: 'nft' },
               { name: 'Polymarket Prediction Agent', value: 'prediction' },
               { name: 'Smart CT & AI Alpha Agent', value: 'ct-alpha' }
             )
@@ -120,25 +128,29 @@ export const slashCommands = [
     )
     .addSubcommand(sub =>
       sub.setName('status')
-        .setDescription('View real-time status of all 11 sub-agents (active / paused)')
+        .setDescription('View real-time status of all 15 sub-agents (active / paused)')
     )
     .addSubcommand(sub =>
       sub.setName('trigger')
         .setDescription('Run an immediate on-demand screening pass for an agent')
         .addStringOption(opt =>
           opt.setName('agent')
-            .setDescription('Domain agent to trigger (e.g. meme-solana, perps, lp-solana)')
+            .setDescription('Domain agent to trigger (e.g. meme-solana, nft-robinhood, perps)')
             .setRequired(true)
             .addChoices(
               { name: 'Solana Meme Agent', value: 'meme-solana' },
               { name: 'Robinhood Chain Meme Agent', value: 'meme-robinhood' },
               { name: 'Base L2 Meme Agent', value: 'meme-base' },
               { name: 'Ethereum Meme Agent', value: 'meme-eth' },
-              { name: 'BNB Chain (BSC) Meme Agent', value: 'meme-bsc' },
-              { name: 'Solana LP Agent', value: 'lp-solana' },
-              { name: 'Robinhood LP Agent', value: 'lp-robinhood' },
+              { name: 'Ink Chain Meme Agent', value: 'meme-ink' },
+              { name: 'Solana LP Velocity Agent', value: 'lp-solana' },
+              { name: 'Robinhood LP Velocity Agent', value: 'lp-robinhood' },
+              { name: '💎 Ethereum NFT Sniper', value: 'nft-eth' },
+              { name: '🔵 Base L2 NFT Sniper', value: 'nft-base' },
+              { name: '🐙 Ink Chain NFT Radar', value: 'nft-ink' },
+              { name: '👑 Robinhood NFT Sniper', value: 'nft-robinhood' },
+              { name: '⚡ HyperEVM L1 NFT Radar', value: 'nft-hyperevm' },
               { name: 'Whale Tracking Agent (Hyperliquid)', value: 'perps' },
-              { name: 'NFT Sniping Agent', value: 'nft' },
               { name: 'Polymarket Prediction Agent', value: 'prediction' },
               { name: 'Smart CT & AI Alpha Agent', value: 'ct-alpha' }
             )
@@ -211,7 +223,7 @@ export const slashCommands = [
     )
     .addSubcommand(sub =>
       sub.setName('rearrange')
-        .setDescription('Organize and re-order Athena Command Center channels neatly')
+        .setDescription('Organize and re-order OpenCatz Command Center channels neatly')
     ),
 
   // Quick Utility Slash Commands
@@ -274,18 +286,6 @@ export const slashCommands = [
         .addStringOption(opt => opt.setName('id').setDescription('Alert ID to cancel').setRequired(true))
     ),
 
-  new SlashCommandBuilder()
-    .setName('catz')
-    .setDescription('Catz NFT Holder Verification & Collection Utilities')
-    .addSubcommand(sub =>
-      sub.setName('verify')
-        .setDescription('Verify wallet ownership of Catz NFT on Robinhood Chain')
-        .addStringOption(opt => opt.setName('wallet').setDescription('EVM wallet address (0x...)').setRequired(true))
-    )
-    .addSubcommand(sub =>
-      sub.setName('info')
-        .setDescription('View official Catz NFT collection details & utility specifications')
-    ),
 
   new SlashCommandBuilder()
     .setName('menu')

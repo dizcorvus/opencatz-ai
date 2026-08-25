@@ -1,13 +1,14 @@
-import { AthenaHub } from '../orchestrator/hub.js';
-import { globalNFTGatingService } from '../services/nft-gating-service.js';
+import { OpenCatzHub } from '../orchestrator/hub.js';
+import { THEME, getOpenCatzHeaderBanner, drawDivider } from './theme.js';
 
-export async function runAthenaDoctor(): Promise<void> {
-  console.log('\n======================================================');
-  console.log('🩺 OPENCATZ AI MULTICHAIN DOCTOR & DIAGNOSTICS');
-  console.log('======================================================\n');
+const C = THEME;
+
+export async function runOpenCatzDoctor(): Promise<void> {
+  console.log(getOpenCatzHeaderBanner('System Health & Infrastructure Diagnostics'));
+  console.log(drawDivider('═', 78, C.lime));
 
   // 1. Check API Keys Configuration & Pools
-  console.log('🔑 1. API KEYS CONFIGURATION AUDIT:');
+  console.log(`\n  ${C.lime}${C.bold}🔑 1. API KEYS & CREDENTIALS AUDIT:${C.reset}`);
   const gmgnPool = (await import('../services/api-key-pool.js')).loadApiKeyPool('GMGN_API_KEY');
   const aiPool = (await import('../services/api-key-pool.js')).loadApiKeyPool('AI_API_KEY');
 
@@ -23,14 +24,16 @@ export async function runAthenaDoctor(): Promise<void> {
 
   for (const k of envKeys) {
     const isSet = Boolean(k.val);
-    const countInfo = (k as any).count && (k as any).count > 1 ? ` [${(k as any).count} keys in pool]` : '';
-    const symbol = isSet ? `🟢 CONFIGURED${countInfo}` : k.required ? '🔴 MISSING (REQUIRED)' : '⚪ UNSET (OPTIONAL)';
-    const hint = isSet ? `(${k.val!.slice(0, 10)}...)` : '';
-    console.log(`   • ${k.name.padEnd(28)}: ${symbol} ${hint}`);
+    const countInfo = (k as any).count && (k as any).count > 1 ? ` ${C.cyan}[${(k as any).count} keys active]${C.reset}` : '';
+    const statusStr = isSet 
+      ? `${C.green}${C.bold}🟢 CONFIGURED${C.reset}${countInfo}` 
+      : k.required ? `${C.red}${C.bold}🔴 MISSING (REQUIRED)${C.reset}` : `${C.gray}⚪ UNSET (OPTIONAL)${C.reset}`;
+    const hint = isSet ? `${C.gray}(${k.val!.slice(0, 12)}...)${C.reset}` : '';
+    console.log(`  ${C.gray}•${C.reset} ${C.white}${k.name.padEnd(28)}${C.reset}: ${statusStr} ${hint}`);
   }
 
   // 2. Check RPC Node Connectivity
-  console.log('\n⚡ 2. WEB3 RPC NODE LATENCY CHECKS:');
+  console.log(`\n  ${C.cyan}${C.bold}⚡ 2. WEB3 RPC NODE LATENCY & CONNECTIVITY:${C.reset}`);
   const rpcs = [
     { chain: 'Solana Mainnet', url: process.env.SOLANA_RPC_URL || 'https://api.mainnet-beta.solana.com' },
     { chain: 'Robinhood Chain', url: process.env.ROBINHOOD_RPC_URL || 'https://rpc.robinhoodchain.com' },
@@ -47,33 +50,34 @@ export async function runAthenaDoctor(): Promise<void> {
         body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: rpc.chain.includes('Solana') ? 'getHealth' : 'eth_blockNumber', params: [] }),
       });
       const latency = Date.now() - start;
-      console.log(`   • ${rpc.chain.padEnd(20)}: 🟢 ONLINE (${latency}ms) | Endpoint: ${rpc.url}`);
+      console.log(`  ${C.gray}•${C.reset} ${C.white}${rpc.chain.padEnd(22)}${C.reset}: ${C.green}🟢 ONLINE (${latency}ms)${C.reset} ${C.darkGray}|${C.reset} ${C.gray}${rpc.url}${C.reset}`);
     } catch (err: any) {
-      console.log(`   • ${rpc.chain.padEnd(20)}: 🔴 OFFLINE (${err.message}) | Endpoint: ${rpc.url}`);
+      console.log(`  ${C.gray}•${C.reset} ${C.white}${rpc.chain.padEnd(22)}${C.reset}: ${C.red}🔴 OFFLINE (${err.message})${C.reset} ${C.darkGray}|${C.reset} ${C.gray}${rpc.url}${C.reset}`);
     }
   }
 
-  // 3. Catz NFT Gating Contract Status
-  console.log('\n🐱 3. CATZ NFT GATING STATUS:');
-  const info = globalNFTGatingService.getCollectionInfo();
-  console.log(`   • Collection: ${info.name} (${info.symbol}) on ${info.chain} (ID: ${info.chainId})`);
-  console.log(`   • Contract:   ${info.contractAddress}`);
+  // 3. 9-Lives Risk Engine Status
+  console.log(`\n  ${C.lime}${C.bold}🛡️ 3. 9-LIVES RISK ENGINE STATUS:${C.reset}`);
+  const hub = new OpenCatzHub();
+  const risk = hub.getRiskManager().getRiskState();
+  console.log(`  ${C.gray}•${C.reset} ${C.white}Max Drawdown Limit${C.reset}: ${C.lime}${C.bold}${risk.maxDrawdownLimitPct}%${C.reset} (Current: ${risk.currentDrawdownPct ?? 0}%)`);
+  console.log(`  ${C.gray}•${C.reset} ${C.white}Circuit Breaker   ${C.reset}: ${risk.paused ? C.red + 'ACTIVE (HALTED)' : C.green + 'NORMAL (RUNNING)'}${C.reset}`);
 
-  // 4. Sub-Agent Statuses
-  console.log('\n🐾 4. SUB-AGENT 24/7 SCREENING STATUSES:');
-  const hub = new AthenaHub();
+  // 4. Specialist Sub-Agents Health
+  console.log(`\n  ${C.lime}${C.bold}🐾 4. SPECIALIST SUB-AGENTS HEALTH:${C.reset}`);
   const statuses = hub.getAgentStatuses();
   for (const [name, state] of Object.entries(statuses)) {
-    console.log(`   • ${name.toUpperCase().padEnd(20)}: ${state.active ? '🟢 ACTIVE (24/7 Background Running)' : '🔴 PAUSED'}`);
+    const badge = state.active ? `${C.green}🟢 ACTIVE (24/7 Screening)${C.reset}` : `${C.red}🔴 PAUSED${C.reset}`;
+    console.log(`  ${C.gray}•${C.reset} ${C.white}${name.toUpperCase().padEnd(22)}${C.reset}: ${badge}`);
   }
 
-  console.log('\n======================================================');
-  console.log('✅ OpenCatz Diagnostic check completed successfully!');
-  console.log('======================================================\n');
+  console.log(`\n${drawDivider('═', 78, C.lime)}`);
+  console.log(`  ${C.green}${C.bold}✅ OpenCatz Diagnostic check completed! All core subsystems operational.${C.reset}`);
+  console.log(`${drawDivider('═', 78, C.lime)}\n`);
 }
 
-export const runOpencatzDoctor = runAthenaDoctor;
+export const runOpencatzDoctor = runOpenCatzDoctor;
 
 if (process.argv[1] && (process.argv[1].includes('doctor') || process.argv.includes('--doctor'))) {
-  runAthenaDoctor().catch(console.error);
+  runOpenCatzDoctor().catch(console.error);
 }

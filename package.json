@@ -5,12 +5,10 @@
   "main": "dist/index.js",
   "type": "module",
   "bin": {
-    "opencatz": "./bin/opencatz.js",
-    "athena": "./bin/opencatz.js"
+    "opencatz": "./bin/opencatz.js"
   },
   "scripts": {
     "opencatz": "node ./bin/opencatz.js",
-    "athena": "node ./bin/opencatz.js",
     "onboard": "node scripts/wizard.js",
     "wizard": "node scripts/wizard.js",
     "config": "node scripts/wizard.js",

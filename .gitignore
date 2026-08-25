@@ -1,4 +1,9 @@
-# Dependencies
+# ==============================================================================
+# OpenCatz AI - Master Git Ignore & Security Policy (Public Repo Hardened)
+# Protects private keys, API secrets, local wallets, databases, and temporary logs.
+# ==============================================================================
+
+# ─── 1. Dependencies & Package Managers ───────────────────────────────────────
 node_modules/
 .pnp
 .pnp.js
@@ -7,59 +12,93 @@ node_modules/
 .yarn/build-state.yml
 .pnpm-store/
 
-# Production & TypeScript Build Output
+# ─── 2. Production & TypeScript Build Output ──────────────────────────────────
 dist/
 build/
 *.tsbuildinfo
 .cache/
 .turbo/
 
-# Environment variables & secrets (CRITICAL: NEVER COMMIT SECRETS)
+# ─── 3. Environment Variables & Secrets (CRITICAL: NEVER COMMIT SECRETS) ──────
 .env
 .env.*
 !.env.example
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# ─── 4. Cryptographic Keys, Certificates & Wallet Dumps ───────────────────────
 *.pem
 *.key
+*.crt
+*.cer
+*.pfx
+*.p12
+*.pkcs12
+id_rsa*
+id_ed25519*
+.gmgn_rsa_private.pem
+*wallet*.json
+*secret*
+*private_key*
+*.seed
+*.keystore
 
-# Database, State Store & Local Ledgers
+# ─── 5. Database, Local State Store & Runtime Ledgers ─────────────────────────
 database/*.json
 database/*.db
 database/*.sqlite
 database/*.sqlite3
-database/athena_state.json*
 database/opencatz_state.json*
+database/athena_state.json*
+database/session_memory.json*
+database/schedules.json*
+database/swarm_learning.json*
+database/last_update_report.json*
+database/test_*.json
+!database/.gitkeep
 prisma/dev.db
 *.db
 *.sqlite
 *.sqlite3
+*.csv
+*.ledger
+opencatz_trade_journal*.csv
+trade_journal*.csv
 
-# Strategy Engine runtime & generated custom strategy states
+# ─── 6. Strategy Engine Runtime & Generated Custom Strategies ─────────────────
 strategies/.active.json
 strategies/*-custom.mjs
 strategies/custom-strategy-prompt.txt
 strategies/.backup/
 indicators/.backup/
+!strategies/.gitkeep
+!indicators/.gitkeep
 
-# Test & Coverage Outputs
+# ─── 7. Test & Coverage Outputs ───────────────────────────────────────────────
 coverage/
 .nyc_output/
 *.lcov
 test-results/
 junit.xml
 
-# Logs, Telemetry & Diagnostics
+# ─── 8. Logs, Telemetry & Diagnostics ─────────────────────────────────────────
 logs/
 *.log
+*.log.*
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 pino.log
-pm2.log
+pm2*.log
 pm2-error.log
 pm2-out.log
+athena.log
+opencatz.log
 
-# Temporary & Scratch Files
+# ─── 9. Temporary, Scratch & Cache Files ──────────────────────────────────────
 *.tmp
 *.temp
 *.bak
@@ -67,12 +106,18 @@ pm2-out.log
 *.swp
 *.swo
 *~
+scratch/
+tmp/
+temp/
 nft-scanner-test.json
 database/nft-scanner-test.json
-opencatz_trade_journal.csv
 
-# IDE, OS & Editor Files
+# ─── 10. Operating System & IDE Files ─────────────────────────────────────────
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
 Thumbs.db
 ehthumbs.db
 Desktop.ini
@@ -81,7 +126,10 @@ Desktop.ini
 *.sublime-project
 *.sublime-workspace
 
-# AI Agent Internal State & Superpower Artifacts
+# ─── 11. AI Agent Internal State & Superpower Artifacts ───────────────────────
 docs/superpowers/
 .brain/
 .superpowers/
+.gemini/
+.agents/superpowers/
+.agents/mcp/

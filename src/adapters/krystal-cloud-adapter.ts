@@ -1,13 +1,4 @@
-/**
- * Krystal Cloud adapter — official DeFi Data API (https://cloud.krystal.app).
- * Primary use: LP pool data for Robinhood Chain (ethereum@4663), which has no
- * other reliable pool indexer. Auth: KC-APIKey header.
- *
- * Units cost: /v1/pools = 2 units per request (50k free units ≈ months of use).
- *
- * All metrics are REAL indexed data: tvl, stats1h/24h (volume, fee, apr),
- * incentives (farm rewards). No fabrication.
- */
+import { loadApiKeyPool, createApiKeyPool, type ApiKeyPool } from '../services/api-key-pool.js';
 
 export interface KrystalPoolSignal {
   poolAddress: string;
@@ -57,23 +48,47 @@ interface KrystalPool {
 
 export class KrystalCloudAdapter {
   private baseUrl = 'https://cloud-api.krystal.app';
-  private apiKey: string;
+  private keyPool: ApiKeyPool;
 
-  constructor(apiKey?: string) {
-    this.apiKey = apiKey || process.env.KRYSTAL_CLOUD_API_KEY || '';
+  constructor(apiKeyOrPool?: string | ApiKeyPool) {
+    if (apiKeyOrPool && typeof apiKeyOrPool === 'object' && 'get' in apiKeyOrPool) {
+      this.keyPool = apiKeyOrPool;
+    } else if (typeof apiKeyOrPool === 'string' && apiKeyOrPool.trim()) {
+      this.keyPool = createApiKeyPool('KRYSTAL_CLOUD_API_KEY', apiKeyOrPool.split(','));
+    } else {
+      this.keyPool = loadApiKeyPool('KRYSTAL_CLOUD_API_KEY');
+    }
   }
 
   public isConfigured(): boolean {
-    return Boolean(this.apiKey);
+    return this.keyPool.size > 0;
+  }
+
+  public getKeyPool(): ApiKeyPool {
+    return this.keyPool;
   }
 
   private async request<T>(path: string): Promise<T | null> {
-    if (!this.apiKey) return null;
+    const key = this.keyPool.get();
+    if (!key) return null;
     try {
       const res = await fetch(`${this.baseUrl}${path}`, {
-        headers: { 'KC-APIKey': this.apiKey, 'Content-Type': 'application/json' },
+        headers: { 'KC-APIKey': key, 'Content-Type': 'application/json' },
         signal: AbortSignal.timeout(15000),
       });
+      if (res.status === 429 || res.status === 401 || res.status === 403) {
+        this.keyPool.markFailed(`HTTP ${res.status}`);
+        const nextKey = this.keyPool.get();
+        if (nextKey && nextKey !== key) {
+          const retryRes = await fetch(`${this.baseUrl}${path}`, {
+            headers: { 'KC-APIKey': nextKey, 'Content-Type': 'application/json' },
+            signal: AbortSignal.timeout(15000),
+          });
+          if (!retryRes.ok) return null;
+          return (await retryRes.json()) as T;
+        }
+        return null;
+      }
       if (!res.ok) {
         console.warn(`[KRYSTAL] HTTP ${res.status} for ${path}`);
         return null;

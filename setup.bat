@@ -33,7 +33,7 @@ if defined ESC (
 echo.
 echo %LIME%%BOLD%       /\_____/\%NC%
 echo %LIME%%BOLD%      /  ■   ■  \      🐾 OPENCATZ AI SETUP 🐾%NC%
-echo %LIME%%BOLD%     ( ==  ^  == )     Autonomous Multichain Trading Swarm%NC%
+echo %LIME%%BOLD%     ( ==  ^^  == )     Autonomous Multichain Trading Swarm%NC%
 echo %LIME%%BOLD%      )    ~    (      Solana • Robinhood Chain • EVM • Perps • NFTs%NC%
 echo %LIME%%BOLD%     (   _____   )     "Chill trades, 9 lives, sharp alpha." • opencatz.xyz%NC%
 echo %LIME%%BOLD%    ( (  )   (  ) )%NC%

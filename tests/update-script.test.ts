@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { runAthenaUpdate } from '../scripts/update-core.mjs';
+import { runOpenCatzUpdate } from '../scripts/update-core.mjs';
 
 const mockExecSync = vi.fn();
 const mockSpawn = vi.fn(() => ({ unref: vi.fn(), on: vi.fn() }));
@@ -8,7 +8,7 @@ vi.mock('node:child_process', () => ({
   spawn: (...args: unknown[]) => mockSpawn(...args),
 }));
 
-describe('runAthenaUpdate', () => {
+describe('runOpenCatzUpdate', () => {
   beforeEach(() => {
     mockExecSync.mockReset();
     mockExecSync.mockImplementation(() => '');
@@ -18,7 +18,7 @@ describe('runAthenaUpdate', () => {
 
   it('runs stash (only when dirty), pull, install, build, then schedules pm2 restart via detached spawn', async () => {
     mockExecSync.mockImplementationOnce(() => ' M src/x.ts\n'); // dirty worktree
-    const result = await runAthenaUpdate({ cwd: '/repo' });
+    const result = await runOpenCatzUpdate({ cwd: '/repo' });
 
     const calls = mockExecSync.mock.calls.map((c) => c[0] as string);
     expect(calls[0]).toBe('git status --porcelain');
@@ -38,7 +38,7 @@ describe('runAthenaUpdate', () => {
 
   it('skips stash when the worktree is clean', async () => {
     mockExecSync.mockImplementationOnce(() => ''); // clean
-    const result = await runAthenaUpdate({ cwd: '/repo' });
+    const result = await runOpenCatzUpdate({ cwd: '/repo' });
 
     const calls = mockExecSync.mock.calls.map((c) => c[0] as string);
     expect(calls[0]).toBe('git status --porcelain');
@@ -47,7 +47,7 @@ describe('runAthenaUpdate', () => {
   });
 
   it('skips pm2 restart when noRestart is set', async () => {
-    const result = await runAthenaUpdate({ cwd: '/repo', noRestart: true });
+    const result = await runOpenCatzUpdate({ cwd: '/repo', noRestart: true });
     expect(mockSpawn).not.toHaveBeenCalled();
     expect(result.ok).toBe(true);
   });
@@ -57,7 +57,7 @@ describe('runAthenaUpdate', () => {
       .mockImplementationOnce(() => '') // clean
       .mockImplementationOnce(() => '') // pull
       .mockImplementationOnce(() => { throw new Error('install failed'); }); // npm install
-    const result = await runAthenaUpdate({ cwd: '/repo' });
+    const result = await runOpenCatzUpdate({ cwd: '/repo' });
 
     const calls = mockExecSync.mock.calls.map((c) => c[0] as string);
     expect(calls).toContain('npm run build'); // build still attempted
@@ -72,7 +72,7 @@ describe('runAthenaUpdate', () => {
       .mockImplementationOnce(() => { throw new Error('conflict'); }) // stash pop fails
       .mockImplementationOnce(() => '') // npm install
       .mockImplementationOnce(() => ''); // build
-    const result = await runAthenaUpdate({ cwd: '/repo' });
+    const result = await runOpenCatzUpdate({ cwd: '/repo' });
     expect(result.ok).toBe(true); // pop failure is tolerated
   });
 });

@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import type { AthenaHub } from '../orchestrator/hub.js';
+import type { OpenCatzHub } from '../orchestrator/hub.js';
 
 export interface ScheduledTask {
   id: string;
@@ -18,7 +18,7 @@ export class CronSchedulerService {
   private dbPath: string;
   private tasks: Map<string, ScheduledTask> = new Map();
   private timerIds: Map<string, NodeJS.Timeout> = new Map();
-  private hub?: AthenaHub;
+  private hub?: OpenCatzHub;
 
   constructor(dbPath?: string) {
     this.dbPath = dbPath || path.join(process.cwd(), 'database', 'schedules.json');
@@ -26,7 +26,7 @@ export class CronSchedulerService {
     this.loadSchedules();
   }
 
-  public attachHub(hub: AthenaHub): void {
+  public attachHub(hub: OpenCatzHub): void {
     this.hub = hub;
   }
 

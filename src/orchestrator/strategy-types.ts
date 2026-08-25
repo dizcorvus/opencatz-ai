@@ -18,7 +18,7 @@ export interface StrategyEvaluation {
   reason: string;
 }
 
-export interface AthenaStrategy {
+export interface OpenCatzStrategy {
   id: string;
   name: string;
   version: string;
@@ -36,7 +36,7 @@ export interface Candle {
   volume: number;
 }
 
-export interface AthenaIndicator {
+export interface OpenCatzIndicator {
   id: string;
   name: string;
   version: string;

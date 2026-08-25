@@ -1,6 +1,6 @@
-# Contributing Guidelines — Athena AI (Collaborator / Invite-Only)
+# Contributing Guidelines — OpenCatz AI (Collaborator / Invite-Only)
 
-Thank you for your interest in **Athena AI (Premium Multichain Edition)**!
+Thank you for your interest in **OpenCatz AI (Multichain Edition)**!
 
 > [!IMPORTANT]
 > **INVITE-ONLY & COLLABORATOR CONTRIBUTION MODEL**  
@@ -20,11 +20,11 @@ If you wish to contribute features, improve sub-agent adapters, or work on strat
 
 ## 🛠️ Development & Coding Standards for Collaborators
 
-Collaborators working on Athena must adhere to the following standards:
+Collaborators working on OpenCatz must adhere to the following standards:
 
 ### 1. Environment & Setup
 - **Node.js Requirement:** Node.js `>= 22.12` and `npm`.
-- **Environment:** Run `npm run wizard` or `athena wizard` to generate a safe local `.env`. Always keep `DRY_RUN=true` during feature development.
+- **Environment:** Run `npm run wizard` or `opencatz wizard` to generate a safe local `.env`. Always keep `DRY_RUN=true` during feature development.
 
 ### 2. Branch Naming Conventions
 Create feature branches from `master`:
@@ -53,9 +53,9 @@ npm test
 
 ### 5. Pull Request Protocol
 - Keep Pull Requests focused on a single issue or feature.
-- Ensure all 42+ test suites pass cleanly.
+- Ensure all test suites pass cleanly.
 - Tag `@dizcorvus` for final code review and merge approval.
 
 ---
 
-Thank you for helping maintain Athena as a state-of-the-art autonomous crypto intelligence ecosystem! 🏛️
+Thank you for helping maintain OpenCatz as a state-of-the-art autonomous crypto intelligence ecosystem! 🐾

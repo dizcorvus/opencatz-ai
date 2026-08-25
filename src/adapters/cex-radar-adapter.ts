@@ -51,7 +51,7 @@ export interface CexRadarOptions {
   fetchImpl?: typeof fetch;
 }
 
-/** Mapping symbol Athena -> ccxt perp symbol & REST USDT pair. */
+/** Mapping symbol OpenCatz -> ccxt perp symbol & REST USDT pair. */
 const SYMBOL_MAP: Record<string, { ccxt: string; rest: string }> = {
   BTC: { ccxt: 'BTC/USDT:USDT', rest: 'BTCUSDT' },
   ETH: { ccxt: 'ETH/USDT:USDT', rest: 'ETHUSDT' },

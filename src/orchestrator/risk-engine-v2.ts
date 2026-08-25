@@ -148,7 +148,7 @@ export class RiskEngineV2 {
   public activateKillSwitch(reason: string): void {
     this.isKillSwitchActive = true;
     this.killSwitchActivatedAt = Date.now();
-    console.error(`🚨 ATHENA RISK ENGINE: Emergency Kill Switch Activated! Reason: ${reason}`);
+    console.error(`🚨 OPENCATZ RISK ENGINE: Emergency Kill Switch Activated! Reason: ${reason}`);
   }
 
   /**
@@ -158,7 +158,7 @@ export class RiskEngineV2 {
     this.isKillSwitchActive = false;
     this.killSwitchActivatedAt = null;
     this.consecutiveLossesCount = 0;
-    console.log(`✅ ATHENA RISK ENGINE: Kill Switch manually reset.`);
+    console.log(`✅ OPENCATZ RISK ENGINE: Kill Switch manually reset.`);
   }
 
   /**
