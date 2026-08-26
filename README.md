@@ -3,7 +3,7 @@
 ```
       /\_____/\
      /  ■   ■  \       🐾 OPENCATZ AI (MULTICHAIN EDITION) 🐾
-    ( ==  ^  == )      Autonomous Multi-Agent Crypto Intelligence Swarm
+    ( ==  ^  == )      Autonomous Agentic AI Crypto Intelligence System
      )    ~    (       Solana • Robinhood • Base • ETH • Ink • Hyperliquid • Polymarket
     (   _____   )      "Chill trades, 9 lives, razor-sharp on-chain instincts."
    ( (  )   (  ) )
@@ -18,7 +18,7 @@
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
 [![Tests](https://img.shields.io/badge/Tests-43%20Passed%20(359%20tests)-brightgreen.svg?style=flat-square)](https://vitest.dev/)
 
-> **OpenCatz AI** is an open-source autonomous multi-agent crypto intelligence and trading swarm. It coordinates **15 specialist screening sub-agents** across **7 major blockchains** (Solana, Robinhood Chain, Base, Ethereum Mainnet, Ink Chain, Hyperliquid L1, and Polymarket). Signals pass through a **3-Layer Consensus Engine** requiring a **≥ 80% Confidence Score** before broadcasting to Discord, Terminal TUI, or Telegram.
+> **OpenCatz AI** is an autonomous **Agentic AI Crypto Intelligence System**. It deploys a squad of **15 Specialist AI Scouts** across **7 major blockchains** (Solana, Robinhood Chain, Base, Ethereum Mainnet, Ink Chain, Hyperliquid, and Polymarket). Signals pass through a **Collaborative Consensus Engine** requiring a **≥ 80% Confidence Score** before delivering high-conviction alerts and trade execution via Discord, Terminal TUI, or Telegram.
 
 ⚠️ **Disclaimer (NFA & DYOR):** OpenCatz AI is an open-source research and trading intelligence tool. Cryptocurrency markets carry inherent financial risks. Past performance does not guarantee future results. Not financial advice. Always do your own research.
 
@@ -34,7 +34,7 @@
 
 ---
 
-## ⚡ Core Architecture
+## ⚡ Agentic Architecture
 
 ```
                           USER INTERFACES
@@ -42,9 +42,9 @@
                                     │
                                     ▼
                  ┌──────────────────────────────────────┐
-                 │          OPENCATZ CORE HUB           │
+                 │       OPENCATZ CORE AI HUB           │
                  │   #opencatz-control-room · Chat      │
-                 │   9-Lives Risk Engine · Wallet       │
+                 │   9-Lives Risk Guard · Burner Wallet │
                  │   Strategy Compiler · Key Pool       │
                  └──────────────────┬───────────────────┘
                                     │
@@ -56,10 +56,10 @@
 │Pump/DLMM│ │Uniswap│ │Aerodrome│ │Uniswap │ │Superchain│ │Perps/Spot│ │CT-Alpha│
 └───┬────┘ └───┬────┘ └───┬───┘ └───┬────┘ └───┬────┘ └───┬────┘ └───┬────┘
     └──────────┴──────────┼─────────┴──────────┴──────────┴──────────┘
-                          │ Candidate Signal Cards
+                          │ Candidate Opportunities
                           ▼
         ┌────────────────────────────────────────────────┐
-        │        3-LAYER SWARM CONSENSUS ENGINE          │
+        │       COLLABORATIVE AGENT CONSENSUS            │
         │  Layer 1: Quant & Liquidity Metrics (40%)      │
         │  Layer 2: Social Volume & Catalysts (30%)      │
         │  Layer 3: Security & HoneyPot Audit (30%)     │
@@ -73,37 +73,44 @@
 
 ---
 
-## 🤖 15 Specialist Screening Sub-Agents
+## 🤖 15 Specialist AI Scouts (5 Divisions)
 
-| # | Agent Domain | Channel | Target Network & Protocol | Primary Intelligence Sources |
-| :-: | :--- | :--- | :--- | :--- |
-| 1 | **Solana Memes** | `#call-meme-solana` | Solana (Pump.fun, Raydium, Meteora) | GMGN OpenAPI + RugCheck Security |
-| 2 | **Robinhood Memes** | `#call-meme-robinhood` | Robinhood Chain (EVM #4663) | GMGN + GoPlus Security Audit |
-| 3 | **Base L2 Memes** | `#call-meme-base` | Base L2 (Aerodrome, Uniswap V3) | GMGN + GoPlus Security Audit |
-| 4 | **Ethereum Memes** | `#call-meme-eth` | Ethereum Mainnet (Uniswap V2/V3) | Uniswap Subgraphs + GoPlus Audit |
-| 5 | **Ink Chain Memes** | `#call-meme-ink` | Ink Chain / Kraken L2 (Superchain) | DexScreener + GoPlus Security |
-| 6 | **Solana LP Velocity** | `#call-lp-solana` | Meteora DLMM Concentrated Pools | Meteora API + Fee/TVL Ratio |
-| 7 | **Robinhood LP Velocity** | `#call-lp-robinhood` | Robinhood Chain (Uniswap V3) | Krystal Cloud DeFi Data API |
-| 8 | **ETH NFT Sniper** | `#call-nft-eth` | Ethereum Mainnet Bluechips | OpenSea Stream API + Floor Surge |
-| 9 | **Base NFT Drops** | `#call-nft-base` | Base L2 Creator Mints | OpenSea API + Mint Volume |
-| 10 | **Ink NFT Radar** | `#call-nft-ink` | Ink Chain Collections | OpenSea API + Floor Tracker |
-| 11 | **Robinhood NFT Radar**| `#call-nft-robinhood`| Robinhood Chain NFT Collections | OpenSea API + Momentum Engine |
-| 12 | **HyperEVM NFT Radar** | `#call-nft-hyperevm` | Hyperliquid L1 Native NFTs | OpenSea API + Volume Spikes |
-| 13 | **Whale & Perps Radar**| `#call-whale-tracking`| Hyperliquid L1 Perps & Spot Flow | Hyperliquid Info API + CCXT |
-| 14 | **Prediction Markets** | `#call-prediction-markets`| Polymarket Mispricing Radar | Polymarket Gamma Markets API |
-| 15 | **Smart CT Alpha** | `#call-ct-alpha` | Twitter/X Smart Money KOL Calls | Twex / OpenTwitter Sentiment |
+### 1. 🐱 Meme Scouts (5 Agents)
+- **Solana Meme Scout (`#call-meme-solana`)**: Tracks Pump.fun, Raydium, and Meteora DLMM with GMGN OpenAPI and RugCheck security audits.
+- **Robinhood Meme Scout (`#call-meme-robinhood`)**: Screens Robinhood Chain EVM L2 (#4663) tokens via GMGN + GoPlus audit.
+- **Base Meme Scout (`#call-meme-base`)**: Monitors Base DEX tokens and Smart Money inflows with GMGN + GoPlus.
+- **Ethereum Meme Scout (`#call-meme-eth`)**: Screens Ethereum Mainnet DEX tokens and high-conviction whale purchases.
+- **Ink Chain Meme Scout (`#call-meme-ink`)**: Tracks Kraken L2 / Ink Superchain DEX momentum.
+
+### 2. 💧 LP Yield Scouts (2 Agents)
+- **Solana LP Yield Scout (`#call-lp-solana`)**: Identifies Meteora DLMM Concentrated Liquidity pools with organic fee APR and high volume/TVL ratios.
+- **Robinhood LP Yield Scout (`#call-lp-robinhood`)**: Discovers high-yield Uniswap V3 concentrated pools on Robinhood Chain via Krystal Cloud.
+
+### 3. 🖼️ NFT Floor Scouts (5 Agents)
+- **Ethereum NFT Scout (`#call-nft-eth`)**: Snipes Ethereum Bluechip sweeps and 1-hour floor surges $\ge +20\%$ via OpenSea.
+- **Base NFT Scout (`#call-nft-base`)**: Tracks Base L2 creator mints, Zora drops, and trending volume breakouts.
+- **Ink NFT Scout (`#call-nft-ink`)**: Monitors Ink Chain / Kraken L2 collections and floor spikes.
+- **Robinhood NFT Scout (`#call-nft-robinhood`)**: Tracks Robinhood Chain NFT momentum and mint activity.
+- **HyperEVM NFT Scout (`#call-nft-hyperevm`)**: Identifies Hyperliquid HyperEVM L1 native collections.
+
+### 4. 🐋 Whale & Perps Scout (1 Agent)
+- **Hyperliquid Whale Scout (`#call-whale-tracking`)**: Analyzes Hyperliquid L1 institutional positioning, funding rates, and spot order book flow.
+
+### 5. 🔮 Alpha & Prediction Scouts (2 Agents)
+- **Polymarket Scout (`#call-prediction-markets`)**: Scans prediction market odds mispricing and whale bet flow.
+- **Twitter/X Alpha Scout (`#call-ct-alpha`)**: Analyzes smart money KOL calls and viral sentiment signals.
 
 ---
 
-## 🛡️ 9-Lives Risk Engine
+## 🛡️ 9-Lives Automated Risk Guard
 
-Every approved trade candidate is governed by the automated **9-Lives Risk Engine**:
+Every trade candidate is governed by the automated **9-Lives Risk Engine**:
 
-- **Hard Stop-Loss (`-20%`)**: Automatic capital protection cutoff to prevent catastrophic drawdowns.
-- **Tiered Take-Profit Scaling**: Automated partial profit locking at **`+100% (2x)`** and **`+200% (3x)`**.
+- **Hard Stop-Loss (`-20%`)**: Automated capital protection cutoff to eliminate catastrophic drawdowns.
+- **Tiered Take-Profit Ladder**: Automated partial profit locking at **`+100% (2x)`** and **`+200% (3x)`**.
 - **Dynamic Trailing Stop**: Activates once a position reaches `+50%` profit to protect unrealized gains.
-- **Fail-Closed Security**: If security checks (GoPlus/RugCheck) return errors or API timeouts, candidate tokens are automatically discarded.
-- **Universal Multi-Key Pool**: Stacks unlimited backup API keys (`KEY_1`..`KEY_20`) with instant automatic rotation on HTTP 429 (Rate Limit) or 401/403 errors.
+- **Fail-Closed Security**: If security checks (GoPlus/RugCheck) encounter timeouts or warnings, candidate tokens are automatically discarded.
+- **Universal Multi-Key Pool**: Stacks unlimited backup API keys (`KEY_1`..`KEY_20`) with instant auto-rotation on HTTP 429 (Rate Limit) or 401/403 errors.
 
 ---
 

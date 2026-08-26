@@ -1,7 +1,7 @@
 {
   "name": "opencatz-ai",
   "version": "1.0.0",
-  "description": "Autonomous Multi-Agent Crypto Intelligence & Trading Swarm for Solana, Robinhood Chain, EVM, Perps & NFTs",
+  "description": "Autonomous Agentic AI Crypto Intelligence & Multi-Agent Swarm for Solana, Robinhood Chain, Base, Ethereum, Ink, Hyperliquid & Polymarket",
   "main": "dist/index.js",
   "type": "module",
   "bin": {
