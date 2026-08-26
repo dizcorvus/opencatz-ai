@@ -2,7 +2,7 @@
 
 > **Official Visual & Technical Master Design Specification for OpenCatz AI & Catz NFT Ecosystem**  
 > *Unified Design System for Discord Embeds, Web Applications, Terminal TUI, and Multi-Platform Clients*  
-> **Author / Creator:** `@itsdizcorvus` · **Version:** `4.0.0 (Production Master)`
+> **Author / Creator:** `@pxidentities` · **Version:** `1.0.0 (Production Master)`
 
 ---
 
@@ -330,4 +330,4 @@ The 17 Discord channels are structured across 5 organized Bento categories:
 | **Agents** | "AI Agent", "15 Autonomous Screening Agents", "Agent Quorum" | "Bot", "Script", "Old Bot", "Random Crawler" |
 | **Execution** | "3-Layer Swarm Consensus", "Sub-Second Execution", "Deterministic Filter" | "Random Trade", "Crypto Magic", "Auto-Clicker" |
 | **Risk** | "9-Lives Risk Engine", "Dynamic Circuit Breaker", "Stop Loss -20%" | "Guaranteed 1000x", "No Risk", "Gambling" |
-| **Branding** | "OpenCatz AI", "Catz NFT", "@itsdizcorvus" | "Athena", "Athena AI", "Chill Cats" |
+| **Branding** | "OpenCatz AI", "Catz NFT", "@pxidentities" | "Athena", "Athena AI", "Chill Cats" |

@@ -1,61 +1,97 @@
-# Contributing Guidelines — OpenCatz AI (Collaborator / Invite-Only)
+# Contributing to OpenCatz AI (Multichain Edition)
 
-Thank you for your interest in **OpenCatz AI (Multichain Edition)**!
-
-> [!IMPORTANT]
-> **INVITE-ONLY & COLLABORATOR CONTRIBUTION MODEL**  
-> Direct contributions, pull requests, and branch merges to this repository are **strictly managed by invitation and collaborator access**. Public unsolicited Pull Requests from unverified accounts will be closed without review to maintain strict security, wallet safety, and codebase integrity.
+Thank you for your interest in contributing to **OpenCatz AI**! We welcome open-source contributions from developers, quants, researchers, and the Web3 community to help build the most intelligent autonomous multi-agent crypto ecosystem.
 
 ---
 
-## 👥 How to Become a Contributor / Collaborator
+## 🌟 How You Can Contribute
 
-If you wish to contribute features, improve sub-agent adapters, or work on strategy modules:
-
-1. **Request Collaborator Access:** Contact the core maintainer `@dizcorvus` (via Email: `dizcorvus@gmail.com` or Discord/Telegram).
-2. **Collaborator Invitation:** Once verified, you will receive an invitation to join as a repository collaborator.
-3. **Assigned Tasks:** Invited collaborators will be assigned specific feature branches or GitHub Issues.
+- 🚀 **Add New Sub-Agents & Chains:** Implement new screening scouts for emerging blockchains or protocols.
+- 💧 **Build Web3 Adapters:** Integrate new DEX aggregators, AMMs, or liquidity protocols.
+- 🛡️ **Improve Risk & Security:** Enhance honeypot detection, rug-check algorithms, and MEV guards.
+- 🧠 **Strategy Modules:** Contribute custom strategy filters and indicator models.
+- 📖 **Documentation & Tests:** Improve documentation, fix typos, or add unit and integration test coverage.
 
 ---
 
-## 🛠️ Development & Coding Standards for Collaborators
+## 🚀 Getting Started
 
-Collaborators working on OpenCatz must adhere to the following standards:
-
-### 1. Environment & Setup
-- **Node.js Requirement:** Node.js `>= 22.12` and `npm`.
-- **Environment:** Run `npm run wizard` or `opencatz wizard` to generate a safe local `.env`. Always keep `DRY_RUN=true` during feature development.
-
-### 2. Branch Naming Conventions
-Create feature branches from `master`:
-- `feat/feature-name` — for new features, agents, or Web3 adapters.
-- `fix/bug-description` — for bug fixes and patches.
-- `refactor/component-name` — for code restructuring.
-
-### 3. Code Quality & Conventions
-- **Strict TypeScript:** Avoid using `any`. Define explicit interfaces for payloads, signals, and API responses.
-- **Fail-Closed Security:** External API failures must resolve gracefully to `null` or `[]` — an API timeout must never crash the background process or falsely trigger a trading signal.
-- **Token & Cost Efficiency:** Reserve LLM reasoning calls strictly for high-value tasks. Use deterministic code for screening, security checks, and indicator calculations.
-- **English UI Copy:** All user-facing logs, Discord embeds, TUI text, and slash command responses MUST be in clean, professional English.
-
-### 4. Verification Before Submitting PR
-Before requesting a review or merging code:
+### 1. Fork & Clone
 ```bash
-# 1. Check wizard & CLI syntax
-node --check scripts/wizard.js
+# 1. Fork the repository on GitHub
+# 2. Clone your fork locally
+git clone https://github.com/<your-username>/opencatz-ai.git
+cd opencatz-ai
 
-# 2. Verify TypeScript compilation
+# 3. Add upstream remote
+git remote add upstream https://github.com/dizcorvus/opencatz-ai.git
+```
+
+### 2. Environment Setup
+```bash
+# 1. Install dependencies
+npm install
+
+# 2. Setup your local environment
+cp .env.example .env
+
+# Or run the interactive setup wizard:
+npm run onboard
+```
+
+> [!TIP]
+> Keep `DRY_RUN=true` in your `.env` during development so all orders and signals are simulated without spending real funds.
+
+---
+
+## 🛠️ Development Guidelines
+
+### Branching Standard
+- `feat/feature-name` — New feature, AI scout, or adapter
+- `fix/bug-description` — Bug fix or patch
+- `docs/topic-name` — Documentation improvements
+- `refactor/area-name` — Code restructuring or performance optimization
+
+### Code Quality & Standards
+1. **Strict TypeScript:** Maintain strict typing. Define explicit interfaces for signals, events, and API payloads.
+2. **Fail-Closed Security:** External API failures must resolve gracefully to `null` or `[]` — an API timeout must never crash background processes or falsely trigger trading signals.
+3. **Token & Cost Efficiency:** Reserve LLM reasoning calls strictly for high-value tasks. Use deterministic code for screening, security checks, and indicator calculations.
+4. **English UI Copy:** All user-facing logs, Discord embeds, TUI text, and slash command responses MUST be in clean, professional English.
+
+---
+
+## 🧪 Pre-Submission Checklist
+
+Before creating a Pull Request, verify that your changes build and pass all automated tests:
+
+```bash
+# 1. Check script syntax
+node --check scripts/wizard.js
+node --check scripts/update-core.mjs
+node --check scripts/uninstall-core.mjs
+
+# 2. Verify strict TypeScript build
 npm run build
 
-# 3. Run full Vitest suite (all tests MUST pass)
+# 3. Run automated test suite
 npm test
 ```
 
-### 5. Pull Request Protocol
-- Keep Pull Requests focused on a single issue or feature.
-- Ensure all test suites pass cleanly.
-- Tag `@dizcorvus` for final code review and merge approval.
+---
+
+## 📬 Submitting a Pull Request (PR)
+
+1. Commit your changes with clear, descriptive commit messages.
+2. Push your feature branch to your fork:
+   ```bash
+   git push origin feat/your-feature-name
+   ```
+3. Open a Pull Request on GitHub targeting the `master` branch.
+4. Describe your changes, the motivation behind them, and how they were tested.
+5. Our team will review your PR and provide feedback promptly!
 
 ---
 
-Thank you for helping maintain OpenCatz as a state-of-the-art autonomous crypto intelligence ecosystem! 🐾
+## 📜 Code of Conduct
+
+All contributors are expected to uphold our [Code of Conduct](CODE_OF_CONDUCT.md) to ensure a welcoming and inclusive community.
