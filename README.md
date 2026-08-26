@@ -215,16 +215,46 @@ opencatz run
 
 ---
 
-## 💬 Discord Slash Commands
+## 💬 Discord Slash Commands (Full Suite)
 
-| Command | Subcommands | Description |
+OpenCatz comes pre-loaded with a comprehensive suite of **18 Discord Slash Commands**:
+
+### 🕹️ Control Center & Core
+| Command | Subcommands / Options | Description |
 | :--- | :--- | :--- |
-| `/menu` or `/dashboard` | Direct | Opens the interactive Master Control Center with action buttons |
-| `/analyze` | `contract:<address>` | Forces an instant 12-point security & liquidity audit for any token |
-| `/screening` | `start` / `stop` / `trigger` | Controls background sub-agents across all 15 screening domains |
-| `/journal` | `summary` / `history` / `export` | View Win-Rate %, PnL metrics, and export trade journal CSV |
-| `/alert` | `set` / `list` / `cancel` | Manage real-time price alerts |
-| `/wallet` | `setup` / `balance` / `withdraw` | Manage burner wallets, check balances, or withdraw funds |
+| `/dashboard` or `/menu` | Direct | Opens the interactive Master Control Center dashboard with action buttons |
+| `/health` | Direct | Real-time agent heartbeat & RPC connectivity diagnostics |
+| `/config` | `risk` / `status` | Inspect live runtime parameters, drawdown limits, and model settings |
+| `/update` | Direct | Trigger git pull, hot-rebuild, and seamless PM2 daemon restart |
+
+### 🔎 Intelligence, Audits & Screening
+| Command | Subcommands / Options | Description |
+| :--- | :--- | :--- |
+| `/screening` | `start` / `stop` / `status` / `trigger` | Control 24/7 background AI scouts across all 15 specialist channels |
+| `/analyze` | `contract:<address>` | Forces an on-demand 12-point security, rug-check, and liquidity audit |
+| `/pump` | `contract:<address>` | Pump.fun bonding curve progress & Raydium graduation tracker |
+| `/holders` | `contract:<address>` | Top token holders audit, cluster detection & insider ownership |
+| `/wallets` | `contract:<address>` | Smart money inflows & top trader wallet accumulation tracker |
+| `/strategy` | `list` / `view` / `activate` / `rollback` | Manage modular AI screening strategies & custom logic filters |
+
+### 📈 Market & On-Chain Trading
+| Command | Subcommands / Options | Description |
+| :--- | :--- | :--- |
+| `/price` | `token:<symbol/CA>` | Real-time token price, 24h change & market capitalization |
+| `/chart` | `token:<symbol/CA>` | Instant candlestick chart visual link via DexScreener |
+| `/convert` | `amount:<n>` `symbol:<token>` | Rapid USD / Native token unit currency converter |
+| `/alert` | `set` / `list` / `cancel` | Set real-time price alerts (triggers when price goes ABOVE/BELOW) |
+| `/swap` | `from:` `to:` `amount:` `[chain:]` | Execute instant on-chain token swaps via Relay.link / DEX routers |
+| `/bridge` | `origin:` `destination:` `amount:` | Real-time cross-chain bridge quote with 1-click execution link |
+| `/send` | `to:<address>` `amount:` `[token:]` | Transfer native or ERC-20/SPL tokens to another wallet address |
+
+### 💼 Portfolio, Risk & Channels
+| Command | Subcommands / Options | Description |
+| :--- | :--- | :--- |
+| `/wallet` | `setup` / `list` / `replace` / `remove` / `balance` / `withdraw` | Manage encrypted burner wallets and transfer funds |
+| `/journal` | `summary` / `history` / `export` | View Win-Rate %, PnL analytics, and export trade journal CSV |
+| `/cancel` | `all` | Emergency circuit breaker to halt all active orders and screening |
+| `/channel` | `create` / `rearrange` | Create custom tracking channels or automatically reorganize layout |
 
 ---
 
