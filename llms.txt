@@ -1,0 +1,54 @@
+# OpenCatz AI (Multichain Edition)
+
+> OpenCatz AI is an autonomous, open-source Agentic AI crypto intelligence system deploying 15 Specialist AI Scouts across 7 blockchains (Solana, Robinhood Chain #4663, Base L2, Ethereum Mainnet, Ink Chain, Hyperliquid, and Polymarket) governed by a 3-Layer Collaborative Consensus Protocol (≥ 80% Confidence Gate) and the 9-Lives Automated Risk Engine.
+
+## Project Summary
+- Name: OpenCatz AI
+- Version: 1.0.0
+- License: MIT
+- Runtime: Node.js (>= 22.12), TypeScript
+- Architecture: Autonomous Agentic Multi-Agent System (15 Scouts, 5 Divisions)
+- Repository: https://github.com/dizcorvus/opencatz-ai
+- Web Portal: https://opencatz.xyz
+- Documentation: https://opencatz.xyz/docs
+
+## 15 Specialist AI Scouts & Divisions
+1. Meme Scouts (5 Agents):
+   - Solana Meme Scout (#call-meme-solana): Pump.fun, Raydium, Meteora DLMM (GMGN + RugCheck)
+   - Robinhood Meme Scout (#call-meme-robinhood): Robinhood Chain EVM L2 #4663 (GMGN + GoPlus)
+   - Base Meme Scout (#call-meme-base): Base L2 DEX tokens & Smart Money Flow (GMGN + GoPlus)
+   - Ethereum Meme Scout (#call-meme-eth): Ethereum Mainnet DEX tokens & Whale Buys (Uniswap + GoPlus)
+   - Ink Meme Scout (#call-meme-ink): Ink Chain / Kraken L2 Superchain (DexScreener + GoPlus)
+2. LP Yield Scouts (2 Agents):
+   - Solana LP Scout (#call-lp-solana): Meteora DLMM Concentrated Liquidity pools
+   - Robinhood LP Scout (#call-lp-robinhood): Robinhood Chain Uniswap V3 concentrated pools
+3. NFT Floor Scouts (5 Agents):
+   - Ethereum NFT Scout (#call-nft-eth): OpenSea Bluechips sweeps & 1h floor surges >= +20%
+   - Base NFT Scout (#call-nft-base): Base L2 creator mints & trending volume breakouts
+   - Ink NFT Scout (#call-nft-ink): Ink Chain / Kraken L2 collections & mint momentum
+   - Robinhood NFT Scout (#call-nft-robinhood): Robinhood Chain NFT momentum radar
+   - HyperEVM NFT Scout (#call-nft-hyperevm): Hyperliquid HyperEVM L1 native collections
+4. Whale & Perps Scout (1 Agent):
+   - Whale & Perps Scout (#call-whale-tracking): Hyperliquid L1 institutional positioning & spot flows
+5. Alpha Scouts (2 Agents):
+   - Prediction Scout (#call-prediction-markets): Polymarket odds mispricing & whale bets
+   - Smart CT Alpha Scout (#call-ct-alpha): Twitter/X smart money KOL calls & viral sentiment
+
+## Consensus & Risk Engine
+- Collaborative Consensus: 3-Layer Filter (Quant 40%, Social Catalysts 30%, Security 30%) with >= 80% Confidence Gate.
+- 9-Lives Risk Guard: Stop-Loss (-20%), Tiered Take-Profit (2x / 3x), Dynamic Trailing Stops, Universal Multi-Key Pool (auto-rotation on HTTP 429/401/403).
+
+## Key CLI Commands
+- `opencatz onboard` (or `opencatz wizard`): Interactive .env configuration
+- `opencatz terminal` (or `opencatz tui`): Standalone Terminal TUI Command Center
+- `opencatz run` (or `opencatz dev`): Development mode (tsx watch)
+- `opencatz deploy` (or `opencatz pm2`): 24/7 background process daemon
+- `opencatz test`: Vitest automated test suite (43 test files, 359 tests)
+- `opencatz doctor`: Health check, API key pool audit & RPC connectivity
+- `opencatz update`: Automated Git pull, rebuild, and PM2 hot restart
+
+## Discord Slash Commands
+- Core Hub: `/dashboard`, `/menu`, `/health`, `/config`, `/update`
+- Audits & Screening: `/screening`, `/analyze`, `/pump`, `/holders`, `/wallets`, `/strategy`
+- Market & Trading: `/price`, `/chart`, `/convert`, `/alert`, `/swap`, `/bridge`, `/send`
+- Portfolio & Risk: `/wallet`, `/journal`, `/cancel`, `/channel`
