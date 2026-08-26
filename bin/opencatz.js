@@ -31,13 +31,13 @@ const C = {
 };
 
 console.log(`
-${C.lime}${C.bold}       /\\_____/\\       ${C.reset}${C.lime}${C.bold}🐾 OPENCATZ AI · MULTICHAIN MASTER CLI 🐾${C.reset}
-${C.lime}${C.bold}      /  ${C.pink}■${C.lime}   ${C.pink}■${C.lime}  \\      ${C.reset}${C.darkGray}══════════════════════════════════════════════════════════════${C.reset}
-${C.lime}${C.bold}     ( ==  ${C.pink}^${C.lime}  == )     ${C.reset}${C.cyan}Autonomous Multichain Swarm Intelligence${C.reset}
-${C.lime}${C.bold}      )    ${C.yellow}~${C.lime}    (      ${C.reset}${C.lavender}Solana • Robinhood Chain • Base • Ethereum • BNB • Perps${C.reset}
-${C.lime}${C.bold}     (   _____   )     ${C.reset}${C.gold}"Chill trades, 9 lives, sharp alpha." • opencatz.xyz${C.reset}
-${C.lime}${C.bold}    ( (  )   (  ) )    ${C.reset}${C.darkGray}══════════════════════════════════════════════════════════════${C.reset}
-${C.lime}${C.bold}   (__(__)___(__)__)   ${C.reset}${C.green}● Cat Den 24/7 Swarm Active${C.reset} ${C.gray}·${C.reset} ${C.gold}👑 Catz NFT Holder VIP Utilities${C.reset}
+${C.lime}${C.bold}       /\\_____/\\       ${C.reset}${C.lime}${C.bold}🐾 OPENCATZ AI · MULTICHAIN MASTER CLI (7 CHAINS) 🐾${C.reset}
+${C.lime}${C.bold}      /  ${C.pink}■${C.lime}   ${C.pink}■${C.lime}  \\      ${C.reset}${C.darkGray}════════════════════════════════════════════════════════════════════════${C.reset}
+${C.lime}${C.bold}     ( ==  ${C.pink}^${C.lime}  == )     ${C.reset}${C.cyan}Autonomous Agentic AI Crypto Intelligence (15 Specialist Scouts)${C.reset}
+${C.lime}${C.bold}      )    ${C.yellow}~${C.lime}    (      ${C.reset}${C.lavender}Solana • Robinhood #4663 • Base • Ethereum • Ink • Hyperliquid • Polymarket${C.reset}
+${C.lime}${C.bold}     (   _____   )     ${C.reset}${C.gold}"Chill trades, 9 lives, razor-sharp on-chain instincts." • opencatz.xyz${C.reset}
+${C.lime}${C.bold}    ( (  )   (  ) )    ${C.reset}${C.darkGray}════════════════════════════════════════════════════════════════════════${C.reset}
+${C.lime}${C.bold}   (__(__)___(__)__)   ${C.reset}${C.green}● 24/7 Agentic AI Active${C.reset} ${C.gray}·${C.reset} ${C.gold}👑 15 Specialist AI Scouts Online${C.reset}
 `);
 
 function runCommand(command, cmdArgs) {

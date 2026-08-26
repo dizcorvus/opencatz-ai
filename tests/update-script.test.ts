@@ -30,8 +30,8 @@ describe('runOpenCatzUpdate', () => {
     // pm2 restart now runs via detached spawn, not execSync
     expect(mockSpawn).toHaveBeenCalledTimes(1);
     const [shell, args] = mockSpawn.mock.calls[0] as [string, string[]];
-    expect(shell).toBe('sh');
-    expect(args[1]).toContain('pm2 restart opencatz-agent');
+    expect(shell).toMatch(/^(sh|cmd\.exe)$/);
+    expect(args.join(' ')).toContain('pm2 restart opencatz-agent');
     expect(result.ok).toBe(true);
     expect(result.restartOk).toBe(true);
   });

@@ -294,12 +294,12 @@ function drawProgressHeader(step, total, done) {
 async function runWizard() {
   console.clear();
   console.log(`
-${C.lime}${C.bold}       /\\_____/\\       ${C.reset}${C.lime}${C.bold}🐾 OPENCATZ AI · ONBOARDING WIZARD 🐾${C.reset}
-${C.lime}${C.bold}      /  ${C.pink}■${C.lime}   ${C.pink}■${C.lime}  \\      ${C.reset}${C.darkGray}══════════════════════════════════════════════════════════════${C.reset}
-${C.lime}${C.bold}     ( ==  ${C.pink}^${C.lime}  == )     ${C.reset}${C.cyan}Autonomous 3-Layer Swarm Consensus & Precision Setup${C.reset}
-${C.lime}${C.bold}      )    ${C.yellow}~${C.lime}    (      ${C.reset}${C.lavender}Solana • Robinhood Chain • Base • Ethereum • BNB • Perps${C.reset}
-${C.lime}${C.bold}     (   _____   )     ${C.reset}${C.gold}"Chill trades, 9 lives, sharp alpha." • opencatz.xyz${C.reset}
-${C.lime}${C.bold}    ( (  )   (  ) )    ${C.reset}${C.darkGray}══════════════════════════════════════════════════════════════${C.reset}
+${C.lime}${C.bold}       /\\_____/\\       ${C.reset}${C.lime}${C.bold}🐾 OPENCATZ AI · ONBOARDING WIZARD (7 CHAINS) 🐾${C.reset}
+${C.lime}${C.bold}      /  ${C.pink}■${C.lime}   ${C.pink}■${C.lime}  \\      ${C.reset}${C.darkGray}════════════════════════════════════════════════════════════════════════${C.reset}
+${C.lime}${C.bold}     ( ==  ${C.pink}^${C.lime}  == )     ${C.reset}${C.cyan}Autonomous Agentic AI Crypto Intelligence (15 Specialist Scouts)${C.reset}
+${C.lime}${C.bold}      )    ${C.yellow}~${C.lime}    (      ${C.reset}${C.lavender}Solana • Robinhood #4663 • Base • Ethereum • Ink • Hyperliquid • Polymarket${C.reset}
+${C.lime}${C.bold}     (   _____   )     ${C.reset}${C.gold}"Chill trades, 9 lives, razor-sharp on-chain instincts." • opencatz.xyz${C.reset}
+${C.lime}${C.bold}    ( (  )   (  ) )    ${C.reset}${C.darkGray}════════════════════════════════════════════════════════════════════════${C.reset}
 ${C.lime}${C.bold}   (__(__)___(__)__)   ${C.reset}${C.green}● Interactive Environment Configuration (.env Generator)${C.reset}
 `);
   console.log(`  ${C.cyan}──────────────────────────────────────────────────────────────────────────${C.reset}`);

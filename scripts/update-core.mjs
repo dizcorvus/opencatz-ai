@@ -9,7 +9,7 @@
  *   3. git stash pop (restore local changes; conflicts are non-fatal)
  *   4. npm install
  *   5. npm run build
- *   6. pm2 restart opencatz-agent (unless --no-restart)
+ *   6. pm2 restart opencatz-agent (cross-platform detached process, unless --no-restart)
  *
  * Fail-closed: pull/build failure => exit code != 0 (Discord shows the error).
  */
@@ -42,7 +42,7 @@ export async function runOpenCatzUpdate({ noRestart = false, cwd = REPO_ROOT } =
     }
   };
 
-  console.log('🔄 OPENCATZ SELF-UPDATE');
+  console.log('🔄 OPENCATZ SELF-UPDATE (MULTICHAIN EDITION)');
   console.log(`   repo: ${cwd} | node: ${process.version}`);
   console.log(`   mode: ${noRestart ? 'without restart (--no-restart)' : 'with pm2 restart'}`);
 
@@ -88,23 +88,40 @@ export async function runOpenCatzUpdate({ noRestart = false, cwd = REPO_ROOT } =
   let restartOk = true;
   if (!noRestart) {
     console.log('\n▶ Restart PM2 agent (detached — the update process is not killed by itself)');
-    const pm2Cmd = 'pm2 restart opencatz-agent --update-env || npx pm2 restart opencatz-agent --update-env';
+    const isWin = process.platform === 'win32';
+    const pm2Cmd = 'pm2 restart opencatz-agent --update-env';
     try {
-      const child = spawn('sh', ['-c', `sleep 3 && ${pm2Cmd}`], {
-        detached: true,
-        stdio: 'ignore',
-        cwd,
-      });
-      child.on('error', (err) => {
-        restartOk = false;
-        console.warn(`⚠ Gagal spawn restart: ${err.message}`);
-      });
-      child.unref();
+      if (isWin) {
+        // Windows cmd.exe detached execution
+        const child = spawn('cmd.exe', ['/c', `timeout /t 3 /nobreak >nul & ${pm2Cmd}`], {
+          detached: true,
+          stdio: 'ignore',
+          cwd,
+          windowsHide: true,
+        });
+        child.on('error', (err) => {
+          restartOk = false;
+          console.warn(`⚠ Failed to spawn PM2 restart on Windows: ${err.message}`);
+        });
+        child.unref();
+      } else {
+        // Unix / Linux / macOS detached execution
+        const child = spawn('sh', ['-c', `sleep 3 && (${pm2Cmd} || npx pm2 restart opencatz-agent --update-env)`], {
+          detached: true,
+          stdio: 'ignore',
+          cwd,
+        });
+        child.on('error', (err) => {
+          restartOk = false;
+          console.warn(`⚠ Failed to spawn PM2 restart: ${err.message}`);
+        });
+        child.unref();
+      }
       console.log('✅ PM2 restart scheduled (detached, +3s).');
       log.push({ label: 'pm2 restart (detached)', command: pm2Cmd, ok: true });
     } catch (err) {
       restartOk = false;
-      console.warn(`⚠ Gagal menjadwalkan restart: ${err.message}`);
+      console.warn(`⚠ Failed to schedule restart: ${err.message}`);
       log.push({ label: 'pm2 restart (detached)', command: pm2Cmd, ok: false });
     }
   } else {
@@ -124,12 +141,12 @@ export async function runOpenCatzUpdate({ noRestart = false, cwd = REPO_ROOT } =
       }, null, 2),
       'utf-8'
     );
-    console.log('📄 Laporan update ditulis ke database/last_update_report.json');
+    console.log('📄 Update report written to database/last_update_report.json');
   } catch (reportErr) {
     console.warn(`⚠ Failed to write update report: ${reportErr.message}`);
   }
 
-  console.log(`\n${allOk ? '✅' : '❌'} SELF-UPDATE ${allOk ? 'SELESAI' : 'DENGAN KEGAGALAN'}`);
+  console.log(`\n${allOk ? '✅' : '❌'} SELF-UPDATE ${allOk ? 'COMPLETED SUCCESSFULLY' : 'FAILED'}`);
   return { ok: allOk, restartOk, log };
 }
 

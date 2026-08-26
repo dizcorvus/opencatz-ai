@@ -44,17 +44,17 @@ export const C = THEME;
 /**
  * Returns a pixel-precise, perfectly aligned OpenCatz Mascot Banner with TrueColor RGB styling.
  */
-export function getOpenCatzHeaderBanner(tagline = 'Autonomous Multichain Swarm Intelligence'): string {
+export function getOpenCatzHeaderBanner(tagline = 'Autonomous Agentic AI Crypto Intelligence (7 Chains)'): string {
   const { lime, pink, yellow, lavender, cyan, gold, green, gray, darkGray, bold, reset } = THEME;
 
   const lines = [
-    `${lime}${bold}       /\\_____/\\       ${reset}${lime}${bold}🐾 OPENCATZ AI · MULTICHAIN COMMAND CENTER 🐾${reset}`,
-    `${lime}${bold}      /  ${pink}■${lime}   ${pink}■${lime}  \\      ${reset}${darkGray}══════════════════════════════════════════════════════════════${reset}`,
+    `${lime}${bold}       /\\_____/\\       ${reset}${lime}${bold}🐾 OPENCATZ AI · MULTICHAIN COMMAND CENTER (7 CHAINS) 🐾${reset}`,
+    `${lime}${bold}      /  ${pink}■${lime}   ${pink}■${lime}  \\      ${reset}${darkGray}════════════════════════════════════════════════════════════════════════${reset}`,
     `${lime}${bold}     ( ==  ${pink}^${lime}  == )     ${reset}${cyan}${tagline}${reset}`,
-    `${lime}${bold}      )    ${yellow}~${lime}    (      ${reset}${lavender}Solana • Robinhood • Base • Ethereum • Ink • Perps • NFTs${reset}`,
-    `${lime}${bold}     (   _____   )     ${reset}${gold}"Chill trades, 9 lives, sharp alpha." • opencatz.xyz${reset}`,
-    `${lime}${bold}    ( (  )   (  ) )    ${reset}${darkGray}══════════════════════════════════════════════════════════════${reset}`,
-    `${lime}${bold}   (__(__)___(__)__)   ${reset}${green}● 24/7 Multi-Agent Swarm Active${reset} ${gray}·${reset} ${gold}👑 15 Sub-Agents Online${reset}`,
+    `${lime}${bold}      )    ${yellow}~${lime}    (      ${reset}${lavender}Solana • Robinhood #4663 • Base • Ethereum • Ink • Hyperliquid • Polymarket${reset}`,
+    `${lime}${bold}     (   _____   )     ${reset}${gold}"Chill trades, 9 lives, razor-sharp on-chain instincts." • opencatz.xyz${reset}`,
+    `${lime}${bold}    ( (  )   (  ) )    ${reset}${darkGray}════════════════════════════════════════════════════════════════════════${reset}`,
+    `${lime}${bold}   (__(__)___(__)__)   ${reset}${green}● 24/7 Agentic AI Active${reset} ${gray}·${reset} ${gold}👑 15 Specialist AI Scouts Online${reset}`,
   ];
 
   return lines.join('\n');
