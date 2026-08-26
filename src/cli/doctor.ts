@@ -36,9 +36,10 @@ export async function runOpenCatzDoctor(): Promise<void> {
   console.log(`\n  ${C.cyan}${C.bold}⚡ 2. WEB3 RPC NODE LATENCY & CONNECTIVITY:${C.reset}`);
   const rpcs = [
     { chain: 'Solana Mainnet', url: process.env.SOLANA_RPC_URL || 'https://api.mainnet-beta.solana.com' },
-    { chain: 'Robinhood Chain', url: process.env.ROBINHOOD_RPC_URL || 'https://rpc.robinhoodchain.com' },
+    { chain: 'Robinhood Chain', url: process.env.EVM_ROBINHOOD_RPC_URL || process.env.ROBINHOOD_RPC_URL || 'https://rpc.robinhood.com' },
     { chain: 'Base L2', url: process.env.EVM_BASE_RPC_URL || 'https://mainnet.base.org' },
     { chain: 'Ethereum Mainnet', url: process.env.EVM_ETH_RPC_URL || 'https://eth.llamarpc.com' },
+    { chain: 'Ink Chain L2', url: process.env.EVM_INK_RPC_URL || 'https://rpc-gel.inkonchain.com' },
   ];
 
   for (const rpc of rpcs) {
