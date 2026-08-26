@@ -3,8 +3,6 @@ import { Guild, ChannelType, CategoryChannel } from 'discord.js';
 export interface ChannelSetupResult {
   controlRoomId: string;
   auditOnDemandId: string;
-  logsId?: string;
-  journalId?: string;
   memeSolanaId: string;
   memeRobinhoodId: string;
   memeBaseId: string;
@@ -86,20 +84,6 @@ export async function bootstrapDiscordChannels(guild: Guild): Promise<ChannelSet
     'opencatz-audit',
     '🔎 On-Demand Token Audit Channel - Paste any Solana or EVM Contract Address (CA) here for instant 12-point audit!',
     ['audit-on-demand']
-  );
-
-  const logsId = await getOrCreateChannel(
-    catCommand.id,
-    'opencatz-logs',
-    '📜 Real-Time System Event Logs, Rate Limit Notices & Health Telemetry',
-    ['logs', 'opencat-logs']
-  );
-
-  const journalId = await getOrCreateChannel(
-    catCommand.id,
-    'opencatz-journal',
-    '📓 Trade Journal & PnL History - Automated Win-rate logs, entries, and exits',
-    ['journal', 'opencat-journal']
   );
 
   // Category 2: Meme Coin Calls
@@ -197,13 +181,11 @@ export async function bootstrapDiscordChannels(guild: Guild): Promise<ChannelSet
     '☀️ Smart Crypto Twitter (CT) & AI Alpha - Airdrop threads, AI Agent launches, & Smart Money Calls'
   );
 
-  console.log('[DISCORD BOOTSTRAP] All OpenCatz 5 categories & 19 channels are ready!');
+  console.log('[DISCORD BOOTSTRAP] All OpenCatz 5 categories & 17 channels are ready!');
 
   return {
     controlRoomId,
     auditOnDemandId,
-    logsId,
-    journalId,
     memeSolanaId,
     memeRobinhoodId,
     memeBaseId,
