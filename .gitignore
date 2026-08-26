@@ -133,3 +133,16 @@ docs/superpowers/
 .gemini/
 .agents/superpowers/
 .agents/mcp/
+
+# ─── 12. Local Design Drafts, Social Articles & Internal Notes ────────────────
+DESIGN.md
+[Dd]esign*.md
+ARTICLE.md
+[Aa]rticle*.md
+[Dd]raft*.md
+[Nn]otes*.md
+*.article.md
+*.draft.md
+social-posts/
+articles/
+drafts/
