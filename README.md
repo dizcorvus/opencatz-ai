@@ -183,18 +183,35 @@ npx pm2 status
 
 ---
 
-## 🎮 CLI & Terminal Commands Cheatsheet
+## 🎮 Master CLI (`opencatz` Command Suite)
 
-| Command | Action |
-| :--- | :--- |
-| `npm run dev` | 🚀 Start OpenCatz in development watch mode (`tsx watch`) |
-| `npm run wizard` / `npm run onboard` | 🧙‍♂️ Launch interactive configuration wizard (`.env` setup) |
-| `npm run terminal` / `npm run tui` | 🐾 Open standalone Terminal TUI dashboard |
-| `npm run build` | ⚙️ Compile TypeScript to production `/dist` directory |
-| `npm test` | 🧪 Run full automated test suite (Vitest, 43 test files) |
-| `npm run deploy` | 🌐 Build and start 24/7 background process via PM2 |
-| `npm run update` | 🔄 Git pull, rebuild, and hot-restart daemon |
-| `npm run clean` / `npm run uninstall` | 🧹 Cleanly remove PM2 process, build artifacts, & DB |
+OpenCatz includes a dedicated, first-class global CLI binary. You can link it globally once via `npm link` (or use `npx opencatz <command>`):
+
+```bash
+# Link opencatz CLI globally (one-time setup)
+npm link
+
+# Now run commands directly from anywhere!
+opencatz onboard
+opencatz terminal
+opencatz run
+```
+
+### CLI Commands Cheatsheet
+
+| Command | Aliases | Description |
+| :--- | :--- | :--- |
+| `opencatz onboard` | `wizard`, `setup`, `config` | 🧙‍♂️ Launch interactive configuration wizard (`.env` & API keys) |
+| `opencatz terminal`| `tui` | 🐾 Open standalone interactive Terminal TUI Command Center |
+| `opencatz run` | `dev`, `start` | 🚀 Start autonomous multi-agent engine in live development mode |
+| `opencatz deploy` | `pm2` | 🌐 Build & deploy 24/7 background daemon process via PM2 |
+| `opencatz doctor` | `check` | 🩺 Check API key pools, RPC network latencies, & diagnostics |
+| `opencatz update` | - | 🔄 Pull latest updates from Git, rebuild, & hot-restart daemon |
+| `opencatz test` | - | 🧪 Run full automated test suite (Vitest, 43 test suites) |
+| `opencatz build` | - | ⚙️ Compile strict TypeScript codebase to production `/dist` |
+| `opencatz uninstall`| `purge`, `clean` | 🧹 Cleanly stop PM2 daemon, clear build artifacts, & reset DB |
+
+*(Note: Traditional `npm run <command>` aliases like `npm run dev`, `npm run wizard`, `npm run deploy` are also fully supported).*
 
 ---
 
