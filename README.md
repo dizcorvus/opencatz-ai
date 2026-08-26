@@ -1,40 +1,81 @@
-# 🐾 OPENCATZ AI — Multichain Edition
+# OpenCatz 🐾 — Autonomous Multi-Agent Crypto Intelligence System
 
-```
-      /\_____/\
-     /  ■   ■  \       🐾 OPENCATZ AI (MULTICHAIN EDITION) 🐾
-    ( ==  ^  == )      Autonomous Agentic AI Crypto Intelligence System
-     )    ~    (       Solana • Robinhood • Base • ETH • Ink • Hyperliquid • Polymarket
-    (   _____   )      "Chill trades, 9 lives, razor-sharp on-chain instincts."
-   ( (  )   (  ) )
-  (__(__)___(__)__)
-```
+<p align="center">
+  <pre>
+      /\_____/\       🐾 OPENCATZ AI (MULTICHAIN EDITION) 🐾
+     /  ■   ■  \      ════════════════════════════════════════════════════════════════════════
+    ( ==  ^  == )     Autonomous Agentic AI Crypto Intelligence (15 Specialist Scouts)
+     )    ~    (      Solana • Robinhood #4663 • Base • Ethereum • Ink • Hyperliquid • Polymarket
+    (   _____   )     "Chill trades, 9 lives, razor-sharp on-chain instincts." • opencatz.xyz
+   ( (  )   (  ) )    ════════════════════════════════════════════════════════════════════════
+  (__(__)___(__)__)   ● 24/7 Agentic AI Active · 👑 15 Specialist AI Scouts Online
+  </pre>
+</p>
 
-[![Web Portal](https://img.shields.io/badge/Web_Portal-opencatz.xyz-brightgreen.svg?style=flat-square)](https://opencatz.xyz)
-[![Chains](https://img.shields.io/badge/Chains-Solana%20%7C%20Robinhood%20%7C%20Base%20%7C%20ETH%20%7C%20Ink%20%7C%20Hyperliquid%20%7C%20Polymarket-7b5cff.svg?style=flat-square)](https://opencatz.xyz)
-[![Discord](https://img.shields.io/badge/Discord-Community-5865F2.svg?style=flat-square&logo=discord&logoColor=white)](https://discord.gg/5HMy95ZHuY)
-[![X (Twitter)](https://img.shields.io/badge/X-%40pxidentities-black.svg?style=flat-square&logo=x&logoColor=white)](https://x.com/pxidentities/)
-[![Node Version](https://img.shields.io/badge/Node.js-%3E%3D22.12-green.svg?style=flat-square&logo=node.js&logoColor=white)](https://nodejs.org/)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
-[![Tests](https://img.shields.io/badge/Tests-43%20Passed%20(359%20tests)-brightgreen.svg?style=flat-square)](https://vitest.dev/)
+<p align="center">
+  <a href="https://opencatz.xyz"><img src="https://img.shields.io/badge/Web_Portal-opencatz.xyz-brightgreen.svg?style=flat-square" alt="Web Portal"></a>
+  <a href="https://opencatz.xyz"><img src="https://img.shields.io/badge/Chains-7_Blockchains-7b5cff.svg?style=flat-square" alt="7 Blockchains"></a>
+  <a href="https://discord.gg/5HMy95ZHuY"><img src="https://img.shields.io/badge/Discord-Community-5865F2.svg?style=flat-square&logo=discord&logoColor=white" alt="Discord"></a>
+  <a href="https://x.com/pxidentities"><img src="https://img.shields.io/badge/X-%40pxidentities-black.svg?style=flat-square&logo=x&logoColor=white" alt="X (Twitter)"></a>
+  <a href="https://nodejs.org"><img src="https://img.shields.io/badge/Node.js-%3E%3D22.12-green.svg?style=flat-square&logo=node.js&logoColor=white" alt="Node Version"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square" alt="License: MIT"></a>
+  <a href="https://vitest.dev/"><img src="https://img.shields.io/badge/Tests-43%20Passed%20(359%20tests)-brightgreen.svg?style=flat-square" alt="Tests"></a>
+</p>
 
-> **OpenCatz AI** is an autonomous **Agentic AI Crypto Intelligence System**. It deploys a squad of **15 Specialist AI Scouts** across **7 major blockchains** (Solana, Robinhood Chain, Base, Ethereum Mainnet, Ink Chain, Hyperliquid, and Polymarket). Signals pass through a **Collaborative Consensus Engine** requiring a **≥ 80% Confidence Score** before delivering high-conviction alerts and trade execution via Discord, Terminal TUI, or Telegram.
+**OpenCatz AI** is an open-source autonomous **Agentic AI Crypto Intelligence System**. It deploys a squad of **15 Specialist AI Scouts** across **7 major blockchains** (Solana, Robinhood Chain, Base, Ethereum Mainnet, Ink Chain, Hyperliquid, and Polymarket).
 
-⚠️ **Disclaimer (NFA & DYOR):** OpenCatz AI is an open-source research and trading intelligence tool. Cryptocurrency markets carry inherent financial risks. Past performance does not guarantee future results. Not financial advice. Always do your own research.
+Candidate signals pass through a **Collaborative Consensus Protocol** requiring a **≥ 80% Confidence Score** before delivering alerts, trade audits, and execution via Discord, Terminal TUI, or Telegram.
 
----
-
-## 🌐 Official Links
-
-- 🌐 **Web Portal:** [opencatz.xyz](https://opencatz.xyz)
-- 🏹 **Robinhood Chain Portal:** [opencatz.xyz/robinhood-chain](https://opencatz.xyz/robinhood-chain)
-- 💬 **Discord Community:** [discord.gg/5HMy95ZHuY](https://discord.gg/5HMy95ZHuY)
-- 🐦 **Official X (Twitter):** [@pxidentities](https://x.com/pxidentities/)
-- 📖 **Interactive Docs:** [opencatz.xyz/docs](https://opencatz.xyz/docs)
+[Website](https://opencatz.xyz) · [Robinhood Portal](https://opencatz.xyz/robinhood-chain) · [Discord Community](https://discord.gg/5HMy95ZHuY) · [Twitter (@pxidentities)](https://x.com/pxidentities/) · [Docs](https://opencatz.xyz/docs)
 
 ---
 
-## ⚡ Agentic Architecture
+## ⚡ Install & Quickstart
+
+### 1. Clone & Install
+```bash
+# Clone the repository
+git clone https://github.com/dizcorvus/opencatz-ai.git
+cd opencatz-ai
+
+# Install dependencies
+npm install
+
+# Link opencatz CLI globally (one-time)
+npm link
+```
+
+### 2. Interactive Onboarding Wizard
+```bash
+# Run the interactive configuration wizard
+opencatz onboard
+
+# Or on Windows / Linux setup scripts:
+bash setup.sh       # Linux / macOS
+.\setup.bat         # Windows
+```
+
+The interactive wizard will guide you through:
+1. Setting up your **Discord Bot Token** and **Client ID**.
+2. Selecting your **AI LLM Provider** (OpenRouter Free tier, Claude, GPT-4, Z.ai, DeepSeek, etc.).
+3. Configuring optional Web3 API keys (GMGN, OpenSea, Krystal Cloud, Twex).
+4. Verifying your RPC endpoints with automated diagnostics.
+
+### 3. Launch OpenCatz
+```bash
+# Start in live development mode (auto-reload on edit)
+opencatz run
+
+# Or launch the interactive Terminal TUI Command Center
+opencatz terminal
+
+# Or deploy as a 24/7 background process (PM2)
+opencatz deploy
+```
+
+---
+
+## 🧠 How It Fits Together
 
 ```
                           USER INTERFACES
@@ -71,137 +112,41 @@
       (Automated Stop-Loss -20% · Take-Profit 2x/3x · Trailing)
 ```
 
+- **Core Hub & Orchestrator:** The local control plane for chat, 9-Lives risk management, burner wallets, and natural-language token audits.
+- **15 Specialist AI Scouts:** 24/7 background screening agents stalking opportunities across 7 chains.
+- **Collaborative Consensus Protocol:** Multi-agent voting system requiring a strict $\ge 80\%$ confidence score before delivering call cards.
+- **9-Lives Risk Engine:** Capital preservation engine enforcing stop-losses, take-profit ladders, and dynamic trailing protection.
+- **Universal Multi-Key Pool:** Automatic rotation on HTTP 429/401/403 across unlimited backup keys.
+
 ---
 
 ## 🤖 15 Specialist AI Scouts (5 Divisions)
 
-### 1. 🐱 Meme Scouts (5 Agents)
-- **Solana Meme Scout (`#call-meme-solana`)**: Tracks Pump.fun, Raydium, and Meteora DLMM with GMGN OpenAPI and RugCheck security audits.
-- **Robinhood Meme Scout (`#call-meme-robinhood`)**: Screens Robinhood Chain EVM L2 (#4663) tokens via GMGN + GoPlus audit.
-- **Base Meme Scout (`#call-meme-base`)**: Monitors Base DEX tokens and Smart Money inflows with GMGN + GoPlus.
-- **Ethereum Meme Scout (`#call-meme-eth`)**: Screens Ethereum Mainnet DEX tokens and high-conviction whale purchases.
-- **Ink Chain Meme Scout (`#call-meme-ink`)**: Tracks Kraken L2 / Ink Superchain DEX momentum.
-
-### 2. 💧 LP Yield Scouts (2 Agents)
-- **Solana LP Yield Scout (`#call-lp-solana`)**: Identifies Meteora DLMM Concentrated Liquidity pools with organic fee APR and high volume/TVL ratios.
-- **Robinhood LP Yield Scout (`#call-lp-robinhood`)**: Discovers high-yield Uniswap V3 concentrated pools on Robinhood Chain via Krystal Cloud.
-
-### 3. 🖼️ NFT Floor Scouts (5 Agents)
-- **Ethereum NFT Scout (`#call-nft-eth`)**: Snipes Ethereum Bluechip sweeps and 1-hour floor surges $\ge +20\%$ via OpenSea.
-- **Base NFT Scout (`#call-nft-base`)**: Tracks Base L2 creator mints, Zora drops, and trending volume breakouts.
-- **Ink NFT Scout (`#call-nft-ink`)**: Monitors Ink Chain / Kraken L2 collections and floor spikes.
-- **Robinhood NFT Scout (`#call-nft-robinhood`)**: Tracks Robinhood Chain NFT momentum and mint activity.
-- **HyperEVM NFT Scout (`#call-nft-hyperevm`)**: Identifies Hyperliquid HyperEVM L1 native collections.
-
-### 4. 🐋 Whale & Perps Scout (1 Agent)
-- **Hyperliquid Whale Scout (`#call-whale-tracking`)**: Analyzes Hyperliquid L1 institutional positioning, funding rates, and spot order book flow.
-
-### 5. 🔮 Alpha & Prediction Scouts (2 Agents)
-- **Polymarket Scout (`#call-prediction-markets`)**: Scans prediction market odds mispricing and whale bet flow.
-- **Twitter/X Alpha Scout (`#call-ct-alpha`)**: Analyzes smart money KOL calls and viral sentiment signals.
-
----
-
-## 🛡️ 9-Lives Automated Risk Guard
-
-Every trade candidate is governed by the automated **9-Lives Risk Engine**:
-
-- **Hard Stop-Loss (`-20%`)**: Automated capital protection cutoff to eliminate catastrophic drawdowns.
-- **Tiered Take-Profit Ladder**: Automated partial profit locking at **`+100% (2x)`** and **`+200% (3x)`**.
-- **Dynamic Trailing Stop**: Activates once a position reaches `+50%` profit to protect unrealized gains.
-- **Fail-Closed Security**: If security checks (GoPlus/RugCheck) encounter timeouts or warnings, candidate tokens are automatically discarded.
-- **Universal Multi-Key Pool**: Stacks unlimited backup API keys (`KEY_1`..`KEY_20`) with instant auto-rotation on HTTP 429 (Rate Limit) or 401/403 errors.
-
----
-
-## 🚀 Installation & Quickstart
-
-### Prerequisites
-- **Node.js:** `>= 22.12` (Check with `node -v`)
-- **npm:** `>= 10.0`
-- **Git**
-
----
-
-### Method 1: Interactive Onboarding Wizard (Recommended)
-
-```bash
-# 1. Clone the repository
-git clone https://github.com/dizcorvus/opencatz-ai.git
-cd opencatz-ai
-
-# 2. Run automated setup (Linux / macOS)
-bash setup.sh
-
-# Or on Windows (PowerShell / Command Prompt):
-.\setup.bat
-```
-
-The interactive wizard will guide you through:
-1. Configuring your **Discord Bot Token** and **Client ID**.
-2. Selecting your **AI LLM Provider** (OpenRouter, Claude, GPT-4, Z.ai, DeepSeek, etc.).
-3. Entering optional Web3 API keys (GMGN, OpenSea, Krystal Cloud, Twex).
-4. Verifying your RPC endpoints with automated diagnostics.
-
----
-
-### Method 2: Manual Setup
-
-```bash
-# 1. Clone and install dependencies
-git clone https://github.com/dizcorvus/opencatz-ai.git
-cd opencatz-ai
-npm install
-
-# 2. Copy and configure environment variables
-cp .env.example .env
-# Edit .env with your favorite editor (e.g. nano .env or code .env)
-
-# 3. Compile TypeScript
-npm run build
-
-# 4. Start the bot in development mode
-npm run dev
-```
-
----
-
-### Method 3: 24/7 VPS Background Daemon (PM2)
-
-To keep OpenCatz running continuously on a Linux/macOS server or VPS:
-
-```bash
-# Build, start, and register as PM2 background process
-npm run deploy
-
-# View live daemon logs
-npx pm2 logs opencatz-agent
-
-# Monitor process status & memory
-npx pm2 status
-```
+| Division | AI Scout | Channel | Scope & Web3 Data Sources |
+| :--- | :--- | :--- | :--- |
+| **🐱 Meme Scouts** | **Solana Meme Scout** | `#call-meme-solana` | Pump.fun, Raydium, Meteora DLMM (GMGN + RugCheck) |
+| | **Robinhood Meme Scout** | `#call-meme-robinhood`| Robinhood Chain EVM L2 (#4663) tokens (GMGN + GoPlus) |
+| | **Base Meme Scout** | `#call-meme-base` | Base L2 DEX tokens & Smart Money Flow (GMGN + GoPlus) |
+| | **Ethereum Meme Scout** | `#call-meme-eth` | Ethereum Mainnet DEX tokens & Whale Accumulation |
+| | **Ink Meme Scout** | `#call-meme-ink` | Ink Chain / Kraken L2 Superchain DEX momentum |
+| **💧 LP Yield Scouts** | **Solana LP Scout** | `#call-lp-solana` | Meteora DLMM Concentrated Liquidity pools (Fee APR & Vol/TVL) |
+| | **Robinhood LP Scout** | `#call-lp-robinhood` | Robinhood Chain Uniswap V3 concentrated pools (Krystal Cloud) |
+| **🖼️ NFT Floor Scouts**| **Ethereum NFT Scout** | `#call-nft-eth` | OpenSea Bluechips sweeps & 1h floor surges $\ge +20\%$ |
+| | **Base NFT Scout** | `#call-nft-base` | Base L2 creator mints, Zora drops & trending volume breakouts |
+| | **Ink NFT Scout** | `#call-nft-ink` | Ink Chain / Kraken L2 collections & trending mint momentum |
+| | **Robinhood NFT Scout**| `#call-nft-robinhood` | Robinhood Chain NFT collection sweeps & floor spikes |
+| | **HyperEVM NFT Scout** | `#call-nft-hyperevm` | Hyperliquid HyperEVM L1 native collections & volume breakouts |
+| **🐋 Whale & Perps** | **Whale & Perps Scout** | `#call-whale-tracking`| Hyperliquid L1 institutional positioning, funding & spot flows |
+| **🔮 Alpha Scouts** | **Prediction Scout** | `#call-prediction-markets` | Polymarket odds mispricing, arbitrage & whale bets |
+| | **Smart CT Alpha Scout**| `#call-ct-alpha` | Twitter/X smart money KOL calls, AI narratives & airdrops |
 
 ---
 
 ## 🎮 Master CLI (`opencatz` Command Suite)
 
-OpenCatz includes a dedicated, first-class global CLI binary. You can link it globally once via `npm link` (or use `npx opencatz <command>`):
-
-```bash
-# Link opencatz CLI globally (one-time setup)
-npm link
-
-# Now run commands directly from anywhere!
-opencatz onboard
-opencatz terminal
-opencatz run
-```
-
-### CLI Commands Cheatsheet
-
 | Command | Aliases | Description |
 | :--- | :--- | :--- |
-| `opencatz onboard` | `wizard`, `setup`, `config` | 🧙‍♂️ Launch interactive configuration wizard (`.env` & API keys) |
+| `opencatz onboard` | `wizard`, `setup` | 🧙‍♂️ Launch interactive setup wizard (`.env` & API keys) |
 | `opencatz terminal`| `tui` | 🐾 Open standalone interactive Terminal TUI Command Center |
 | `opencatz run` | `dev`, `start` | 🚀 Start autonomous multi-agent engine in live development mode |
 | `opencatz deploy` | `pm2` | 🌐 Build & deploy 24/7 background daemon process via PM2 |
@@ -211,13 +156,9 @@ opencatz run
 | `opencatz build` | - | ⚙️ Compile strict TypeScript codebase to production `/dist` |
 | `opencatz uninstall`| `purge`, `clean` | 🧹 Cleanly stop PM2 daemon, clear build artifacts, & reset DB |
 
-*(Note: Traditional `npm run <command>` aliases like `npm run dev`, `npm run wizard`, `npm run deploy` are also fully supported).*
-
 ---
 
 ## 💬 Discord Slash Commands (Full Suite)
-
-OpenCatz comes pre-loaded with a comprehensive suite of **18 Discord Slash Commands**:
 
 ### 🕹️ Control Center & Core
 | Command | Subcommands / Options | Description |
@@ -258,59 +199,52 @@ OpenCatz comes pre-loaded with a comprehensive suite of **18 Discord Slash Comma
 
 ---
 
-## 🧪 Testing
+## 🛡️ 9-Lives Automated Risk Guard
 
-OpenCatz AI includes a comprehensive test suite covering all sub-agents, adapters, risk managers, and consensus logic:
+Every trade candidate is governed by the automated **9-Lives Risk Engine**:
+
+- **Hard Stop-Loss (`-20%`)**: Automated capital protection cutoff to eliminate catastrophic drawdowns.
+- **Tiered Take-Profit Ladder**: Automated partial profit locking at **`+100% (2x)`** and **`+200% (3x)`**.
+- **Dynamic Trailing Stop**: Activates once a position reaches `+50%` profit to protect unrealized gains.
+- **Fail-Closed Security**: If security checks (GoPlus/RugCheck) encounter timeouts or warnings, candidate tokens are automatically discarded.
+- **Universal Multi-Key Pool**: Stacks unlimited backup API keys (`KEY_1`..`KEY_20`) with instant auto-rotation on HTTP 429 (Rate Limit) or 401/403 errors.
+
+---
+
+## 🧪 Testing & Verification
+
+OpenCatz AI includes a comprehensive test suite covering all 15 sub-agents, Web3 adapters, risk managers, and consensus logic:
 
 ```bash
+# Run full Vitest suite
 npm test
 ```
 
 ```
-Test Files  43 passed (43)
-     Tests  359 passed (359)
-  Duration  ~11s
-```
-
----
-
-## 🧹 Clean Uninstallation
-
-To cleanly stop background PM2 processes, reset local database caches, and clean build artifacts:
-
-```bash
-# Interactive mode (prompts before deleting each component)
-npm run uninstall
-
-# Or silent one-shot cleanup:
-node scripts/uninstall.mjs -y
-
-# Keep .env and database while removing daemon and build caches:
-node scripts/uninstall.mjs --keep-env --keep-data
+ Test Files  43 passed (43)
+      Tests  359 passed (359)
+   Duration  ~11s
 ```
 
 ---
 
 ## 🤝 Contributing
 
-Contributions, bug reports, and feature suggestions are welcome!
+Contributions, bug reports, and feature proposals are warmly welcome!
 Please review our [Contributing Guidelines](CONTRIBUTING.md) and [Code of Conduct](CODE_OF_CONDUCT.md) before submitting pull requests.
 
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feat/amazing-agent`)
 3. Commit your changes (`git commit -m 'feat: add amazing agent'`)
 4. Push to the branch (`git push origin feat/amazing-agent`)
-5. Open a Pull Request
+5. Open a Pull Request on GitHub
 
 ---
 
 ## ⚖️ License
 
-This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
+This project is open-source and licensed under the **[MIT License](LICENSE)**.
 
 ---
 
-## 🛡️ Security
-
-For vulnerability reporting guidelines and our security model, please see [SECURITY.md](SECURITY.md).
-Do not report security vulnerabilities through public GitHub issues. Contact `dizcorvus@gmail.com` directly.
+⚠️ **Disclaimer (NFA & DYOR):** OpenCatz AI is an open-source research and trading intelligence tool. Cryptocurrency markets carry inherent financial risks. Past performance does not guarantee future results. Not financial advice. Always do your own research.
