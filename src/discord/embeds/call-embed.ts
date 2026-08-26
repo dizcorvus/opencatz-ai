@@ -68,7 +68,7 @@ export function buildCallEmbed(payload: CallSignalPayload) {
     embed.addFields(
       { name: '🐦 Source & Network', value: safeFieldValue(sanitizeEmbedField(payload.network, 40), 'X (Twitter)'), inline: true },
       { name: '🧠 AI Sentiment Score', value: `${confidenceStr}`, inline: true },
-      { name: '💡 Actionable Takeaway', value: safeFieldValue(sanitizeEmbedField(payload.aiThesis, 500), 'Sinyal terdeteksi dari aktivitas Smart CT.'), inline: false }
+      { name: '💡 Actionable Takeaway', value: safeFieldValue(sanitizeEmbedField(payload.aiThesis, 500), 'Signal detected from verified Smart CT momentum activity.'), inline: false }
     );
 
     const tweetUrl = payload.dexScreenerUrl || 'https://x.com';
