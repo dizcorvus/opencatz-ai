@@ -28,6 +28,7 @@ export class TelegramService {
   private botToken?: string;
   private chatId?: string;
   private topics: Map<string, number> = new Map();
+  private stateStore?: any;
 
   constructor(config?: TelegramConfig) {
     this.botToken = config?.botToken || process.env.TELEGRAM_BOT_TOKEN;
@@ -38,11 +39,31 @@ export class TelegramService {
     return Boolean(this.botToken && this.chatId);
   }
 
+  public attachStateStore(store: any): void {
+    this.stateStore = store;
+    if (store && typeof store.getTelegramTopics === 'function') {
+      const saved = store.getTelegramTopics();
+      for (const [name, threadId] of Object.entries(saved)) {
+        if (typeof threadId === 'number') {
+          this.topics.set(name.toLowerCase(), threadId);
+        }
+      }
+      if (this.topics.size > 0) {
+        console.log(`[TELEGRAM SERVICE] Loaded ${this.topics.size} persisted Telegram forum topic thread IDs from state.`);
+      }
+    }
+  }
+
   /**
    * Automatically provisions Telegram Forum Topics (sub-channels) if chat is a Forum Supergroup
    */
   public async createForumTopic(name: string): Promise<number | null> {
     if (!this.isEnabled()) return null;
+
+    const normalized = name.toLowerCase();
+    if (this.topics.has(normalized)) {
+      return this.topics.get(normalized)!;
+    }
 
     const url = `https://api.telegram.org/bot${this.botToken}/createForumTopic`;
     try {
@@ -63,7 +84,10 @@ export class TelegramService {
       const data: any = await response.json();
       if (data.ok && data.result?.message_thread_id) {
         const threadId = data.result.message_thread_id;
-        this.topics.set(name.toLowerCase(), threadId);
+        this.topics.set(normalized, threadId);
+        if (this.stateStore && typeof this.stateStore.setTelegramTopic === 'function') {
+          this.stateStore.setTelegramTopic(normalized, threadId);
+        }
         console.log(`[TELEGRAM BOOTSTRAP] Auto-created Topic: "${name}" (Thread ID: ${threadId})`);
         return threadId;
       }
@@ -74,7 +98,7 @@ export class TelegramService {
   }
 
   /**
-   * Auto-bootstrap all 10 OpenCatz Sub-Channels / Forum Topics in Telegram Group
+   * Auto-bootstrap all 17 OpenCatz Sub-Channels / Forum Topics in Telegram Group
    */
   public async bootstrapTelegramTopics(): Promise<Record<string, number | null>> {
     if (!this.isEnabled()) return {};
@@ -85,10 +109,17 @@ export class TelegramService {
       'audit-on-demand',
       'call-meme-solana',
       'call-meme-robinhood',
-      'call-whale-tracking',
+      'call-meme-base',
+      'call-meme-eth',
+      'call-meme-ink',
       'call-lp-solana',
       'call-lp-robinhood',
-      'call-nft-sniping',
+      'call-nft-eth',
+      'call-nft-base',
+      'call-nft-ink',
+      'call-nft-robinhood',
+      'call-nft-hyperevm',
+      'call-whale-tracking',
       'call-prediction-markets',
       'call-ct-alpha',
     ];
@@ -155,6 +186,23 @@ export class TelegramService {
     const safeTitle = sanitizeTgField(title, 150);
     const safeSymbol = sanitizeTgField(symbol, 32);
     const safeThesis = sanitizeTgField(aiThesis, 500);
+
+    // Provide default explorer/chart link if not explicitly given and CA is real
+    let chartUrl = dexUrl;
+    if (!chartUrl && ca && ca !== 'N/A') {
+      if (topicName === 'call-meme-solana') {
+        chartUrl = `https://dexscreener.com/solana/${ca}`;
+      } else if (topicName === 'call-meme-base') {
+        chartUrl = `https://dexscreener.com/base/${ca}`;
+      } else if (topicName === 'call-meme-eth') {
+        chartUrl = `https://dexscreener.com/ethereum/${ca}`;
+      } else if (topicName === 'call-meme-ink') {
+        chartUrl = `https://dexscreener.com/ink/${ca}`;
+      } else if (topicName === 'call-meme-robinhood') {
+        chartUrl = `https://dexscreener.com/robinhood/${ca}`;
+      }
+    }
+
     const message = `🚨 *OPENCATZ CALL: ${safeTitle} ($${safeSymbol})*
 
 📋 *Contract Address (CA):*
@@ -163,11 +211,19 @@ export class TelegramService {
 🧠 *AI Thesis & Reasoning:*
 ${safeThesis}
 
-${dexUrl ? `📊 [View Chart on DexScreener](${dexUrl})` : ''}
+${chartUrl ? `📊 [View Chart on DexScreener](${chartUrl})` : ''}
 
 🤖 _Sent via OpenCatz Swarm Consensus_`;
 
-    const threadId = topicName ? this.topics.get(topicName.toLowerCase()) : undefined;
+    let threadId: number | undefined;
+    if (topicName) {
+      const norm = topicName.toLowerCase();
+      threadId = this.topics.get(norm);
+      if (!threadId && norm === 'call-nft-sniping') {
+        threadId = this.topics.get('call-nft-eth');
+      }
+    }
+
     return this.sendMessage(message, 'Markdown', undefined, threadId);
   }
 
@@ -184,13 +240,20 @@ ${dexUrl ? `📊 [View Chart on DexScreener](${dexUrl})` : ''}
 🛡️ *Max Drawdown:* ${risk ? `${risk.maxDrawdownLimitPct}%` : 'n/a'}
 🛡️ *Max Position Size:* ${risk ? `$${risk.maxPositionSizeUsd}` : 'n/a'}
 
-🤖 *Active Sub-Agents Status:*
+🤖 *Active Sub-Agents Status (15 Scouts):*
 • 🐣 Solana Meme (\`meme-solana\`): ${getStatus('meme-solana')}
 • 🔷 Robinhood Meme (\`meme-robinhood\`): ${getStatus('meme-robinhood')}
+• 🔵 Base Meme (\`meme-base\`): ${getStatus('meme-base')}
+• 💎 ETH Meme (\`meme-eth\`): ${getStatus('meme-eth')}
+• 🐙 Ink Meme (\`meme-ink\`): ${getStatus('meme-ink')}
 • ⚡ Solana LP (\`lp-solana\`): ${getStatus('lp-solana')}
 • 💧 Robinhood LP (\`lp-robinhood\`): ${getStatus('lp-robinhood')}
+• 💎 NFT ETH (\`nft-eth\`): ${getStatus('nft-eth')}
+• 🔵 NFT Base (\`nft-base\`): ${getStatus('nft-base')}
+• 🐙 NFT Ink (\`nft-ink\`): ${getStatus('nft-ink')}
+• 👑 NFT Robinhood (\`nft-robinhood\`): ${getStatus('nft-robinhood')}
+• ⚡ NFT HyperEVM (\`nft-hyperevm\`): ${getStatus('nft-hyperevm')}
 • 🐋 Whale Tracking (\`perps\`): ${getStatus('perps')}
-• 🖼️ NFT Sniping (\`nft\`): ${getStatus('nft')}
 • 🎯 Polymarket (\`prediction\`): ${getStatus('prediction')}
 • 💡 Smart CT Alpha (\`ct-alpha\`): ${getStatus('ct-alpha')}
 
@@ -199,24 +262,28 @@ Use buttons below to toggle agents, view wallet status, or execute withdrawals:`
     const replyMarkup = {
       inline_keyboard: [
         [
-          { text: '▶️ Toggle SOL Meme', callback_data: 'toggle_meme-solana' },
-          { text: '▶️ Toggle Robinhood Meme', callback_data: 'toggle_meme-robinhood' },
+          { text: '▶️ SOL Meme', callback_data: 'toggle_meme-solana' },
+          { text: '▶️ RH Meme', callback_data: 'toggle_meme-robinhood' },
+          { text: '▶️ Base Meme', callback_data: 'toggle_meme-base' },
         ],
         [
-          { text: '▶️ Toggle SOL LP', callback_data: 'toggle_lp-solana' },
-          { text: '▶️ Toggle Robinhood LP', callback_data: 'toggle_lp-robinhood' },
+          { text: '▶️ ETH Meme', callback_data: 'toggle_meme-eth' },
+          { text: '▶️ Ink Meme', callback_data: 'toggle_meme-ink' },
+          { text: '▶️ SOL LP', callback_data: 'toggle_lp-solana' },
         ],
         [
-          { text: '▶️ Toggle Whale', callback_data: 'toggle_perps' },
-          { text: '▶️ Toggle NFT', callback_data: 'toggle_nft' },
+          { text: '▶️ RH LP', callback_data: 'toggle_lp-robinhood' },
+          { text: '▶️ Whale Perps', callback_data: 'toggle_perps' },
+          { text: '▶️ Polymarket', callback_data: 'toggle_prediction' },
         ],
         [
-          { text: '▶️ Toggle Polymarket', callback_data: 'toggle_prediction' },
-          { text: '▶️ Toggle CT Alpha', callback_data: 'toggle_ct-alpha' },
+          { text: '▶️ NFT ETH', callback_data: 'toggle_nft-eth' },
+          { text: '▶️ NFT Base', callback_data: 'toggle_nft-base' },
+          { text: '▶️ CT Alpha', callback_data: 'toggle_ct-alpha' },
         ],
         [
-          { text: '⚡ Start All', callback_data: 'start_all' },
-          { text: '⏸️ Pause All', callback_data: 'pause_all' },
+          { text: '⚡ Start All Agents', callback_data: 'start_all' },
+          { text: '⏸️ Pause All Agents', callback_data: 'pause_all' },
         ],
         [
           { text: '🔑 Wallet Balances', callback_data: 'balances' },

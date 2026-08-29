@@ -72,6 +72,9 @@ export interface OpenCatzPersistedState {
   // happens in the agents (whitelist + clamps) before persisting.
   screeningConfigs: Record<string, Record<string, unknown>>;
 
+  // Persistent Telegram forum topic thread IDs (channelName -> message_thread_id)
+  telegramTopics?: Record<string, number>;
+
   // Metadata
   lastUpdated: string;
   version: number;
@@ -117,6 +120,7 @@ export class StateStore {
       trackedTokens: [],
       trackedNftCollections: [],
       screeningConfigs: {},
+      telegramTopics: {},
       lastUpdated: new Date().toISOString(),
       version: CURRENT_VERSION,
     };
@@ -167,6 +171,7 @@ export class StateStore {
         trackedTokens: Array.isArray(data.trackedTokens) ? data.trackedTokens : [],
         trackedNftCollections: Array.isArray(data.trackedNftCollections) ? data.trackedNftCollections : [],
         screeningConfigs: data.screeningConfigs || {},
+        telegramTopics: data.telegramTopics || {},
         lastUpdated: data.lastUpdated || new Date().toISOString(),
         version: CURRENT_VERSION,
       };
@@ -429,6 +434,20 @@ export class StateStore {
   /** Merge validated per-domain config overrides into persistent state. */
   public setScreeningConfig(domain: string, partial: Record<string, unknown>): void {
     this.state.screeningConfigs[domain] = { ...(this.state.screeningConfigs[domain] || {}), ...partial };
+    this.scheduleSave();
+  }
+
+  // ==========================================
+  // TELEGRAM TOPICS (Forum Thread ID Persistence)
+  // ==========================================
+
+  public getTelegramTopics(): Record<string, number> {
+    return this.state.telegramTopics || {};
+  }
+
+  public setTelegramTopic(name: string, threadId: number): void {
+    if (!this.state.telegramTopics) this.state.telegramTopics = {};
+    this.state.telegramTopics[name.toLowerCase()] = threadId;
     this.scheduleSave();
   }
 }
