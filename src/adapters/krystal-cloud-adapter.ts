@@ -54,7 +54,8 @@ export class KrystalCloudAdapter {
     if (apiKeyOrPool && typeof apiKeyOrPool === 'object' && 'get' in apiKeyOrPool) {
       this.keyPool = apiKeyOrPool;
     } else if (typeof apiKeyOrPool === 'string' && apiKeyOrPool.trim()) {
-      this.keyPool = createApiKeyPool('KRYSTAL_CLOUD_API_KEY', apiKeyOrPool.split(','));
+      const envPool = loadApiKeyPool('KRYSTAL_CLOUD_API_KEY');
+      this.keyPool = createApiKeyPool('KRYSTAL_CLOUD_API_KEY', [...apiKeyOrPool.split(','), ...envPool.keys]);
     } else {
       this.keyPool = loadApiKeyPool('KRYSTAL_CLOUD_API_KEY');
     }

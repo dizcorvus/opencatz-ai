@@ -80,12 +80,59 @@ export class AIService {
   private resolveConfig(customConfig?: Partial<AIProviderConfig>): AIProviderConfig {
     const provider = (customConfig?.provider || process.env.AI_PROVIDER || 'openrouter') as AIProviderConfig['provider'];
 
-    // Support comma-separated API keys for backup stacking: e.g. "key1,key2,key3"
-    const rawKeys = customConfig?.apiKeys
-      ? customConfig.apiKeys.join(',')
-      : process.env.AI_API_KEYS || process.env.AI_API_KEY || process.env.OPENROUTER_API_KEY || process.env.OPENAI_API_KEY || process.env.ANTHROPIC_API_KEY || '';
+    const keySet = new Set<string>();
 
-    const apiKeys = rawKeys.split(',').map(k => k.trim()).filter(Boolean);
+    // 1. Add custom keys if provided
+    if (customConfig?.apiKeys && Array.isArray(customConfig.apiKeys)) {
+      customConfig.apiKeys.forEach((k) => {
+        k.split(',').forEach((sub) => {
+          const clean = sub.trim();
+          if (clean && !clean.includes('YOUR_') && !clean.includes('placeholder')) keySet.add(clean);
+        });
+      });
+    }
+
+    // 2. Collect from all standard primary and backup env variables
+    const envVarsToCheck = [
+      'AI_API_KEYS',
+      'AI_API_KEY',
+      'AI_BACKUP_KEYS',
+      'AI_API_KEY_BACKUP_KEYS',
+      'AI_API_KEY_BACKUP',
+      'AI_BACKUP',
+      'OPENROUTER_API_KEY',
+      'OPENROUTER_BACKUP_KEYS',
+      'OPENROUTER_BACKUP',
+      'OPENAI_API_KEY',
+      'OPENAI_BACKUP_KEYS',
+      'OPENAI_BACKUP',
+      'ANTHROPIC_API_KEY',
+      'ANTHROPIC_BACKUP_KEYS',
+      'ANTHROPIC_BACKUP',
+    ];
+
+    for (const v of envVarsToCheck) {
+      const val = process.env[v];
+      if (val) {
+        val.split(',').forEach((sub) => {
+          const clean = sub.trim();
+          if (clean && !clean.includes('YOUR_') && !clean.includes('placeholder')) keySet.add(clean);
+        });
+      }
+    }
+
+    // 3. Collect indexed slot keys: e.g. AI_KEY_1, AI_KEY_2, AI_KEY_3, ...
+    for (let slot = 1; slot <= 10; slot++) {
+      const slotKey = process.env[`AI_KEY_${slot}`] || process.env[`AI_API_KEY_${slot}`];
+      if (slotKey) {
+        slotKey.split(',').forEach((sub) => {
+          const clean = sub.trim();
+          if (clean && !clean.includes('YOUR_') && !clean.includes('placeholder')) keySet.add(clean);
+        });
+      }
+    }
+
+    const apiKeys = Array.from(keySet);
 
     const primary = this.applyDefaults(
       provider,
@@ -160,7 +207,7 @@ export class AIService {
 
         // Successfully generated using currentIndex - update active key index for future calls!
         if (this.activeKeyIndex !== currentIndex) {
-          console.log(`[AI SERVICE] Permanently switched active key pointer to Key #${currentIndex + 1}.`);
+          console.log(`[AI SERVICE] ⚡ Permanently switched active key pointer to Key #${currentIndex + 1}/${totalKeys}.`);
           this.activeKeyIndex = currentIndex;
         }
 
@@ -196,17 +243,26 @@ export class AIService {
       const key = this.config.keyConfigs[currentIndex];
 
       try {
+        let result: LLMResponse;
         if (key.provider === 'anthropic') {
-          return await this.callAnthropicWithTools(messages, tools, maxTokens, key);
+          result = await this.callAnthropicWithTools(messages, tools, maxTokens, key);
+        } else {
+          result = await this.callOpenAIWithTools(messages, tools, maxTokens, key);
         }
-        return await this.callOpenAIWithTools(messages, tools, maxTokens, key);
+
+        if (this.activeKeyIndex !== currentIndex) {
+          console.log(`[AI SERVICE] ⚡ generateWithTools switched active key pointer to Key #${currentIndex + 1}/${totalKeys}.`);
+          this.activeKeyIndex = currentIndex;
+        }
+
+        return result;
       } catch (err: any) {
         lastError = err;
         console.warn(`[AI FAILOVER WARNING] generateWithTools key #${currentIndex + 1}/${totalKeys} failed: ${err.message}.`);
       }
     }
 
-    console.warn(`[AI SERVICE] generateWithTools failed: ${lastError?.message}`);
+    console.warn(`[AI SERVICE] generateWithTools failed across all keys: ${lastError?.message}`);
     return { content: '', toolCalls: [] };
   }
 
@@ -282,6 +338,13 @@ export class AIService {
         }
 
         lastError = new Error(`Model ${model} Status ${response.status}: ${rawText}`);
+
+        // If status is 401, 402, 403, or 429, the API key itself is invalid/exhausted/rate-limited.
+        // Break model loop immediately to rotate to next backup API key!
+        if (response.status === 401 || response.status === 402 || response.status === 403 || response.status === 429) {
+          console.warn(`[AI SERVICE WARNING] Tools key error HTTP ${response.status} on model ${model}: ${rawText.slice(0, 120)}. Failing over to next key immediately.`);
+          break;
+        }
         console.warn(`[AI SERVICE WARNING] Tools model ${model} failed: ${lastError.message}. Trying next model...`);
       } catch (err: any) {
         lastError = err;
@@ -416,6 +479,13 @@ export class AIService {
         }
 
         lastError = new Error(`Model ${model} Status ${response.status}: ${rawText}`);
+
+        // If status is 401, 402, 403, or 429, the API key itself is invalid/exhausted/rate-limited.
+        // Break model loop immediately to rotate to next backup API key!
+        if (response.status === 401 || response.status === 402 || response.status === 403 || response.status === 429) {
+          console.warn(`[AI SERVICE WARNING] Key error HTTP ${response.status} on model ${model}: ${rawText.slice(0, 120)}. Failing over to next key immediately.`);
+          break;
+        }
         console.warn(`[AI SERVICE WARNING] Model ${model} failed: ${lastError.message}. Trying next model...`);
       } catch (err: any) {
         lastError = err;

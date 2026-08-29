@@ -45,6 +45,7 @@ export function createApiKeyPool(baseVar: string, keys: string[]): ApiKeyPool {
 export function loadApiKeyPool(baseVar: string, chainHint?: string): ApiKeyPool {
   const primary = process.env[baseVar] || '';
   const backups = process.env[`${baseVar}_BACKUP_KEYS`] || process.env[`${baseVar.replace(/_API_KEY$/, '')}_BACKUP_KEYS`] || '';
+  const singleBackup = process.env[`${baseVar}_BACKUP`] || process.env[`${baseVar.replace(/_API_KEY$/, '')}_BACKUP`] || process.env[`${baseVar}_BACKUP_KEY`] || '';
   const commaSeparated = process.env[`${baseVar}S`] || process.env[`${baseVar.replace(/_API_KEY$/, '')}_API_KEYS`] || '';
 
   // Collect indexed backup keys (e.g. GMGN_API_KEY_1, OPENSEA_API_KEY_1 ... 20)
@@ -52,8 +53,10 @@ export function loadApiKeyPool(baseVar: string, chainHint?: string): ApiKeyPool 
   for (let i = 1; i <= 20; i++) {
     const k1 = process.env[`${baseVar}_${i}`];
     const k2 = process.env[`${baseVar.replace(/_API_KEY$/, '')}_API_KEY_${i}`];
+    const k3 = process.env[`${baseVar.replace(/_API_KEY$/, '')}_KEY_${i}`];
     if (k1) indexedKeys.push(k1);
     if (k2) indexedKeys.push(k2);
+    if (k3) indexedKeys.push(k3);
   }
 
   // Collect chain-specific keys (e.g. GMGN_API_KEY_ETH, OPENSEA_API_KEY_BASE, etc.)
@@ -85,6 +88,7 @@ export function loadApiKeyPool(baseVar: string, chainHint?: string): ApiKeyPool 
   const allRaw = [
     ...(hintKey ? [hintKey] : []),
     primary,
+    singleBackup,
     ...backups.split(','),
     ...commaSeparated.split(','),
     ...indexedKeys,
@@ -93,5 +97,6 @@ export function loadApiKeyPool(baseVar: string, chainHint?: string): ApiKeyPool 
 
   // Deduplicate keys preserving priority order
   const uniqueKeys = Array.from(new Set(allRaw.map((k) => k.trim()).filter(Boolean)));
+
   return createApiKeyPool(baseVar, uniqueKeys);
 }

@@ -170,9 +170,11 @@ export class GMGNAdapter {
     if (apiKeyOrPool && typeof apiKeyOrPool === 'object' && 'get' in apiKeyOrPool) {
       this.keyPool = apiKeyOrPool;
     } else if (typeof apiKeyOrPool === 'string' && apiKeyOrPool.includes(',')) {
-      this.keyPool = createApiKeyPool('GMGN_API_KEY', apiKeyOrPool.split(','));
+      const envPool = loadApiKeyPool('GMGN_API_KEY');
+      this.keyPool = createApiKeyPool('GMGN_API_KEY', [...apiKeyOrPool.split(','), ...envPool.keys]);
     } else if (typeof apiKeyOrPool === 'string' && apiKeyOrPool.trim()) {
-      this.keyPool = createApiKeyPool('GMGN_API_KEY', [apiKeyOrPool]);
+      const envPool = loadApiKeyPool('GMGN_API_KEY');
+      this.keyPool = createApiKeyPool('GMGN_API_KEY', [apiKeyOrPool, ...envPool.keys]);
     } else {
       this.keyPool = loadApiKeyPool('GMGN_API_KEY');
     }
