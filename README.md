@@ -1,3 +1,9 @@
+<p align="center">
+  <a href="https://opencatz.xyz" target="_blank" rel="noopener noreferrer">
+    <img src="banner.png" alt="OpenCatz AI" width="100%" />
+  </a>
+</p>
+
 # OpenCatz 🐾 — Autonomous Multi-Agent Crypto Intelligence System
 
 <p align="center">
