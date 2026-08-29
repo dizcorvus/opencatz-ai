@@ -146,3 +146,21 @@ ARTICLE.md
 social-posts/
 articles/
 drafts/
+
+# ─── 13. Proprietary Artwork, Traits & NFT IP Assets (All Rights Reserved) ────
+art/
+assets/art/
+assets/raw/
+assets/traits/
+assets/layers/
+assets/psd/
+assets/svg/
+*.psd
+*.ai
+*.blend
+*.clip
+metadata/raw/
+metadata/generated/
+generator/
+traits/
+layers/

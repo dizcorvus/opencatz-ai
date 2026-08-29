@@ -21,14 +21,14 @@ Solana • Robinhood #4663 • Base • Ethereum • Ink • Hyperliquid • Pol
   <a href="https://x.com/pxidentities"><img src="https://img.shields.io/badge/X-%40pxidentities-black.svg?style=flat-square&logo=x&logoColor=white" alt="X (Twitter)"></a>
   <a href="https://nodejs.org"><img src="https://img.shields.io/badge/Node.js-%3E%3D22.12-green.svg?style=flat-square&logo=node.js&logoColor=white" alt="Node Version"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square" alt="License: MIT"></a>
-  <a href="https://vitest.dev/"><img src="https://img.shields.io/badge/Tests-44%20Passed%20(368%20tests)-brightgreen.svg?style=flat-square" alt="Tests"></a>
+  <a href="https://vitest.dev/"><img src="https://img.shields.io/badge/Tests-46%20Passed%20(375%20tests)-brightgreen.svg?style=flat-square" alt="Tests"></a>
 </p>
 
-**OpenCatz AI** is an open-source autonomous **Agentic AI Crypto Intelligence System**. It deploys a squad of **15 Specialist AI Scouts** across **7 major blockchains** (Solana, Robinhood Chain, Base, Ethereum Mainnet, Ink Chain, Hyperliquid, and Polymarket).
+**OpenCatz AI** is an open-source autonomous **Agentic AI Crypto Intelligence System & On-Chain Ecosystem** on **Robinhood Chain (Chain ID: 4663)**. It combines a squad of **15 Specialist AI Scouts** across **7 major blockchains** with an on-chain **Dual-Sided Deflationary Vault & NFT Liquidity Peg**.
 
 Candidate signals pass through a **Collaborative Consensus Protocol** requiring a **≥ 80% Confidence Score** before delivering alerts, trade audits, and execution via Discord, Terminal TUI, or Telegram.
 
-[Website](https://opencatz.xyz) · [Robinhood Portal](https://opencatz.xyz/robinhood-chain) · [Discord Community](https://discord.gg/5HMy95ZHuY) · [Twitter (@pxidentities)](https://x.com/pxidentities/) · [Docs](https://opencatz.xyz/docs)
+[Website](https://opencatz.xyz) · [Robinhood Portal](https://opencatz.xyz/robinhood-chain) · [Ecosystem Whitepaper](docs/OPENCATZ_ECOSYSTEM_WHITEPAPER.md) · [Discord Community](https://discord.gg/5HMy95ZHuY) · [Twitter (@pxidentities)](https://x.com/pxidentities/)
 
 ---
 
@@ -227,6 +227,36 @@ OpenCatz can run **100% standalone without Discord**, broadcasting all multi-cha
 
 ---
 
+## 🏛️ OpenCatz On-Chain Ecosystem (Robinhood Chain #4663)
+
+OpenCatz combines autonomous AI intelligence with a 3-pillar on-chain economic flywheel:
+
+```
+                        ┌─────────────────────────────────────────────────────────────┐
+                        │              3 PILAR UTAMA OPENCATZ ON-CHAIN                │
+                        └──────────────────────────────┬──────────────────────────────┘
+                                                       │
+         ┌─────────────────────────────────────────────┼─────────────────────────────────────────────┐
+         ▼                                             ▼                                             ▼
+┌─────────────────────────────────┐           ┌─────────────────────────────────┐           ┌─────────────────────────────────┐
+│     PILAR 1: OPENCATZ NFT       │           │    PILAR 2: OPENCATZ VAULT      │           │     PILAR 3: TOKEN $CATZ        │
+│   (ERC-721 + EIP-2981 5%)       │           │      (The Liquidity Peg)        │           │ (letscash.fun + Uniswap v4)     │
+├─────────────────────────────────┤           ├─────────────────────────────────┤           ├─────────────────────────────────┤
+│ • 4.444 Koleksi Pixel Catz      │           │ • Jembatan 1 NFT = 100k $CATZ   │           │ • 1.000.000.000 Total Suplai    │
+│ • Tiket Akses VIP Bot Discord   │ ◄───────► │ • Menampung 500 Juta Token $CATZ│ ◄───────► │ • 1% Auto Self-Burn di Uniswap  │
+│ • 5% Royalti OpenSea ke Dev     │           │ • Fee 0.0004444 ETH ke Treasury │           │ • Likuiditas Terkunci Permanen  │
+│ • Deploy Duluan di Robinhood    │           │ • Deploy Bersama NFT (Fase 1)   │           │ • Rilis di letscash (Fase 2)    │
+└─────────────────────────────────┘           └─────────────────────────────────┘           └─────────────────────────────────┘
+```
+
+1. **`OpenCatzNFT.sol`**: 4,444 collection acting as Lifetime VIP pass for Discord AI signals, with built-in **EIP-2981 5% Creator Royalties** to fund ongoing development.
+2. **`OpenCatzVault.sol`**: Trustless on-chain liquidity peg maintaining **1 NFT = 100,000 $CATZ** instant atomic swap, with a **0.0004444 ETH protocol fee** routed to Dev Treasury.
+3. **`$CATZ` on `letscash.fun`**: 1,000,000,000 supply with permanent Uniswap v4 liquidity lock and **1% Auto Self-Burn** on every trade.
+
+Read the full technical specification in [OPENCATZ_ECOSYSTEM_WHITEPAPER.md](docs/OPENCATZ_ECOSYSTEM_WHITEPAPER.md) and deployment guide in [VerificationGuide.md](contracts/VerificationGuide.md).
+
+---
+
 ## 🛡️ 9-Lives Automated Risk Guard
 
 Every trade candidate is governed by the automated **9-Lives Risk Engine**:
@@ -249,8 +279,8 @@ npm test
 ```
 
 ```
- Test Files  44 passed (44)
-      Tests  368 passed (368)
+ Test Files  46 passed (46)
+      Tests  375 passed (375)
    Duration  ~11s
 ```
 
@@ -269,10 +299,12 @@ Please review our [Contributing Guidelines](CONTRIBUTING.md) and [Code of Conduc
 
 ---
 
-## ⚖️ License
+## ⚖️ License & Intellectual Property
 
-This project is open-source and licensed under the **[MIT License](LICENSE)**.
+- **Codebase & Smart Contracts:** Licensed under the open-source **[MIT License](LICENSE)**.
+- **Artwork & Branding:** OpenCatz character artwork, visual traits, pixel assets, branding, and lore are **Copyright © 2026 OpenCatz. All Rights Reserved (Proprietary IP)**.
 
 ---
 
 ⚠️ **Disclaimer (NFA & DYOR):** OpenCatz AI is an open-source research and trading intelligence tool. Cryptocurrency markets carry inherent financial risks. Past performance does not guarantee future results. Not financial advice. Always do your own research.
+
