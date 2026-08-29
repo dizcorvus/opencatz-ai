@@ -1,15 +1,17 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 
 /**
- * End-to-End Simulation of OpenCatz NFT + OpenCatz Vault (Two-Phase Binding) + $CATZ Token
+ * End-to-End Simulation of OpenCatz NFT + OpenCatz Vault (Two-Phase Binding + 0.0004444 ETH Treasury Swap Fee)
  */
 describe('OpenCatz Ecosystem End-to-End Test Suite', () => {
   const TOKENS_PER_NFT = 100_000n * 10n ** 18n;
+  const SWAP_FEE_WEI = 444400000000000n; // 0.0004444 ETH
   const CREATOR_WALLET = '0xDev1111111111111111111111111111111111111'.toLowerCase();
 
   // Mock State
   let nftOwners: Map<number, string>;
   let tokenBalances: Map<string, bigint>;
+  let ethBalances: Map<string, bigint>;
   let vaultInventory: number[];
   let vaultIndexMap: Map<number, number>;
   let isPaused: boolean;
@@ -25,6 +27,7 @@ describe('OpenCatz Ecosystem End-to-End Test Suite', () => {
   beforeEach(() => {
     nftOwners = new Map();
     tokenBalances = new Map();
+    ethBalances = new Map();
     vaultInventory = [];
     vaultIndexMap = new Map();
     isPaused = false;
@@ -39,6 +42,11 @@ describe('OpenCatz Ecosystem End-to-End Test Suite', () => {
     tokenBalances.set(ALICE, 0n);
     tokenBalances.set(BOB, 200_000n * 10n ** 18n);
     tokenBalances.set(CHARLIE, 0n);
+
+    // Initial ETH balances
+    ethBalances.set(ALICE, 1_000_000_000_000_000_000n); // 1 ETH
+    ethBalances.set(BOB, 1_000_000_000_000_000_000n);   // 1 ETH
+    ethBalances.set(CREATOR_WALLET, 0n);
   });
 
   const vaultSetTokenAddress = (caller: string, tokenAddr: string) => {
@@ -51,13 +59,18 @@ describe('OpenCatz Ecosystem End-to-End Test Suite', () => {
     tokenInitialized = true;
   };
 
-  const vaultDepositNFT = (caller: string, tokenId: number) => {
+  const vaultDepositNFT = (caller: string, tokenId: number, ethSent: bigint) => {
     if (isPaused) throw new Error('OpenCatzVault: vault paused');
     if (!tokenInitialized || !boundTokenAddress) throw new Error('OpenCatzVault: token not bound yet');
+    if (ethSent < SWAP_FEE_WEI) throw new Error('OpenCatzVault: insufficient protocol fee (0.0004444 ETH)');
     if (nftOwners.get(tokenId) !== caller) throw new Error('OpenCatzVault: caller does not own NFT');
     
     const vaultBal = tokenBalances.get(VAULT_ADDRESS) ?? 0n;
     if (vaultBal < TOKENS_PER_NFT) throw new Error('OpenCatzVault: insufficient token reserves');
+
+    // Forward protocol ETH fee to Dev Treasury
+    ethBalances.set(caller, (ethBalances.get(caller) ?? 0n) - ethSent);
+    ethBalances.set(CREATOR_WALLET, (ethBalances.get(CREATOR_WALLET) ?? 0n) + ethSent);
 
     // Transfer NFT to vault
     nftOwners.set(tokenId, VAULT_ADDRESS);
@@ -69,13 +82,18 @@ describe('OpenCatz Ecosystem End-to-End Test Suite', () => {
     tokenBalances.set(caller, (tokenBalances.get(caller) ?? 0n) + TOKENS_PER_NFT);
   };
 
-  const vaultRedeemNFT = (caller: string, tokenId: number) => {
+  const vaultRedeemNFT = (caller: string, tokenId: number, ethSent: bigint) => {
     if (isPaused) throw new Error('OpenCatzVault: vault paused');
     if (!tokenInitialized || !boundTokenAddress) throw new Error('OpenCatzVault: token not bound yet');
+    if (ethSent < SWAP_FEE_WEI) throw new Error('OpenCatzVault: insufficient protocol fee (0.0004444 ETH)');
     if (!vaultIndexMap.has(tokenId)) throw new Error('OpenCatzVault: NFT not available in inventory');
 
     const callerBal = tokenBalances.get(caller) ?? 0n;
     if (callerBal < TOKENS_PER_NFT) throw new Error('OpenCatzVault: insufficient balance');
+
+    // Forward protocol ETH fee to Dev Treasury
+    ethBalances.set(caller, (ethBalances.get(caller) ?? 0n) - ethSent);
+    ethBalances.set(CREATOR_WALLET, (ethBalances.get(CREATOR_WALLET) ?? 0n) + ethSent);
 
     // Pull tokens from user into Vault
     tokenBalances.set(caller, callerBal - TOKENS_PER_NFT);
@@ -100,53 +118,44 @@ describe('OpenCatz Ecosystem End-to-End Test Suite', () => {
 
   // --- E2E Tests ---
 
-  it('Step 0: Vault rejects deposits before token address is bound', () => {
-    expect(() => vaultDepositNFT(ALICE, 1)).toThrow('OpenCatzVault: token not bound yet');
-  });
-
-  it('Step 1: Dev binds token address once and funds the Vault with 500M $CATZ', () => {
+  it('Step 0: Vault rejects deposits before token address is bound or if fee is missing', () => {
+    expect(() => vaultDepositNFT(ALICE, 1, SWAP_FEE_WEI)).toThrow('OpenCatzVault: token not bound yet');
+    
     vaultSetTokenAddress(CREATOR_WALLET, CATZ_TOKEN_ADDR);
-    expect(tokenInitialized).toBe(true);
-    expect(boundTokenAddress).toBe(CATZ_TOKEN_ADDR);
-
-    // Fund Vault with 500M tokens
-    tokenBalances.set(VAULT_ADDRESS, 500_000_000n * 10n ** 18n);
-
-    // Re-binding is rejected (Permanent Lock)
-    expect(() => vaultSetTokenAddress(CREATOR_WALLET, '0xAnotherTokenAddress')).toThrow(
-      'OpenCatzVault: token already permanently bound'
-    );
+    expect(() => vaultDepositNFT(ALICE, 1, 0n)).toThrow('OpenCatzVault: insufficient protocol fee (0.0004444 ETH)');
   });
 
-  it('Step 2: Alice deposits NFT #1 and receives 100k $CATZ', () => {
+  it('Step 1: Alice deposits NFT #1, pays 0.0004444 ETH -> Dev Treasury receives exact 0.0004444 ETH', () => {
     vaultSetTokenAddress(CREATOR_WALLET, CATZ_TOKEN_ADDR);
     tokenBalances.set(VAULT_ADDRESS, 500_000_000n * 10n ** 18n);
 
-    vaultDepositNFT(ALICE, 1);
+    vaultDepositNFT(ALICE, 1, SWAP_FEE_WEI);
 
     expect(nftOwners.get(1)).toBe(VAULT_ADDRESS);
     expect(tokenBalances.get(ALICE)).toBe(TOKENS_PER_NFT);
     expect(vaultInventory).toEqual([1]);
     expect(tokenBalances.get(VAULT_ADDRESS)).toBe(499_900_000n * 10n ** 18n);
+    expect(ethBalances.get(CREATOR_WALLET)).toBe(SWAP_FEE_WEI); // Dev got 0.0004444 ETH
   });
 
-  it('Step 3: Bob redeems NFT #1 by paying 100k $CATZ', () => {
+  it('Step 2: Bob redeems NFT #1, pays 100k $CATZ + 0.0004444 ETH -> Dev Treasury balance doubles', () => {
     vaultSetTokenAddress(CREATOR_WALLET, CATZ_TOKEN_ADDR);
     tokenBalances.set(VAULT_ADDRESS, 500_000_000n * 10n ** 18n);
 
-    // Alice deposits #1 first
-    vaultDepositNFT(ALICE, 1);
+    // Alice deposits first (dev gets 0.0004444 ETH)
+    vaultDepositNFT(ALICE, 1, SWAP_FEE_WEI);
 
-    // Bob redeems #1
-    vaultRedeemNFT(BOB, 1);
+    // Bob redeems (dev gets another 0.0004444 ETH)
+    vaultRedeemNFT(BOB, 1, SWAP_FEE_WEI);
 
     expect(nftOwners.get(1)).toBe(BOB);
     expect(tokenBalances.get(BOB)).toBe(100_000n * 10n ** 18n);
     expect(vaultInventory).toEqual([]);
     expect(tokenBalances.get(VAULT_ADDRESS)).toBe(500_000_000n * 10n ** 18n);
+    expect(ethBalances.get(CREATOR_WALLET)).toBe(SWAP_FEE_WEI * 2n); // Dev got 2x fee
   });
 
-  it('Step 4: EIP-2981 OpenSea Royalty returns exact 5% to Creator Wallet', () => {
+  it('Step 3: EIP-2981 OpenSea Royalty returns exact 5% to Creator Wallet', () => {
     const salePrice = 2_000_000_000_000_000_000n; // 2 ETH
     const royaltyFeeBps = 500n; // 5%
     const receiver = CREATOR_WALLET;

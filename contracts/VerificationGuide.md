@@ -22,32 +22,34 @@ Gunakan parameter berikut di Remix, Hardhat, atau Foundry saat melakukan compile
 
 1. Buka explorer Robinhood Chain: `https://robinhoodchain.blockscout.com/address/<ALAMAT_KONTRAK>`
 2. Buka tab **Contract** ➔ Klik tombol **"Verify and Publish"**.
-3. Pilih metode: **"Solidity (Standard JSON input)"** atau **"Solidity (Single file / Flat file)"**.
+3. Pilih metode: **"Solidity (Single file)"**.
 4. Masukkan parameter di atas:
-   - Compiler: `v0.8.24`
+   - Compiler: `v0.8.24+commit.e11b9ed9`
    - Optimization: `200`
 5. Masukkan **Constructor Arguments** (ABI-Encoded):
-   - **Untuk `OpenCatzNFT.sol`:**
+   - **Untuk `OpenCatzNFT.flat.sol`:**
      - Parameter: `string _name`, `string _symbol`, `string baseURI_`, `address _royaltyReceiver`
-   - **Untuk `OpenCatzVault.sol`:**
-     - Parameter: `address _nftAddress`, `address _tokenAddress`
+   - **Untuk `OpenCatzVault.flat.sol`:**
+     - Parameter: `address _nftAddress`, `address _tokenAddress`, `address _treasury`
 
 ---
 
 ## 🎯 3. Constructor Arguments Generator (Cheat Sheet)
 
-### Contoh untuk `OpenCatzNFT.sol`:
+### Contoh untuk `OpenCatzNFT.flat.sol`:
 - `_name`: `"OpenCatz"`
 - `_symbol`: `"CATZ"`
 - `baseURI_`: `"https://api.opencatz.xyz/metadata/"`
 - `_royaltyReceiver`: `<ALAMAT_WALLET_DEV>` (Menerima 5% Royalti OpenSea)
 
-### Contoh untuk `OpenCatzVault.sol`:
+### Contoh untuk `OpenCatzVault.flat.sol`:
 - `_nftAddress`: `<ALAMAT_CONTRACT_OPENCATZ_NFT>`
-- `_tokenAddress`: `<ALAMAT_TOKEN_CATZ_LETSCASH>`
+- `_tokenAddress`: `0x0000000000000000000000000000000000000000` (disetel nanti saat token rilis)
+- `_treasury`: `<ALAMAT_WALLET_DEV>` (Menerima 0.0004444 ETH swap fee)
 
 ---
 
-## ✅ 4. Hasil yang Diharapkan:
-- Badge **Contract Verified [🟢 Exact Match]** di Blockscout.
-- GMGN, GoPlus, dan DexScreener otomatis mengenali alamat sebagai `Contract: OpenCatzVault` dan `Contract: OpenCatzNFT`.
+## 💎 4. Fitur On-Chain yang Aktif:
+- **OpenSea 5% Creator Royalty:** Otomatis masuk ke wallet `_royaltyReceiver`.
+- **Vault Swap Protocol Fee:** Flat `0.0004444 ETH` (simbol 4.444 koleksi) otomatis diteruskan ke `_treasury`.
+- **Two-Phase Token Binding:** Token `$CATZ` bisa di-bind kapan saja setelah diluncurkan di `letscash.fun` lewat fungsi `setTokenAddress()`.
