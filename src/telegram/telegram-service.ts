@@ -163,6 +163,21 @@ export class TelegramService {
 
       if (!response.ok) {
         const errorText = await response.text();
+        // Fallback: If sending to a specific topic thread fails (e.g. topic closed or deleted), retry to main chat
+        if (threadId && (errorText.includes('message thread not found') || errorText.includes('TOPIC_CLOSED') || errorText.includes('TOPIC_DELETED'))) {
+          console.warn(`[TELEGRAM RETRY] Topic thread ${threadId} unavailable (${errorText}). Retrying to main chat...`);
+          const fallbackPayload = { ...payload };
+          delete fallbackPayload.message_thread_id;
+          const retryResponse = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(fallbackPayload),
+          });
+          if (retryResponse.ok) {
+            console.log('[TELEGRAM SERVICE] Message broadcasted successfully via main chat fallback.');
+            return true;
+          }
+        }
         console.error(`[TELEGRAM ERROR] Failed to send message (${response.status}): ${errorText}`);
         return false;
       }
