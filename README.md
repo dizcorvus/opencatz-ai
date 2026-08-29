@@ -8,13 +8,13 @@
 
 <p align="center">
   <pre>
-      /\_____/\       🐾 OPENCATZ AI (MULTICHAIN EDITION) 🐾
-     /  ■   ■  \      ════════════════════════════════════════════════════════════════════════
-    ( ==  ^  == )     Autonomous Agentic AI Crypto Intelligence (15 Specialist Scouts)
-     )    ~    (      Solana • Robinhood #4663 • Base • Ethereum • Ink • Hyperliquid • Polymarket
-    (   _____   )     "Chill trades, 9 lives, razor-sharp on-chain instincts." • opencatz.xyz
-   ( (  )   (  ) )    ════════════════════════════════════════════════════════════════════════
-  (__(__)___(__)__)   ● 24/7 Agentic AI Active · 👑 15 Specialist AI Scouts Online
+   ▄▀▄    ▄▀▄                                              
+  █   ▀▀▀▀   █    ▄▄▄▄  ▄▄▄▄▄ ▄   ▄  ▄▄▄▄  ▄▄▄  ▄▄▄▄▄ ▄▄▄▄▄
+  █  ▄▄  ▄▄  █    █▄▄▄▀ █▄▄▄  █▀▄ █ █     █▄▄▄█   █     ▄▀ 
+▄█    ▀   ▀   █▄  █     █▄▄▄▄ █  ▀█ ▀▄▄▄▄ █   █   █   ▄█▄▄▄
+
+🐾 OPENCATZ AI (MULTICHAIN EDITION) · 15 SPECIALIST AGENTS · 7 BLOCKCHAINS
+Solana • Robinhood #4663 • Base • Ethereum • Ink • Hyperliquid • Polymarket
   </pre>
 </p>
 
