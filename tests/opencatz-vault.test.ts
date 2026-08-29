@@ -19,27 +19,7 @@ describe('OpenCatzVault & OpenCatzNFT On-Chain Architecture', () => {
     expect(totalTokensExpected).toBe(500_000n * 10n ** 18n);
   });
 
-  // Test 3: Tier Activation 50% Burn & 50% Reward Pot Math
-  it('Tier activation splits fee into exact 50% Burn and 50% Reward Pot', () => {
-    const tierFees: Record<number, bigint> = {
-      1: 10_000n * 10n ** 18n,
-      2: 25_000n * 10n ** 18n,
-      3: 50_000n * 10n ** 18n,
-      4: 100_000n * 10n ** 18n, // 9-Lives Tier
-    };
-
-    for (let tier = 1; tier <= 4; tier++) {
-      const fee = tierFees[tier];
-      const burnAmount = fee / 2n;
-      const rewardShare = fee - burnAmount;
-
-      expect(burnAmount + rewardShare).toBe(fee);
-      expect(burnAmount).toBe(fee / 2n);
-      expect(rewardShare).toBe(fee / 2n);
-    }
-  });
-
-  // Test 4: Inventory tracking algorithm (swap & pop)
+  // Test 3: Inventory tracking algorithm (swap & pop)
   it('Vault inventory maintains correct tracking after deposits and redemptions', () => {
     const inventory: number[] = [];
     const indexMap = new Map<number, number>();

@@ -8,41 +8,25 @@ interface IERC20Minimal {
     function balanceOf(address account) external view returns (uint256);
     function transfer(address recipient, uint256 amount) external returns (bool);
     function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
-    function burn(uint256 amount) external;
 }
 
 /**
  * @title OpenCatzVault
- * @notice Central Liquidity Peg & Deflationary Burn Vault for OpenCatz Ecosystem
- * @dev Deployed on Robinhood Chain (Chain ID: 4663)
- *      - Holds 50% $CATZ token reserves from letscash.fun
- *      - Enables trustless 1:1 / trait-weighted NFT ◄──► $CATZ swaps
- *      - Manages Tier Activation with 50% permanent burn to 0x000...dead
+ * @notice Central Liquidity Peg Vault for OpenCatz Ecosystem on Robinhood Chain (Chain ID: 4663)
+ * @dev Holds 50% $CATZ token reserves from letscash.fun and enables trustless NFT ◄──► $CATZ swaps
  */
 contract OpenCatzVault {
     address public owner;
     IOpenCatzNFT public immutable catzNFT;
     IERC20Minimal public immutable catzToken;
 
-    // Constants
-    address public constant DEAD_ADDRESS = 0x000000000000000000000000000000000000dEaD;
-    uint256 public tokensPerNFT = 100_000 * 1e18; // 1 Catz NFT = 100,000 $CATZ (18 decimals)
-    
-    // Tier Activation Pricing in $CATZ (18 decimals)
-    uint256 public tier1Fee = 10_000 * 1e18;
-    uint256 public tier2Fee = 25_000 * 1e18;
-    uint256 public tier3Fee = 50_000 * 1e18;
-    uint256 public tier4Fee = 100_000 * 1e18; // 9-Lives Tier
-
-    // State Tracking
-    uint256 public totalBurnedTokens;
-    uint256 public totalRewardPot;
+    // Fixed Swap Rate: 1 Catz NFT = 100,000 $CATZ (18 decimals)
+    uint256 public tokensPerNFT = 100_000 * 1e18;
     bool public paused = false;
 
     // Vault NFT Inventory
     uint256[] private _inventoryTokens;
     mapping(uint256 => uint256) private _inventoryIndex; // tokenId -> array index + 1
-    mapping(uint256 => uint8) public nftTier;             // tokenId -> tier (0=Basic, 1, 2, 3, 4=9-Lives)
 
     // Reentrancy guard
     uint8 private _unlocked = 1;
@@ -50,9 +34,7 @@ contract OpenCatzVault {
     // Events
     event NFTDeposited(address indexed user, uint256 indexed tokenId, uint256 tokensPaid);
     event NFTRedeemed(address indexed user, uint256 indexed tokenId, uint256 tokensReceived);
-    event TierActivated(address indexed user, uint256 indexed tokenId, uint8 tier, uint256 feePaid, uint256 tokensBurned);
     event RateUpdated(uint256 newRate);
-    event TierFeesUpdated(uint256 t1, uint256 t2, uint256 t3, uint256 t4);
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
     event PausedStateChanged(bool isPaused);
 
@@ -128,37 +110,6 @@ contract OpenCatzVault {
         emit NFTRedeemed(msg.sender, tokenId, tokensPerNFT);
     }
 
-    /**
-     * @notice Activate or upgrade the Payroll Tier of an OpenCatz NFT
-     * @dev 50% of the $CATZ fee is burned directly to DEAD_ADDRESS, 50% stays in Reward Pot
-     * @param tokenId The NFT being activated
-     * @param targetTier The desired tier (1, 2, 3, or 4=9-Lives)
-     */
-    function activateTier(uint256 tokenId, uint8 targetTier) external nonReentrant whenNotPaused {
-        require(catzNFT.ownerOf(tokenId) == msg.sender, "OpenCatzVault: caller is not NFT owner");
-        require(targetTier >= 1 && targetTier <= 4, "OpenCatzVault: invalid tier level (1-4)");
-        require(targetTier > nftTier[tokenId], "OpenCatzVault: must upgrade to higher tier");
-
-        uint256 fee = getTierFee(targetTier);
-        
-        // Pull full fee from user into Vault
-        bool success = catzToken.transferFrom(msg.sender, address(this), fee);
-        require(success, "OpenCatzVault: fee transfer failed");
-
-        // 50% Burn to Dead Address
-        uint256 burnAmount = fee / 2;
-        uint256 rewardShare = fee - burnAmount;
-
-        bool burnSuccess = catzToken.transfer(DEAD_ADDRESS, burnAmount);
-        require(burnSuccess, "OpenCatzVault: burn transfer failed");
-
-        totalBurnedTokens += burnAmount;
-        totalRewardPot += rewardShare;
-        nftTier[tokenId] = targetTier;
-
-        emit TierActivated(msg.sender, tokenId, targetTier, fee, burnAmount);
-    }
-
     // --- Inventory Management Helpers ---
 
     function _removeFromInventory(uint256 tokenId) internal {
@@ -192,32 +143,12 @@ contract OpenCatzVault {
         return _inventoryTokens.length;
     }
 
-    function getTierFee(uint8 tier) public view returns (uint256) {
-        if (tier == 1) return tier1Fee;
-        if (tier == 2) return tier2Fee;
-        if (tier == 3) return tier3Fee;
-        if (tier == 4) return tier4Fee;
-        revert("OpenCatzVault: invalid tier");
-    }
-
-    function totalBurned() external view returns (uint256) {
-        return totalBurnedTokens;
-    }
-
     // --- Owner & Emergency Configuration ---
 
     function setTokensPerNFT(uint256 newRate) external onlyOwner {
         require(newRate > 0, "OpenCatzVault: rate must be positive");
         tokensPerNFT = newRate;
         emit RateUpdated(newRate);
-    }
-
-    function setTierFees(uint256 t1, uint256 t2, uint256 t3, uint256 t4) external onlyOwner {
-        tier1Fee = t1;
-        tier2Fee = t2;
-        tier3Fee = t3;
-        tier4Fee = t4;
-        emit TierFeesUpdated(t1, t2, t3, t4);
     }
 
     function setPaused(bool isPaused) external onlyOwner {

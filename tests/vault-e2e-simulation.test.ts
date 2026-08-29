@@ -5,18 +5,13 @@ import { describe, it, expect, beforeEach } from 'vitest';
  */
 describe('OpenCatz Ecosystem End-to-End Test Suite', () => {
   const TOKENS_PER_NFT = 100_000n * 10n ** 18n;
-  const DEAD_ADDRESS = '0x000000000000000000000000000000000000dEaD'.toLowerCase();
   const CREATOR_WALLET = '0xDev1111111111111111111111111111111111111'.toLowerCase();
 
   // Mock State
   let nftOwners: Map<number, string>;
-  let nftApprovals: Map<number, string>;
   let tokenBalances: Map<string, bigint>;
   let vaultInventory: number[];
   let vaultIndexMap: Map<number, number>;
-  let nftTiers: Map<number, number>;
-  let totalBurned: bigint;
-  let totalRewardPot: bigint;
   let isPaused: boolean;
 
   const VAULT_ADDRESS = '0xVaultContractAddress1234567890'.toLowerCase();
@@ -26,13 +21,9 @@ describe('OpenCatz Ecosystem End-to-End Test Suite', () => {
 
   beforeEach(() => {
     nftOwners = new Map();
-    nftApprovals = new Map();
     tokenBalances = new Map();
     vaultInventory = [];
     vaultIndexMap = new Map();
-    nftTiers = new Map();
-    totalBurned = 0n;
-    totalRewardPot = 0n;
     isPaused = false;
 
     // Initial setup: Alice owns NFT #1 and #2
@@ -44,10 +35,9 @@ describe('OpenCatz Ecosystem End-to-End Test Suite', () => {
     tokenBalances.set(ALICE, 0n);
     tokenBalances.set(BOB, 200_000n * 10n ** 18n); // Bob has $CATZ from trading
     tokenBalances.set(CHARLIE, 0n);
-    tokenBalances.set(DEAD_ADDRESS, 0n);
   });
 
-  // Helper simulated smart contract methods
+  // Simulated smart contract methods
   const vaultDepositNFT = (caller: string, tokenId: number) => {
     if (isPaused) throw new Error('OpenCatzVault: vault paused');
     if (nftOwners.get(tokenId) !== caller) throw new Error('OpenCatzVault: caller does not own NFT');
@@ -93,38 +83,6 @@ describe('OpenCatz Ecosystem End-to-End Test Suite', () => {
     nftOwners.set(tokenId, caller);
   };
 
-  const vaultActivateTier = (caller: string, tokenId: number, targetTier: number) => {
-    if (isPaused) throw new Error('OpenCatzVault: vault paused');
-    if (nftOwners.get(tokenId) !== caller) throw new Error('OpenCatzVault: caller is not NFT owner');
-    if (targetTier < 1 || targetTier > 4) throw new Error('OpenCatzVault: invalid tier level (1-4)');
-    
-    const currentTier = nftTiers.get(tokenId) ?? 0;
-    if (targetTier <= currentTier) throw new Error('OpenCatzVault: must upgrade to higher tier');
-
-    const tierFees: Record<number, bigint> = {
-      1: 10_000n * 10n ** 18n,
-      2: 25_000n * 10n ** 18n,
-      3: 50_000n * 10n ** 18n,
-      4: 100_000n * 10n ** 18n,
-    };
-    const fee = tierFees[targetTier];
-
-    const callerBal = tokenBalances.get(caller) ?? 0n;
-    if (callerBal < fee) throw new Error('OpenCatzVault: insufficient token fee');
-
-    // 50% Burn, 50% Reward Pot
-    const burnAmount = fee / 2n;
-    const rewardShare = fee - burnAmount;
-
-    tokenBalances.set(caller, callerBal - fee);
-    tokenBalances.set(DEAD_ADDRESS, (tokenBalances.get(DEAD_ADDRESS) ?? 0n) + burnAmount);
-    tokenBalances.set(VAULT_ADDRESS, (tokenBalances.get(VAULT_ADDRESS) ?? 0n) + rewardShare);
-
-    totalBurned += burnAmount;
-    totalRewardPot += rewardShare;
-    nftTiers.set(tokenId, targetTier);
-  };
-
   // --- E2E Tests ---
 
   it('Step 1: Alice deposits NFT #1 and receives 100k $CATZ', () => {
@@ -149,33 +107,15 @@ describe('OpenCatz Ecosystem End-to-End Test Suite', () => {
     expect(tokenBalances.get(VAULT_ADDRESS)).toBe(500_000_000n * 10n ** 18n);
   });
 
-  it('Step 3: Bob upgrades NFT #1 to Tier 4 (9-Lives) with exact 50% burn', () => {
-    // Setup: Alice deposits, Bob redeems
-    vaultDepositNFT(ALICE, 1);
-    vaultRedeemNFT(BOB, 1);
-
-    // Bob activates Tier 4 (Fee: 100,000 $CATZ)
-    vaultActivateTier(BOB, 1, 4);
-
-    expect(nftTiers.get(1)).toBe(4);
-    expect(tokenBalances.get(BOB)).toBe(0n); // 100k - 100k
-    expect(tokenBalances.get(DEAD_ADDRESS)).toBe(50_000n * 10n ** 18n); // Exactly 50% burned
-    expect(totalBurned).toBe(50_000n * 10n ** 18n);
-    expect(totalRewardPot).toBe(50_000n * 10n ** 18n);
-  });
-
-  it('Step 4: Unauthorized actions fail-closed (Zero Security Holes)', () => {
+  it('Step 3: Unauthorized actions fail-closed (Zero Security Holes)', () => {
     // Charlie tries to deposit Alice's NFT #1
     expect(() => vaultDepositNFT(CHARLIE, 1)).toThrow('OpenCatzVault: caller does not own NFT');
 
     // Charlie tries to redeem non-existent NFT in vault
     expect(() => vaultRedeemNFT(CHARLIE, 999)).toThrow('OpenCatzVault: NFT not available in inventory');
-
-    // Charlie tries to activate Alice's NFT
-    expect(() => vaultActivateTier(CHARLIE, 1, 2)).toThrow('OpenCatzVault: caller is not NFT owner');
   });
 
-  it('Step 5: EIP-2981 OpenSea Royalty returns exact 5% to Creator Wallet', () => {
+  it('Step 4: EIP-2981 OpenSea Royalty returns exact 5% to Creator Wallet', () => {
     const salePrice = 2_000_000_000_000_000_000n; // 2 ETH
     const royaltyFeeBps = 500n; // 5%
     const receiver = CREATOR_WALLET;
