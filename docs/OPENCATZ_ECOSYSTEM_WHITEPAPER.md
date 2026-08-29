@@ -9,7 +9,7 @@
 
 **OpenCatz** is an integrated crypto ecosystem on **Robinhood Chain (Chain ID: 4663)** bringing together three core pillars:
 1. **OpenCatz AI Agent:** An autonomous multi-agent intelligence command center (15 specialized AI scouts) delivering high-conviction screening across Solana, Robinhood Chain, Base, Ethereum, Ink, Hyperliquid, and Polymarket.
-2. **OpenCatz NFT Collection:** A finite collection of pixel cat scouts acting as a **Lifetime VIP Access Pass** to Discord/Telegram AI trading signals, generating **5% OpenSea Creator Royalties** for ongoing ecosystem development.
+2. **OpenCatz NFT Collection:** A finite collection of 4,444 pixel cat scouts acting as a **Lifetime VIP Access Pass** to Discord/Telegram AI trading signals, generating **5% OpenSea Creator Royalties** for ongoing ecosystem development.
 3. **$CATZ Token (via `letscash.fun`):** A community meme token launched with **1% Auto Self-Burn on Uniswap v4**, where 50% of the initial supply is permanently vaulted to guarantee a 1:1 liquid floor peg for OpenCatz NFTs.
 
 ---
@@ -42,6 +42,7 @@
 - Total suplai beredar terus menyusut secara konsisten (*deflationary pressure*).
 
 ### B. Sisi NFT (OpenCatz NFT):
+- Rarity dan traits sudah melekat permanen pada metadata NFT di OpenSea.
 - Saat trader menukarkan NFT mereka ke Vault untuk mendapatkan token `$CATZ`, NFT tersebut tersimpan di dalam brankas Vault.
 - Ini mengurangi suplai NFT yang beredar dan diperdagangkan di OpenSea.
 - Semakin tipis suplai NFT di OpenSea, semakin tinggi dorongan harga dasar (*Floor Price*).
@@ -59,27 +60,28 @@
 - **Royalty:** 500 basis points (5%) otomatis disalurkan ke dompet Creator pada setiap transaksi di OpenSea, Blur, atau marketplace sekunder lainnya.
 - **Access Control:** Membuka role eksklusif di Discord Command Center OpenCatz.
 
-### 2. `OpenCatzVault.sol` (The Liquidity Peg & Burn Hub)
-- **Fungsi Utama:**
-  - `depositNFT(uint256 tokenId)`: Menerima NFT dari user dan mentransfer 100.000 `$CATZ` ke user.
-  - `redeemNFT(uint256 tokenId)`: Menerima 100.000 `$CATZ` dari user dan mengeluarkan NFT pilihan dari inventaris.
-  - `activateTier(uint256 tokenId, uint8 targetTier)`: Menarik biaya `$CATZ` untuk aktivasi payroll NFT, **50% dari biaya langsung di-BURN ke `0x000...dead`**, dan 50% sisanya disimpan di Reward Pot.
+### 2. `OpenCatzVault.sol` (The Liquidity Peg Hub)
+- **Two-Phase Deployment:** Vault dapat dideploy dan diverifikasi terlebih dahulu sebelum token `$CATZ` diluncurkan. Alamat token di-bind kemudian melalui `setTokenAddress()` dengan penguncian permanen (*One-Time Permanent Lock*).
+- **Fungsi Utama (Atomic Instant Swap):**
+  - `depositNFT(uint256 tokenId)`: Menerima NFT dari user + fee protokol `0.0004444 ETH` (simbol 4.444 koleksi) yang diteruskan ke Dev Treasury, lalu secara instan mencairkan 100.000 `$CATZ` ke dompet user.
+  - `redeemNFT(uint256 tokenId)`: Menerima 100.000 `$CATZ` dari user + fee protokol `0.0004444 ETH` yang diteruskan ke Dev Treasury, lalu secara instan mengeluarkan NFT pilihan ke dompet user.
 - **Keamanan:**
   - `ReentrancyGuard` untuk mencegah eksploitasi transfer ganda.
   - `Pausable` (hanya untuk keadaan darurat / circuit breaker oleh owner).
+  - `setTreasury(address newTreasury)`: Alamat dompet penerima fee protokol dapat diperbarui oleh owner kapan saja (misal dipindahkan ke cold storage/hardware wallet).
   - **Zero Drain Backdoor:** Tidak ada fungsi penarikan sepihak untuk dev. 50% cadangan token terjamin hanya bisa keluar jika ada NFT yang masuk.
 
 ---
 
 ## 4. Distribution & Deployment Plan on Robinhood Chain
 
-1. **Deploy Token di `letscash.fun`:**
-   - Platform: `letscash.fun` (Uniswap v4 Hook on Robinhood Chain #4663).
+1. **Deploy `OpenCatzNFT.flat.sol` & `OpenCatzVault.flat.sol`:**
+   - Di-deploy ke Robinhood Chain Mainnet (Chain ID: 4663).
+   - Diverifikasi di Blockscout (`https://robinhoodchain.blockscout.com/`) dengan status **[🟢 Exact Match]**.
+2. **Deploy Token di `letscash.fun` (Saat Siap):**
+   - Platform: `letscash.fun` (Uniswap v4 Hook on Robinhood Chain).
    - Mode: Self-Burn (1% fee rate).
-   - Quote: ETH / USDG.
    - First Buy: 50% token suplai dibeli dan dialirkan langsung ke smart contract `OpenCatzVault`.
-2. **Deploy `OpenCatzNFT.sol` & `OpenCatzVault.sol`:**
-   - Di-deploy ke Robinhood Chain Mainnet.
-   - Diverifikasi di Blockscout (`robinhoodchain.blockscout.com`) dengan status *Exact Match*.
+   - Panggil `vault.setTokenAddress(alamatToken)` untuk mengaktifkan swap Vault permanen.
 3. **Discord Token-Gating Integration:**
    - Integrasi bot Discord untuk mendeteksi kepemilikan NFT OpenCatz dan memberikan role VIP sinyal alpha 24/7.
