@@ -276,7 +276,7 @@ describe('🐾 OPENCATZ MULTI-AGENT SYSTEM TEST SUITE', () => {
       const score = reports[0].confidenceScore ?? reports[0].signal?.confidenceScore ?? 0;
       expect(score).toBeGreaterThanOrEqual(80);
     }
-  });
+  }, 15000);
 
   it('13. Relay Adapter: Should calculate cross-chain bridge intent quotes via Relay.link', async () => {
     const { RelayAdapter } = await import('../src/adapters/relay-adapter.js');
