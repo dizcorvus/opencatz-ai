@@ -153,8 +153,10 @@ assets/art/
 assets/raw/
 assets/traits/
 assets/layers/
-assets/psd/
-assets/svg/
+assets/sprites/
+assets/palettes/
+*.ase
+*.aseprite
 *.psd
 *.ai
 *.blend
@@ -164,3 +166,5 @@ metadata/generated/
 generator/
 traits/
 layers/
+sprites/
+palettes/
