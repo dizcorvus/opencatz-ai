@@ -21,7 +21,7 @@ Solana • Robinhood #4663 • Base • Ethereum • Ink • Hyperliquid • Pol
   <a href="https://x.com/pxidentities"><img src="https://img.shields.io/badge/X-%40pxidentities-black.svg?style=flat-square&logo=x&logoColor=white" alt="X (Twitter)"></a>
   <a href="https://nodejs.org"><img src="https://img.shields.io/badge/Node.js-%3E%3D22.12-green.svg?style=flat-square&logo=node.js&logoColor=white" alt="Node Version"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square" alt="License: MIT"></a>
-  <a href="https://vitest.dev/"><img src="https://img.shields.io/badge/Tests-43%20Passed%20(359%20tests)-brightgreen.svg?style=flat-square" alt="Tests"></a>
+  <a href="https://vitest.dev/"><img src="https://img.shields.io/badge/Tests-44%20Passed%20(368%20tests)-brightgreen.svg?style=flat-square" alt="Tests"></a>
 </p>
 
 **OpenCatz AI** is an open-source autonomous **Agentic AI Crypto Intelligence System**. It deploys a squad of **15 Specialist AI Scouts** across **7 major blockchains** (Solana, Robinhood Chain, Base, Ethereum Mainnet, Ink Chain, Hyperliquid, and Polymarket).
@@ -58,10 +58,11 @@ bash setup.sh       # Linux / macOS
 ```
 
 The interactive wizard will guide you through:
-1. Setting up your **Discord Bot Token** and **Client ID**.
-2. Selecting your **AI LLM Provider** (OpenRouter Free tier, Claude, GPT-4, Z.ai, DeepSeek, etc.).
-3. Configuring optional Web3 API keys (GMGN, OpenSea, Krystal Cloud, Twex).
-4. Verifying your RPC endpoints with automated diagnostics.
+1. Setting up your **Discord Bot Token** and **Client ID** (Optional if using Telegram/TUI standalone).
+2. Setting up your **Telegram Bot Token** & **Chat ID** (Optional for Telegram notifications & forum topics).
+3. Selecting your **AI LLM Provider** (OpenRouter Free tier, Claude, GPT-4, Z.ai, DeepSeek, etc.).
+4. Configuring Web3 API keys (GMGN, OpenSea, Krystal Cloud, Twex).
+5. Verifying your RPC endpoints with automated diagnostics.
 
 ### 3. Launch OpenCatz
 ```bash
@@ -74,6 +75,31 @@ opencatz terminal
 # Or deploy as a 24/7 background process (PM2)
 opencatz deploy
 ```
+
+---
+
+## 📱 Telegram Command Center & Standalone Mode
+
+OpenCatz can run **100% standalone without Discord**, broadcasting all multi-chain signals and interactive controls directly into Telegram:
+
+### ⚙️ Setting Up Telegram Forum Topics (Sub-Channels)
+1. **Create a Telegram Group** and enable **Topics (Forum Mode)** in *Group Settings*.
+2. Add your Telegram Bot to the group as an **Admin** with the permission **"Manage Topics"** and **"Post Messages"**.
+3. Set your `.env`:
+   ```env
+   TELEGRAM_BOT_TOKEN=123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11
+   TELEGRAM_CHAT_ID=-1001234567890   # Group Chat ID (starts with -100)
+   ```
+4. Start OpenCatz (`opencatz run` or `opencatz deploy`).
+5. OpenCatz will **automatically provision 17 sub-channels (Forum Topics)**:
+   - `#opencatz-control-room` (Interactive dashboard with inline toggle buttons)
+   - `#audit-on-demand`
+   - `#call-meme-solana`, `#call-meme-robinhood`, `#call-meme-base`, `#call-meme-eth`, `#call-meme-ink`
+   - `#call-lp-solana`, `#call-lp-robinhood`
+   - `#call-nft-eth`, `#call-nft-base`, `#call-nft-ink`, `#call-nft-robinhood`, `#call-nft-hyperevm`
+   - `#call-whale-tracking`, `#call-prediction-markets`, `#call-ct-alpha`
+
+> **Note:** If you use a standard Telegram group (without Topics) or a direct 1-on-1 chat with the bot, OpenCatz will automatically fallback to broadcasting all calls directly into the main chat feed without error.
 
 ---
 
@@ -223,8 +249,8 @@ npm test
 ```
 
 ```
- Test Files  43 passed (43)
-      Tests  359 passed (359)
+ Test Files  44 passed (44)
+      Tests  368 passed (368)
    Duration  ~11s
 ```
 

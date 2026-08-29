@@ -43,9 +43,14 @@
 - `opencatz terminal` (or `opencatz tui`): Standalone Terminal TUI Command Center
 - `opencatz run` (or `opencatz dev`): Development mode (tsx watch)
 - `opencatz deploy` (or `opencatz pm2`): 24/7 background process daemon
-- `opencatz test`: Vitest automated test suite (43 test files, 359 tests)
+- `opencatz test`: Vitest automated test suite (44 test files, 368 tests)
 - `opencatz doctor`: Health check, API key pool audit & RPC connectivity
 - `opencatz update`: Automated Git pull, rebuild, and PM2 hot restart
+
+## User Interfaces
+- Discord Server: Full slash commands & automated embed call cards
+- Telegram Bridge: Standalone & Forum Topics (17 sub-channels) auto-bootstrap with inline buttons
+- Terminal TUI: Interactive CLI Command Center (`opencatz terminal`)
 
 ## Discord Slash Commands
 - Core Hub: `/dashboard`, `/menu`, `/health`, `/config`, `/update`
