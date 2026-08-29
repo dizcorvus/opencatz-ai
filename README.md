@@ -1,13 +1,6 @@
 <p align="center">
   <a href="https://opencatz.xyz" target="_blank" rel="noopener noreferrer">
-    <img src="banner.png" alt="OpenCatz AI" width="100%" />
-  </a>
-</p>
-
-# OpenCatz 🐾 — Autonomous Multi-Agent Crypto Intelligence System
-
-<p align="center">
-  <pre>
+    <pre>
    ▄▀▄    ▄▀▄                                              
   █   ▀▀▀▀   █    ▄▄▄▄  ▄▄▄▄▄ ▄   ▄  ▄▄▄▄  ▄▄▄  ▄▄▄▄▄ ▄▄▄▄▄
   █  ▄▄  ▄▄  █    █▄▄▄▀ █▄▄▄  █▀▄ █ █     █▄▄▄█   █     ▄▀ 
@@ -15,8 +8,11 @@
 
 🐾 OPENCATZ AI (MULTICHAIN EDITION) · 15 SPECIALIST AGENTS · 7 BLOCKCHAINS
 Solana • Robinhood #4663 • Base • Ethereum • Ink • Hyperliquid • Polymarket
-  </pre>
+    </pre>
+  </a>
 </p>
+
+# OpenCatz 🐾 — Autonomous Multi-Agent Crypto Intelligence System
 
 <p align="center">
   <a href="https://opencatz.xyz"><img src="https://img.shields.io/badge/Web_Portal-opencatz.xyz-brightgreen.svg?style=flat-square" alt="Web Portal"></a>
