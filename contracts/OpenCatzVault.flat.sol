@@ -25,12 +25,13 @@ interface IERC20Minimal {
 /**
  * @title OpenCatzVault
  * @notice Central Liquidity Peg Vault for OpenCatz Ecosystem on Robinhood Chain (Chain ID: 4663)
- * @dev Holds 50% $CATZ token reserves from letscash.fun and enables trustless NFT ◄──► $CATZ swaps
+ * @dev Supports flexible two-phase deployment: Deploy Vault first -> Bind token address when launched.
  */
 contract OpenCatzVault {
     address public owner;
     IOpenCatzNFTMinimal public immutable catzNFT;
-    IERC20Minimal public immutable catzToken;
+    IERC20Minimal public catzToken;
+    bool public tokenInitialized = false;
 
     // Fixed Swap Rate: 1 Catz NFT = 100,000 $CATZ (18 decimals)
     uint256 public tokensPerNFT = 100_000 * 1e18;
@@ -46,6 +47,7 @@ contract OpenCatzVault {
     // Events
     event NFTDeposited(address indexed user, uint256 indexed tokenId, uint256 tokensPaid);
     event NFTRedeemed(address indexed user, uint256 indexed tokenId, uint256 tokensReceived);
+    event TokenAddressBound(address indexed tokenAddress);
     event RateUpdated(uint256 newRate);
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
     event PausedStateChanged(bool isPaused);
@@ -67,15 +69,42 @@ contract OpenCatzVault {
         _;
     }
 
+    modifier onlyTokenReady() {
+        require(tokenInitialized && address(catzToken) != address(0), "OpenCatzVault: token not bound yet");
+        _;
+    }
+
+    /**
+     * @param _nftAddress The OpenCatz NFT contract address (mandatory)
+     * @param _tokenAddress The $CATZ token address (optional at deploy, pass address(0) to set later)
+     */
     constructor(address _nftAddress, address _tokenAddress) {
         require(_nftAddress != address(0), "OpenCatzVault: zero NFT address");
-        require(_tokenAddress != address(0), "OpenCatzVault: zero Token address");
         
         owner = msg.sender;
         catzNFT = IOpenCatzNFTMinimal(_nftAddress);
-        catzToken = IERC20Minimal(_tokenAddress);
+        
+        if (_tokenAddress != address(0)) {
+            catzToken = IERC20Minimal(_tokenAddress);
+            tokenInitialized = true;
+            emit TokenAddressBound(_tokenAddress);
+        }
         
         emit OwnershipTransferred(address(0), msg.sender);
+    }
+
+    /**
+     * @notice Bind the $CATZ token contract address (One-Time Permanent Lock)
+     * @param _tokenAddress The newly deployed $CATZ token address from letscash.fun
+     */
+    function setTokenAddress(address _tokenAddress) external onlyOwner {
+        require(!tokenInitialized, "OpenCatzVault: token already permanently bound");
+        require(_tokenAddress != address(0), "OpenCatzVault: zero token address");
+
+        catzToken = IERC20Minimal(_tokenAddress);
+        tokenInitialized = true;
+
+        emit TokenAddressBound(_tokenAddress);
     }
 
     // --- Core Vault Swap Operations ---
@@ -84,7 +113,7 @@ contract OpenCatzVault {
      * @notice Deposit an OpenCatz NFT into the vault in exchange for $CATZ tokens
      * @param tokenId The ID of the OpenCatz NFT being deposited
      */
-    function depositNFT(uint256 tokenId) external nonReentrant whenNotPaused {
+    function depositNFT(uint256 tokenId) external nonReentrant whenNotPaused onlyTokenReady {
         require(catzNFT.ownerOf(tokenId) == msg.sender, "OpenCatzVault: caller does not own NFT");
         require(catzToken.balanceOf(address(this)) >= tokensPerNFT, "OpenCatzVault: insufficient token reserves");
 
@@ -106,7 +135,7 @@ contract OpenCatzVault {
      * @notice Redeem an OpenCatz NFT from the vault by paying $CATZ tokens
      * @param tokenId The ID of the NFT to withdraw from the vault inventory
      */
-    function redeemNFT(uint256 tokenId) external nonReentrant whenNotPaused {
+    function redeemNFT(uint256 tokenId) external nonReentrant whenNotPaused onlyTokenReady {
         require(isNFTInVault(tokenId), "OpenCatzVault: NFT not available in inventory");
 
         // Pull tokens from user into Vault

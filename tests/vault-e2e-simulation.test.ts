@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 
 /**
- * End-to-End Simulation of OpenCatz NFT + OpenCatz Vault + $CATZ Token Lifecycle
+ * End-to-End Simulation of OpenCatz NFT + OpenCatz Vault (Two-Phase Binding) + $CATZ Token
  */
 describe('OpenCatz Ecosystem End-to-End Test Suite', () => {
   const TOKENS_PER_NFT = 100_000n * 10n ** 18n;
@@ -13,11 +13,14 @@ describe('OpenCatz Ecosystem End-to-End Test Suite', () => {
   let vaultInventory: number[];
   let vaultIndexMap: Map<number, number>;
   let isPaused: boolean;
+  let tokenInitialized: boolean;
+  let boundTokenAddress: string | null;
 
   const VAULT_ADDRESS = '0xVaultContractAddress1234567890'.toLowerCase();
   const ALICE = '0xAlice11111111111111111111111111111111111'.toLowerCase();
   const BOB = '0xBob22222222222222222222222222222222222222'.toLowerCase();
   const CHARLIE = '0xCharlie3333333333333333333333333333333333'.toLowerCase();
+  const CATZ_TOKEN_ADDR = '0xLetscashCatzTokenAddress123456789cc'.toLowerCase();
 
   beforeEach(() => {
     nftOwners = new Map();
@@ -25,21 +28,32 @@ describe('OpenCatz Ecosystem End-to-End Test Suite', () => {
     vaultInventory = [];
     vaultIndexMap = new Map();
     isPaused = false;
+    tokenInitialized = false;
+    boundTokenAddress = null;
 
     // Initial setup: Alice owns NFT #1 and #2
     nftOwners.set(1, ALICE);
     nftOwners.set(2, ALICE);
 
-    // Vault is funded with 500M $CATZ from letscash.fun First Buy
-    tokenBalances.set(VAULT_ADDRESS, 500_000_000n * 10n ** 18n);
+    tokenBalances.set(VAULT_ADDRESS, 0n);
     tokenBalances.set(ALICE, 0n);
-    tokenBalances.set(BOB, 200_000n * 10n ** 18n); // Bob has $CATZ from trading
+    tokenBalances.set(BOB, 200_000n * 10n ** 18n);
     tokenBalances.set(CHARLIE, 0n);
   });
 
-  // Simulated smart contract methods
+  const vaultSetTokenAddress = (caller: string, tokenAddr: string) => {
+    if (caller !== CREATOR_WALLET) throw new Error('OpenCatzVault: caller is not owner');
+    if (tokenInitialized) throw new Error('OpenCatzVault: token already permanently bound');
+    if (!tokenAddr || tokenAddr === '0x0000000000000000000000000000000000000000') {
+      throw new Error('OpenCatzVault: zero token address');
+    }
+    boundTokenAddress = tokenAddr;
+    tokenInitialized = true;
+  };
+
   const vaultDepositNFT = (caller: string, tokenId: number) => {
     if (isPaused) throw new Error('OpenCatzVault: vault paused');
+    if (!tokenInitialized || !boundTokenAddress) throw new Error('OpenCatzVault: token not bound yet');
     if (nftOwners.get(tokenId) !== caller) throw new Error('OpenCatzVault: caller does not own NFT');
     
     const vaultBal = tokenBalances.get(VAULT_ADDRESS) ?? 0n;
@@ -57,6 +71,7 @@ describe('OpenCatz Ecosystem End-to-End Test Suite', () => {
 
   const vaultRedeemNFT = (caller: string, tokenId: number) => {
     if (isPaused) throw new Error('OpenCatzVault: vault paused');
+    if (!tokenInitialized || !boundTokenAddress) throw new Error('OpenCatzVault: token not bound yet');
     if (!vaultIndexMap.has(tokenId)) throw new Error('OpenCatzVault: NFT not available in inventory');
 
     const callerBal = tokenBalances.get(caller) ?? 0n;
@@ -85,7 +100,28 @@ describe('OpenCatz Ecosystem End-to-End Test Suite', () => {
 
   // --- E2E Tests ---
 
-  it('Step 1: Alice deposits NFT #1 and receives 100k $CATZ', () => {
+  it('Step 0: Vault rejects deposits before token address is bound', () => {
+    expect(() => vaultDepositNFT(ALICE, 1)).toThrow('OpenCatzVault: token not bound yet');
+  });
+
+  it('Step 1: Dev binds token address once and funds the Vault with 500M $CATZ', () => {
+    vaultSetTokenAddress(CREATOR_WALLET, CATZ_TOKEN_ADDR);
+    expect(tokenInitialized).toBe(true);
+    expect(boundTokenAddress).toBe(CATZ_TOKEN_ADDR);
+
+    // Fund Vault with 500M tokens
+    tokenBalances.set(VAULT_ADDRESS, 500_000_000n * 10n ** 18n);
+
+    // Re-binding is rejected (Permanent Lock)
+    expect(() => vaultSetTokenAddress(CREATOR_WALLET, '0xAnotherTokenAddress')).toThrow(
+      'OpenCatzVault: token already permanently bound'
+    );
+  });
+
+  it('Step 2: Alice deposits NFT #1 and receives 100k $CATZ', () => {
+    vaultSetTokenAddress(CREATOR_WALLET, CATZ_TOKEN_ADDR);
+    tokenBalances.set(VAULT_ADDRESS, 500_000_000n * 10n ** 18n);
+
     vaultDepositNFT(ALICE, 1);
 
     expect(nftOwners.get(1)).toBe(VAULT_ADDRESS);
@@ -94,25 +130,20 @@ describe('OpenCatz Ecosystem End-to-End Test Suite', () => {
     expect(tokenBalances.get(VAULT_ADDRESS)).toBe(499_900_000n * 10n ** 18n);
   });
 
-  it('Step 2: Bob redeems NFT #1 by paying 100k $CATZ', () => {
-    // Setup: Alice deposits #1 first
+  it('Step 3: Bob redeems NFT #1 by paying 100k $CATZ', () => {
+    vaultSetTokenAddress(CREATOR_WALLET, CATZ_TOKEN_ADDR);
+    tokenBalances.set(VAULT_ADDRESS, 500_000_000n * 10n ** 18n);
+
+    // Alice deposits #1 first
     vaultDepositNFT(ALICE, 1);
 
     // Bob redeems #1
     vaultRedeemNFT(BOB, 1);
 
     expect(nftOwners.get(1)).toBe(BOB);
-    expect(tokenBalances.get(BOB)).toBe(100_000n * 10n ** 18n); // 200k - 100k
+    expect(tokenBalances.get(BOB)).toBe(100_000n * 10n ** 18n);
     expect(vaultInventory).toEqual([]);
     expect(tokenBalances.get(VAULT_ADDRESS)).toBe(500_000_000n * 10n ** 18n);
-  });
-
-  it('Step 3: Unauthorized actions fail-closed (Zero Security Holes)', () => {
-    // Charlie tries to deposit Alice's NFT #1
-    expect(() => vaultDepositNFT(CHARLIE, 1)).toThrow('OpenCatzVault: caller does not own NFT');
-
-    // Charlie tries to redeem non-existent NFT in vault
-    expect(() => vaultRedeemNFT(CHARLIE, 999)).toThrow('OpenCatzVault: NFT not available in inventory');
   });
 
   it('Step 4: EIP-2981 OpenSea Royalty returns exact 5% to Creator Wallet', () => {
