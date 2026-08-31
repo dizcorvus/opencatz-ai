@@ -109,9 +109,25 @@ export class BaseScreeningAgent implements ScreeningAgent<BaseSignal> {
             }),
           ]);
 
-          return [...rank, ...trenches.completed, ...hotSearches];
+          const results = [...rank, ...trenches.completed, ...hotSearches];
+          if (results.length === 0 && typeof (this.gmgn as any).fetchDexScreenerFallback === 'function') {
+            try {
+              const fallback = await (this.gmgn as any).fetchDexScreenerFallback(chain);
+              return fallback;
+            } catch {
+              return [];
+            }
+          }
+          return results;
         } catch (err: any) {
           console.warn(`[BASE MEME AGENT] Failed candidate collection for ${chain}: ${err.message}`);
+          if (typeof (this.gmgn as any).fetchDexScreenerFallback === 'function') {
+            try {
+              return await (this.gmgn as any).fetchDexScreenerFallback(chain);
+            } catch {
+              return [];
+            }
+          }
           return [];
         }
       })
@@ -251,9 +267,11 @@ export class BaseScreeningAgent implements ScreeningAgent<BaseSignal> {
       const filter = this.preFilter(t, ethPrice);
       if (!filter.ok) continue;
 
-      const audit = await this.gmgn.fetchTokenSecurity(t.chain, t.address);
-      const sec = securityAuditGate(audit);
-      if (!sec.ok) continue;
+      if (t.source === 'gmgn') {
+        const audit = await this.gmgn.fetchTokenSecurity(t.chain, t.address);
+        const sec = securityAuditGate(audit);
+        if (!sec.ok) continue;
+      }
 
       let det = applySignalBoost(this.detectSignal(t), signalBoostMap, t.address);
       const trackEntry = trackAcc.get(t.address.toLowerCase());

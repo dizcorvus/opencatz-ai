@@ -115,6 +115,15 @@ export class SolanaScreeningAgent implements ScreeningAgent<SolanaSignal> {
       ...trenches.completed,
       ...hotSearches,
     ];
+    if (candidates.length === 0 && typeof (this.gmgn as any).fetchDexScreenerFallback === 'function') {
+      try {
+        const fallback = await (this.gmgn as any).fetchDexScreenerFallback('sol');
+        if (Array.isArray(fallback) && fallback.length > 0) {
+          console.log(`[SOLANA AGENT] GMGN candidates empty, activated DexScreener fallback (${fallback.length} tokens).`);
+          candidates.push(...fallback);
+        }
+      } catch { /* fail-soft */ }
+    }
     return this.dedupeTokens.dedupe(candidates);
   }
 
@@ -278,13 +287,15 @@ export class SolanaScreeningAgent implements ScreeningAgent<SolanaSignal> {
 
       const filter = this.preFilter(t, nativePriceUsd);
       if (!filter.ok) { console.log(`[SOLANA AGENT] ${filter.reason}`); continue; }
-      // GMGN /v1/token/security audit (fail-closed): honeypot, blacklist,
+      // GMGN /v1/token/security audit (fail-closed for GMGN tokens): honeypot, blacklist,
       // sell-lock, tax — second layer on top of rank data (consistent with robinhood).
-      const audit = await this.gmgn.fetchTokenSecurity('sol', t.address);
-      const sec = securityAuditGate(audit);
-      if (!sec.ok) {
-        console.log(`[SOLANA AGENT] ⛔ ${t.symbol}: AUDIT FAIL — ${sec.reasons.join(' ')}`);
-        continue;
+      if (t.source === 'gmgn') {
+        const audit = await this.gmgn.fetchTokenSecurity('sol', t.address);
+        const sec = securityAuditGate(audit);
+        if (!sec.ok) {
+          console.log(`[SOLANA AGENT] ⛔ ${t.symbol}: AUDIT FAIL — ${sec.reasons.join(' ')}`);
+          continue;
+        }
       }
 
       let det = applySignalBoost(this.detectSignal(t), signalBoostMap, t.address);

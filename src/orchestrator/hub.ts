@@ -43,7 +43,7 @@ export class OpenCatzHub {
     this.meteoraAdapter = options.meteoraAdapter;
     this.krystalAdapter = options.krystalAdapter;
     this.gmgnAdapter = options.gmgnAdapter;
-    this.initializeAgentStatesDefaultPaused();
+    this.initializeAgentStatesDefaultActive();
   }
 
   /** Late wiring seam for composition roots (index.ts): share singleton agents with on-demand passes. */
@@ -62,18 +62,18 @@ export class OpenCatzHub {
     const domains = AGENT_DOMAINS.map((d) => d.id);
     for (const d of domains) {
       const savedState = savedStates[d];
-      // Default strictly to false (PAUSED) unless explicitly enabled in state
-      const isActive = savedState !== undefined ? Boolean(savedState) : false;
+      // Default to true (ACTIVE) on startup unless explicitly paused by user
+      const isActive = savedState !== undefined ? Boolean(savedState) : true;
       this.agentStates.set(d, isActive);
     }
-    console.log(`[HUB] Sub-Agent persistent states synchronized. Active domains: [${this.getActiveDomains().join(', ') || 'NONE (ALL PAUSED)'}]`);
+    console.log(`[HUB] Sub-Agent persistent states synchronized. Active domains: [${this.getActiveDomains().join(', ') || 'NONE'}]`);
   }
 
-  private initializeAgentStatesDefaultPaused(): void {
-    // All sub-agents are PAUSED by default on startup until explicitly resumed by user
+  private initializeAgentStatesDefaultActive(): void {
+    // All specialist sub-agents are ACTIVE by default for 24/7 autonomous intelligence
     const domains = AGENT_DOMAINS.map((d) => d.id);
     for (const d of domains) {
-      this.agentStates.set(d, false);
+      this.agentStates.set(d, true);
       this.autoExecuteStates.set(d, { enabled: false, maxTradeAmount: 0.1 });
     }
   }
@@ -248,11 +248,11 @@ export class OpenCatzHub {
       }
       case 'prediction': {
         const { PolymarketAgent } = await import('../agents/prediction/polymarket-agent.js');
-        return new PolymarketAgent();
+        return new PolymarketAgent(undefined, { emitCalls: true });
       }
       case 'ct-alpha': {
         const { CTAlphaAgent } = await import('../agents/ct-alpha/ct-alpha-agent.js');
-        return new CTAlphaAgent();
+        return new CTAlphaAgent(undefined, { emitCalls: true });
       }
       case 'perps': {
         const { PerpsScreeningAgent } = await import('../agents/perps/perps-screening-agent.js');

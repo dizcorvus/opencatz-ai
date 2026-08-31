@@ -51,7 +51,7 @@ dotenv.config();
 
 const telegramService = new TelegramService();
 const apiKeyGuard = new ApiKeyGuardService();
-const ctAlphaAgent = new CTAlphaAgent();
+const ctAlphaAgent = new CTAlphaAgent(undefined, { emitCalls: true });
 const perpsScreeningAgent = new PerpsScreeningAgent(new HyperliquidAdapter(), undefined, new CexRadarAdapter());
 
 console.log('----------------------------------------------------');
@@ -172,7 +172,7 @@ const nftBaseAgent = new NFTBaseAgent(openseaAdapter);
 const nftInkAgent = new NFTInkAgent(openseaAdapter);
 const nftRobinhoodAgent = new NFTRobinhoodAgent(openseaAdapter);
 const nftHyperEVMAgent = new NFTHyperEVMAgent(openseaAdapter);
-const polymarketAgent = new PolymarketAgent(polymarketAdapter);
+const polymarketAgent = new PolymarketAgent(polymarketAdapter, { emitCalls: true });
 
 // Wire shared adapters + singleton agent instances into the Hub so on-demand
 // passes (Discord/TUI) use the SAME instances as the 5-min loop.

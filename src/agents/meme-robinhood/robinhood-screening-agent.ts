@@ -123,10 +123,19 @@ export class RobinhoodScreeningAgent implements ScreeningAgent<RobinhoodSignal> 
             }),
           ]);
 
-          return [...rank, ...trenches.completed, ...hotSearches];
+          const results = [...rank, ...trenches.completed, ...hotSearches];
+          if (results.length === 0) {
+            const fallback = await this.gmgn.fetchDexScreenerFallback(chain);
+            return fallback;
+          }
+          return results;
         } catch (err: any) {
           console.warn(`[EVM MEME AGENT] Failed to fetch candidates for chain ${chain}: ${err.message}`);
-          return [];
+          try {
+            return await this.gmgn.fetchDexScreenerFallback(chain);
+          } catch {
+            return [];
+          }
         }
       })
     );
@@ -330,12 +339,14 @@ export class RobinhoodScreeningAgent implements ScreeningAgent<RobinhoodSignal> 
         continue;
       }
 
-      // Security audit per chain (fail-closed)
-      const audit = await this.gmgn.fetchTokenSecurity(t.chain, t.address);
-      const sec = securityAuditGate(audit);
-      if (!sec.ok) {
-        console.log(`[EVM MEME AGENT] ⛔ [${t.chain.toUpperCase()}] ${t.symbol}: AUDIT FAIL — ${sec.reasons.join(' ')}`);
-        continue;
+      // Security audit per chain (fail-closed for GMGN tokens)
+      if (t.source === 'gmgn') {
+        const audit = await this.gmgn.fetchTokenSecurity(t.chain, t.address);
+        const sec = securityAuditGate(audit);
+        if (!sec.ok) {
+          console.log(`[EVM MEME AGENT] ⛔ [${t.chain.toUpperCase()}] ${t.symbol}: AUDIT FAIL — ${sec.reasons.join(' ')}`);
+          continue;
+        }
       }
 
       let det = applySignalBoost(this.detectSignal(t), signalBoostMap, t.address);

@@ -42,13 +42,21 @@ describe('PolymarketAgent', () => {
     expect(agent.domain).toBe('prediction');
   });
 
-  it('runScreeningPass no-op: screening dinonaktifkan — selalu [] tanpa request API', async () => {
+  it('runScreeningPass NO-CALL MODE default: screening dinonaktifkan — selalu [] tanpa request API', async () => {
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('no network')));
     const agent = new PolymarketAgent(mkFakeAdapter([mkMarket()]));
     const reports = await agent.runScreeningPass();
     expect(Array.isArray(reports)).toBe(true);
     expect(reports.length).toBe(0);
     vi.unstubAllGlobals();
+  });
+
+  it('runScreeningPass when emitCalls=true: emits signals for qualified markets', async () => {
+    const agent = new PolymarketAgent(mkFakeAdapter([mkMarket()]), { emitCalls: true });
+    const reports = await agent.runScreeningPass();
+    expect(Array.isArray(reports)).toBe(true);
+    expect(reports.length).toBeGreaterThan(0);
+    expect(reports[0].passed).toBe(true);
   });
 
   it('evaluateMarket fail-closed: no real odds returns null', () => {
