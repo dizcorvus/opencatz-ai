@@ -132,7 +132,8 @@ export class OpenSeaAdapter {
       });
 
       if (res.status === 429 || res.status === 401 || res.status === 403) {
-        this.keyPool.markFailed(`HTTP ${res.status}`);
+        const cooldownMs = res.status === 429 ? 60_000 : 0;
+        this.keyPool.markFailed(`HTTP ${res.status}`, cooldownMs);
         const nextKey = this.keyPool.get();
         if (nextKey && nextKey !== key) {
           headers['x-api-key'] = nextKey;

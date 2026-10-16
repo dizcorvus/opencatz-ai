@@ -60,13 +60,14 @@ export class GoPlusSecurityService {
     };
     try {
       // GoPlus accepts the API key as `api_key` query param; Authorization header is rejected (code 4012).
-      let res = await fetch(buildUrl(apiKey), { headers: { 'Content-Type': 'application/json' } });
-      if ((res.status === 401 || res.status === 403) && this.keyPool.size > 1) {
-        const next = this.keyPool.markFailed(`HTTP ${res.status}`);
-        if (next) {
-          res = await fetch(buildUrl(next), { headers: { 'Content-Type': 'application/json' } });
-          if (res.status === 401 || res.status === 403) return null;
+      let res = await fetch(buildUrl(apiKey), { headers: { 'Content-Type': 'application/json' }, signal: AbortSignal.timeout(15_000) });
+      if (res.status === 429 || res.status === 401 || res.status === 403) {
+        const cooldownMs = res.status === 429 ? 60_000 : 0;
+        const next = this.keyPool.markFailed(`HTTP ${res.status}`, cooldownMs);
+        if (next && next !== apiKey) {
+          res = await fetch(buildUrl(next), { headers: { 'Content-Type': 'application/json' }, signal: AbortSignal.timeout(15_000) });
         }
+        if (res.status === 429 || res.status === 401 || res.status === 403) return null;
       }
       if (!res.ok) return null;
       const data = (await res.json()) as { code?: number; result?: Record<string, any> };

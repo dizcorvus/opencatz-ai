@@ -8,6 +8,7 @@ import type { KrystalCloudAdapter } from '../adapters/krystal-cloud-adapter.js';
 import type { GMGNAdapter } from '../adapters/gmgn-adapter.js';
 import { securityGateToken, tokenSecurityLabel, securityAuditGate, tokenSecurityAuditLabel } from '../agents/shared/gmgn-meme-helpers.js';
 import { buildLPPayload } from './dispatch.js';
+import { runScreeningGuarded } from '../services/screening-scheduler.js';
 
 export interface ChannelStatus {
   channelId: string;
@@ -169,13 +170,13 @@ export class OpenCatzHub {
       const factory = this.agentFactories[info.id];
       if (factory) {
         const agent = await factory();
-        return await agent.runScreeningPass();
+        return await runScreeningGuarded(info.id, () => agent.runScreeningPass());
       }
       if (info.category === 'LP') {
-        return await this.runLPPass(info.id);
+        return await runScreeningGuarded(info.id, () => this.runLPPass(info.id));
       }
       const agent = await this.resolveAgent(info.id);
-      return await agent.runScreeningPass();
+      return await runScreeningGuarded(info.id, () => agent.runScreeningPass());
     } catch (err: any) {
       console.error(`[HUB SCREENING PASS ERROR] Failed for ${key}:`, err.message);
     }

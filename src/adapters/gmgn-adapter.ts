@@ -225,15 +225,6 @@ export class GMGNAdapter {
         });
 
         if (res.status === 429 || res.status === 401) {
-          // If we have backup keys in pool, rotate immediately and retry
-          if (this.keyPool.size > 1 && attemptsLeft > 0) {
-            const nextKey = this.keyPool.markFailed(`HTTP ${res.status} on ${subPath}`);
-            if (nextKey && nextKey !== currentKey) {
-              console.warn(`[GMGN] Rate limited/auth error (HTTP ${res.status}) on ${subPath}. Rotated to backup key in pool (${this.keyPool.size} keys active). Retrying...`);
-              return doRequest(attemptsLeft - 1);
-            }
-          }
-
           let resetSec = Number(res.headers.get('X-RateLimit-Reset') || 0);
           let banned = false;
           if (!resetSec) {
@@ -244,12 +235,26 @@ export class GMGNAdapter {
             } catch { /* body not JSON — use headers only */ }
           }
           const waitMs = resetSec > 0 ? Math.max(resetSec * 1000 - Date.now(), 0) + 1000 : 5000;
+          const cooldownMs = banned
+            ? Math.max(waitMs, 15 * 60_000)
+            : Math.min(Math.max(waitMs, 15_000), 5 * 60_000);
+
+          // Park the hot key and move to a backup immediately when one exists.
+          if (this.keyPool.size > 1 && attemptsLeft > 0) {
+            const nextKey = this.keyPool.markFailed(`HTTP ${res.status} on ${subPath}`, cooldownMs);
+            if (nextKey && nextKey !== currentKey) {
+              console.warn(`[GMGN] Rate limited/auth error (HTTP ${res.status}) on ${subPath}. Rotated to backup key in pool (${this.keyPool.size} keys active). Retrying...`);
+              return doRequest(attemptsLeft - 1);
+            }
+          }
+
           if (!banned && attemptsLeft > 0 && waitMs <= 30_000) {
             console.warn(`[GMGN] Rate limited. Waiting ${Math.floor(waitMs / 1000)}s, then retrying once (attempts left: ${attemptsLeft}).`);
             await new Promise((r) => setTimeout(r, waitMs));
             return doRequest(attemptsLeft - 1);
           }
-          console.warn(`[GMGN] Rate limited${banned ? ' (BANNED)' : ''} — skip ${subPath}, retry on the next pass (~5m).`);
+          this.keyPool.markFailed(`HTTP ${res.status} on ${subPath}`, cooldownMs);
+          console.warn(`[GMGN] Rate limited${banned ? ' (BANNED)' : ''} — skip ${subPath}, key cooling, retry on a later pass.`);
           return null;
         }
 
@@ -261,7 +266,8 @@ export class GMGNAdapter {
         const json: any = await res.json();
         if (json && typeof json === 'object' && json.code !== undefined && json.code !== 0) {
           if ((json.code === 401 || json.code === 429) && this.keyPool.size > 1 && attemptsLeft > 0) {
-            this.keyPool.markFailed(`API code ${json.code} on ${subPath}`);
+            const cooldownMs = json.code === 429 ? 60_000 : 0;
+            this.keyPool.markFailed(`API code ${json.code} on ${subPath}`, cooldownMs);
             return doRequest(attemptsLeft - 1);
           }
           console.warn(`[GMGN] API code ${json.code}: ${json.message || json.error || ''}`);

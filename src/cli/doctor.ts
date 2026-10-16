@@ -1,9 +1,11 @@
 import { OpenCatzHub } from '../orchestrator/hub.js';
 import { THEME, getOpenCatzHeaderBanner, drawDivider } from './theme.js';
+import { installHttpGateway } from '../services/http-gateway.js';
 
 const C = THEME;
 
 export async function runOpenCatzDoctor(): Promise<void> {
+  installHttpGateway();
   console.log(getOpenCatzHeaderBanner('System Health & Infrastructure Diagnostics'));
   console.log(drawDivider('═', 78, C.lime));
 

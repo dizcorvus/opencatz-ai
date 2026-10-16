@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
+import { installHttpGateway } from './services/http-gateway.js';
 import path from 'path';
 import { isDryRun as isDryRunMode } from './config/config.js';
 import { Client, GatewayIntentBits, REST, Routes, ChannelType } from 'discord.js';
@@ -46,8 +47,10 @@ import { StateStore } from './services/state-store.js';
 import { ApiKeyGuardService } from './services/api-key-guard.js';
 import { globalRiskEngineV2 } from './orchestrator/risk-engine-v2.js';
 import { WalletTracker } from './services/wallet-tracker.js';
+import { createSkipGate, runScreeningGuarded, screeningTimeoutMs } from './services/screening-scheduler.js';
 
 dotenv.config();
+installHttpGateway();
 
 const telegramService = new TelegramService();
 const apiKeyGuard = new ApiKeyGuardService();
@@ -93,20 +96,14 @@ function gateSignal(payload: any): boolean {
 const controlRoomNotifyCooldown = new Map<string, number>();
 const CONTROL_ROOM_NOTIFY_MS = 10 * 60 * 1000; // max 1 notif per key per 10 minutes
 
-// Per-agent screening timeout: a stuck pass logs and resolves to [] (fail-closed),
-// so one hung agent can never stall the whole sub-agent loop.
-const SCREENING_TIMEOUT_MS = Math.max(1000, Number(process.env.SCREENING_TIMEOUT_MS) || 60000);
-function withScreeningTimeout<T>(promise: Promise<T>, domain: string): Promise<T> {
-  return new Promise<T>((resolve, reject) => {
-    const timer = setTimeout(() => {
-      console.warn(`[SCREENING TIMEOUT] ${domain.toUpperCase()} pass exceeded ${SCREENING_TIMEOUT_MS}ms — discarded, no signals emitted (fail-closed).`);
-      resolve([] as unknown as T);
-    }, SCREENING_TIMEOUT_MS);
-    promise.then(
-      (value) => { clearTimeout(timer); resolve(value); },
-      (error) => { clearTimeout(timer); reject(error); }
-    );
-  });
+// Per-agent screening timeout: a stuck pass logs and resolves to [] (fail-closed)
+// and aborts in-flight gateway requests, so one hung agent cannot stall the loop
+// or keep hitting an upstream API after the pass is discarded.
+const SCREENING_TIMEOUT_MS = screeningTimeoutMs();
+const screeningPassGate = createSkipGate();
+const priceAlertGate = createSkipGate();
+function withScreeningTimeout<T>(run: () => Promise<T>, domain: string): Promise<T> {
+  return runScreeningGuarded(domain, run, SCREENING_TIMEOUT_MS);
 }
 
 // Perps call-card titles are formatted `${direction} ${coin} (${leverage}x)`; extract
@@ -318,7 +315,8 @@ if (telegramService.isEnabled()) {
 }
 
 // Start Price Alert Checking Interval Loop (Every 60s)
-setInterval(async () => {
+const priceAlertTimer = setInterval(() => {
+  void priceAlertGate.runOrSkip('price-alert check', async () => {
   try {
     const triggered = await priceAlertService.checkAlerts(priceFeedService);
     for (const alert of triggered) {
@@ -346,6 +344,7 @@ setInterval(async () => {
   } catch (err: any) {
     console.error('[PRICE ALERT LOOP ERROR]', err.message);
   }
+  });
 }, 60 * 1000);
 
 // Signal dedup cache: prevents posting same signal within 2-hour window (persisted across restarts)
@@ -359,7 +358,8 @@ const DEDUP_WINDOW_MS = 2 * 60 * 60 * 1000; // 2 hours (GMGN trending returns th
 let prevPortfolioEquityUsd: number | null = null;
 
 // Start 24/7 Sub-Agents Background Screening Interval Loop (Every 5 minutes)
-setInterval(async () => {
+const screeningTimer = setInterval(() => {
+  void screeningPassGate.runOrSkip('5-minute screening', async () => {
   console.log('[SUB-AGENTS LOOP] Checking active sub-agent domains...');
   try {
     // Register heartbeats AT THE START of each pass so agents are marked alive while the
@@ -407,7 +407,7 @@ setInterval(async () => {
       domain: 'meme-solana',
       channelName: 'call-meme-solana',
       isActive: () => hub.isAgentActive('meme-solana'),
-      runPass: () => withScreeningTimeout(solanaScreeningAgent.runScreeningPass(), 'meme-solana'),
+      runPass: () => withScreeningTimeout(() => solanaScreeningAgent.runScreeningPass(), 'meme-solana'),
       keyReady: () => apiKeyGuard.checkDomainKeys('meme-solana'),
       onHalt: (domain, msg) => notifyControlRoom(discordClient, `halt:${domain}`, `⚠️ **${domain.toUpperCase()} TIDAK BISA JALAN**\n${msg}`),
     });
@@ -417,7 +417,7 @@ setInterval(async () => {
       domain: 'meme-robinhood',
       channelName: 'call-meme-robinhood',
       isActive: () => hub.isAgentActive('meme-robinhood'),
-      runPass: () => withScreeningTimeout(robinhoodScreeningAgent.runScreeningPass(), 'meme-robinhood'),
+      runPass: () => withScreeningTimeout(() => robinhoodScreeningAgent.runScreeningPass(), 'meme-robinhood'),
       keyReady: () => apiKeyGuard.checkDomainKeys('meme-robinhood'),
       onHalt: (domain, msg) => notifyControlRoom(discordClient, `halt:${domain}`, `⚠️ **${domain.toUpperCase()} TIDAK BISA JALAN**\n${msg}`),
     });
@@ -427,7 +427,7 @@ setInterval(async () => {
       domain: 'meme-base',
       channelName: 'call-meme-base',
       isActive: () => hub.isAgentActive('meme-base'),
-      runPass: () => withScreeningTimeout(baseScreeningAgent.runScreeningPass(), 'meme-base'),
+      runPass: () => withScreeningTimeout(() => baseScreeningAgent.runScreeningPass(), 'meme-base'),
       keyReady: () => apiKeyGuard.checkDomainKeys('meme-base'),
       onHalt: (domain, msg) => notifyControlRoom(discordClient, `halt:${domain}`, `⚠️ **${domain.toUpperCase()} TIDAK BISA JALAN**\n${msg}`),
     });
@@ -437,7 +437,7 @@ setInterval(async () => {
       domain: 'meme-eth',
       channelName: 'call-meme-eth',
       isActive: () => hub.isAgentActive('meme-eth'),
-      runPass: () => withScreeningTimeout(ethScreeningAgent.runScreeningPass(), 'meme-eth'),
+      runPass: () => withScreeningTimeout(() => ethScreeningAgent.runScreeningPass(), 'meme-eth'),
       keyReady: () => apiKeyGuard.checkDomainKeys('meme-eth'),
       onHalt: (domain, msg) => notifyControlRoom(discordClient, `halt:${domain}`, `⚠️ **${domain.toUpperCase()} TIDAK BISA JALAN**\n${msg}`),
     });
@@ -447,7 +447,7 @@ setInterval(async () => {
       domain: 'meme-ink',
       channelName: 'call-meme-ink',
       isActive: () => hub.isAgentActive('meme-ink'),
-      runPass: () => withScreeningTimeout(inkScreeningAgent.runScreeningPass(), 'meme-ink'),
+      runPass: () => withScreeningTimeout(() => inkScreeningAgent.runScreeningPass(), 'meme-ink'),
       keyReady: () => apiKeyGuard.checkDomainKeys('meme-ink'),
       onHalt: (domain, msg) => notifyControlRoom(discordClient, `halt:${domain}`, `⚠️ **${domain.toUpperCase()} TIDAK BISA JALAN**\n${msg}`),
     });
@@ -457,7 +457,7 @@ setInterval(async () => {
       domain: 'nft-eth',
       channelName: 'call-nft-eth',
       isActive: () => hub.isAgentActive('nft-eth'),
-      runPass: () => withScreeningTimeout(nftEthAgent.runScreeningPass(), 'nft-eth'),
+      runPass: () => withScreeningTimeout(() => nftEthAgent.runScreeningPass(), 'nft-eth'),
       keyReady: () => apiKeyGuard.checkDomainKeys('nft-eth'),
       onHalt: (domain, msg) => notifyControlRoom(discordClient, `halt:${domain}`, `⚠️ **${domain.toUpperCase()} TIDAK BISA JALAN**\n${msg}`),
     });
@@ -467,7 +467,7 @@ setInterval(async () => {
       domain: 'nft-base',
       channelName: 'call-nft-base',
       isActive: () => hub.isAgentActive('nft-base'),
-      runPass: () => withScreeningTimeout(nftBaseAgent.runScreeningPass(), 'nft-base'),
+      runPass: () => withScreeningTimeout(() => nftBaseAgent.runScreeningPass(), 'nft-base'),
       keyReady: () => apiKeyGuard.checkDomainKeys('nft-base'),
       onHalt: (domain, msg) => notifyControlRoom(discordClient, `halt:${domain}`, `⚠️ **${domain.toUpperCase()} TIDAK BISA JALAN**\n${msg}`),
     });
@@ -477,7 +477,7 @@ setInterval(async () => {
       domain: 'nft-ink',
       channelName: 'call-nft-ink',
       isActive: () => hub.isAgentActive('nft-ink'),
-      runPass: () => withScreeningTimeout(nftInkAgent.runScreeningPass(), 'nft-ink'),
+      runPass: () => withScreeningTimeout(() => nftInkAgent.runScreeningPass(), 'nft-ink'),
       keyReady: () => apiKeyGuard.checkDomainKeys('nft-ink'),
       onHalt: (domain, msg) => notifyControlRoom(discordClient, `halt:${domain}`, `⚠️ **${domain.toUpperCase()} TIDAK BISA JALAN**\n${msg}`),
     });
@@ -487,7 +487,7 @@ setInterval(async () => {
       domain: 'nft-robinhood',
       channelName: 'call-nft-robinhood',
       isActive: () => hub.isAgentActive('nft-robinhood'),
-      runPass: () => withScreeningTimeout(nftRobinhoodAgent.runScreeningPass(), 'nft-robinhood'),
+      runPass: () => withScreeningTimeout(() => nftRobinhoodAgent.runScreeningPass(), 'nft-robinhood'),
       keyReady: () => apiKeyGuard.checkDomainKeys('nft-robinhood'),
       onHalt: (domain, msg) => notifyControlRoom(discordClient, `halt:${domain}`, `⚠️ **${domain.toUpperCase()} TIDAK BISA JALAN**\n${msg}`),
     });
@@ -497,7 +497,7 @@ setInterval(async () => {
       domain: 'nft-hyperevm',
       channelName: 'call-nft-hyperevm',
       isActive: () => hub.isAgentActive('nft-hyperevm'),
-      runPass: () => withScreeningTimeout(nftHyperEVMAgent.runScreeningPass(), 'nft-hyperevm'),
+      runPass: () => withScreeningTimeout(() => nftHyperEVMAgent.runScreeningPass(), 'nft-hyperevm'),
       keyReady: () => apiKeyGuard.checkDomainKeys('nft-hyperevm'),
       onHalt: (domain, msg) => notifyControlRoom(discordClient, `halt:${domain}`, `⚠️ **${domain.toUpperCase()} TIDAK BISA JALAN**\n${msg}`),
     });
@@ -507,7 +507,7 @@ setInterval(async () => {
       domain: 'prediction',
       channelName: 'call-prediction-markets',
       isActive: () => hub.isAgentActive('prediction'),
-      runPass: () => withScreeningTimeout(polymarketAgent.runScreeningPass(), 'prediction'),
+      runPass: () => withScreeningTimeout(() => polymarketAgent.runScreeningPass(), 'prediction'),
       keyReady: () => apiKeyGuard.checkDomainKeys('prediction'),
       onHalt: (domain, msg) => notifyControlRoom(discordClient, `halt:${domain}`, `⚠️ **${domain.toUpperCase()} TIDAK BISA JALAN**\n${msg}`),
     });
@@ -517,7 +517,7 @@ setInterval(async () => {
       domain: 'perps',
       channelName: 'call-whale-tracking',
       isActive: () => hub.isAgentActive('perps'),
-      runPass: () => withScreeningTimeout(perpsScreeningAgent.runScreeningPass(), 'perps'),
+      runPass: () => withScreeningTimeout(() => perpsScreeningAgent.runScreeningPass(), 'perps'),
       keyReady: () => apiKeyGuard.checkDomainKeys('perps'),
       onHalt: (domain, msg) => notifyControlRoom(discordClient, `halt:${domain}`, `⚠️ **${domain.toUpperCase()} TIDAK BISA JALAN**\n${msg}`),
     });
@@ -527,7 +527,7 @@ setInterval(async () => {
       domain: 'ct-alpha',
       channelName: 'call-ct-alpha',
       isActive: () => hub.isAgentActive('ct-alpha'),
-      runPass: () => withScreeningTimeout(ctAlphaAgent.runScreeningPass(), 'ct-alpha'),
+      runPass: () => withScreeningTimeout(() => ctAlphaAgent.runScreeningPass(), 'ct-alpha'),
       keyReady: () => apiKeyGuard.checkDomainKeys('ct-alpha'),
       onHalt: (domain, msg) => notifyControlRoom(discordClient, `halt:${domain}`, `⚠️ **${domain.toUpperCase()} TIDAK BISA JALAN**\n${msg}`),
     });
@@ -537,7 +537,7 @@ setInterval(async () => {
       domain: 'lp-solana',
       channelName: 'call-lp-solana',
       isActive: () => hub.isAgentActive('lp-solana'),
-      runPass: () => withScreeningTimeout(lpSolanaAgent.runScreeningPass(), 'lp-solana'),
+      runPass: () => withScreeningTimeout(() => lpSolanaAgent.runScreeningPass(), 'lp-solana'),
       keyReady: () => ({ ready: true, statusMessage: '' }),
       onHalt: (domain, msg) => notifyControlRoom(discordClient, `halt:${domain}`, `⚠️ **${domain.toUpperCase()} TIDAK BISA JALAN**\n${msg}`),
     });
@@ -547,7 +547,7 @@ setInterval(async () => {
       domain: 'lp-robinhood',
       channelName: 'call-lp-robinhood',
       isActive: () => hub.isAgentActive('lp-robinhood'),
-      runPass: () => withScreeningTimeout(lpRobinhoodAgent.runScreeningPass(), 'lp-robinhood'),
+      runPass: () => withScreeningTimeout(() => lpRobinhoodAgent.runScreeningPass(), 'lp-robinhood'),
       keyReady: () => ({ ready: true, statusMessage: '' }),
       onHalt: (domain, msg) => notifyControlRoom(discordClient, `halt:${domain}`, `⚠️ **${domain.toUpperCase()} TIDAK BISA JALAN**\n${msg}`),
     });
@@ -742,6 +742,7 @@ setInterval(async () => {
     console.error('[SUB-AGENTS LOOP ERROR]', (err as any).errors || err.stack || err.message);
     notifyControlRoom(discordClient, 'loop-error', `⚠️ **SCREENING LOOP ERROR**\n\`${err.message}\``);
   }
+  });
 }, 5 * 60 * 1000);
 
 function isControlRoomChannel(configuredId: string | undefined, message: any): boolean {
@@ -763,10 +764,22 @@ apiServer.start(hub);
 // Graceful Shutdown: flush pending state writes to disk before exit
 const gracefulShutdown = (signal: string) => {
   console.log(`\n[SHUTDOWN] Received ${signal}. Flushing state to disk...`);
+  clearInterval(priceAlertTimer);
+  clearInterval(screeningTimer);
   stateStore.flushToDisk();
+  void apiServer.stop();
   console.log('[SHUTDOWN] State saved. Goodbye!');
   process.exit(0);
 };
 
 process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('unhandledRejection', (reason) => {
+  const message = reason instanceof Error ? (reason.stack || reason.message) : String(reason);
+  console.error('[PROCESS] Unhandled rejection — process kept alive:', message);
+});
+process.on('uncaughtException', (err) => {
+  console.error('[PROCESS] Uncaught exception — flushing state so the supervisor can restart cleanly.', err);
+  try { stateStore.flushToDisk(); } catch { /* disk flush is best-effort */ }
+  process.exit(1);
+});

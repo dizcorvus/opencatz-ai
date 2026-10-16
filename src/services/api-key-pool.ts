@@ -3,7 +3,12 @@ export interface ApiKeyPool {
   readonly keys: string[];
   readonly size: number;
   get(): string | undefined;
-  markFailed(reason: string): string | undefined;
+  /**
+   * Rotate away from the active key.
+   * `cooldownMs` parks that key so the next calls skip it until the window ends.
+   * With cooldown 0 the historical rotate-and-reset behavior is unchanged.
+   */
+  markFailed(reason: string, cooldownMs?: number): string | undefined;
   reset(): void;
 }
 
@@ -13,15 +18,43 @@ export function createApiKeyPool(baseVar: string, keys: string[]): ApiKeyPool {
   const clean = keys.map((k) => k.trim()).filter((k) => k && !PLACEHOLDER_RE.test(k));
   let index = 0;
   let failed = new Set<number>();
+  const cooledUntil = clean.map(() => 0);
+
+  const nextAvailable = (from: number): number | undefined => {
+    if (clean.length === 0) return undefined;
+    const now = Date.now();
+    for (let step = 0; step < clean.length; step++) {
+      const candidate = (from + step) % clean.length;
+      if (cooledUntil[candidate] <= now) return candidate;
+    }
+    return undefined;
+  };
 
   return {
     baseVar,
     keys: clean,
     size: clean.length,
     get(): string | undefined {
-      return clean[index] ?? undefined;
+      const available = nextAvailable(index);
+      if (available === undefined) return undefined;
+      index = available;
+      return clean[index];
     },
-    markFailed(reason: string): string | undefined {
+    markFailed(reason: string, cooldownMs = 0): string | undefined {
+      if (clean.length === 0) return undefined;
+      if (cooldownMs > 0) {
+        cooledUntil[index] = Date.now() + cooldownMs;
+        console.warn(`[API KEY POOL] ${baseVar}: key #${index + 1}/${clean.length} cooling ${Math.ceil(cooldownMs / 1000)}s (${reason}).`);
+        if (clean.length === 1) return undefined;
+        const available = nextAvailable((index + 1) % clean.length);
+        if (available === undefined) {
+          console.warn(`[API KEY POOL] ${baseVar}: every key is cooling — requests pause until one recovers.`);
+          return undefined;
+        }
+        index = available;
+        console.warn(`[API KEY POOL] ${baseVar}: rotating to key #${index + 1}/${clean.length} (${reason}).`);
+        return clean[index];
+      }
       if (clean.length <= 1) return clean[0] ?? undefined;
       failed.add(index);
       if (failed.size >= clean.length) {
@@ -38,6 +71,7 @@ export function createApiKeyPool(baseVar: string, keys: string[]): ApiKeyPool {
     },
     reset(): void {
       failed = new Set();
+      for (let i = 0; i < cooledUntil.length; i++) cooledUntil[i] = 0;
     },
   };
 }

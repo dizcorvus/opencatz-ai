@@ -36,6 +36,16 @@ describe('ApiKeyPool', () => {
     expect(pool.get()).toBe('key1');
   });
 
+  it('parks a rate-limited key and pauses when every key is cooling', async () => {
+    const pool = createApiKeyPool('TEST_KEY', ['key1', 'key2']);
+    expect(pool.markFailed('HTTP 429', 50)).toBe('key2');
+    expect(pool.get()).toBe('key2');
+    expect(pool.markFailed('HTTP 429', 50)).toBeUndefined();
+    expect(pool.get()).toBeUndefined();
+    await new Promise((resolve) => setTimeout(resolve, 70));
+    expect(pool.get()).toBe('key2');
+  });
+
   it('loads backups from environment variables', () => {
     process.env.MY_API_KEY = 'primary-key';
     process.env.MY_API_KEY_BACKUP_KEYS = 'backup1,backup2';

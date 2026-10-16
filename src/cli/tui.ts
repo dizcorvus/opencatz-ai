@@ -1,6 +1,8 @@
 import dotenv from 'dotenv';
 import readline from 'readline';
+import { installHttpGateway } from '../services/http-gateway.js';
 dotenv.config();
+installHttpGateway();
 import { OpenCatzHub } from '../orchestrator/hub.js';
 import { SwarmConsensusEngine } from '../orchestrator/swarm-consensus.js';
 import { AIService } from '../services/ai-service.js';
