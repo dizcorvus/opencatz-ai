@@ -363,9 +363,9 @@ describe('🐾 OPENCATZ MULTI-AGENT SYSTEM TEST SUITE', () => {
     const { WalletService } = await import('../src/services/wallet-service.js');
     const adapter = new EVMTradeAdapter();
 
-    // Robinhood L2 chainId resolution (Uniswap API chain 5318008)
-    expect(adapter.parseChainId('robinhood')).toBe(5318008);
-    expect(adapter.parseChainId(5318008)).toBe(5318008);
+    // Robinhood Chain mainnet is chain 4663 (viem's robinhood chain and the Uniswap API chain id)
+    expect(adapter.parseChainId('robinhood')).toBe(4663);
+    expect(adapter.parseChainId(4663)).toBe(4663);
 
     const ws = new WalletService();
     ws.setKey('evm', '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80');
@@ -388,6 +388,10 @@ describe('🐾 OPENCATZ MULTI-AGENT SYSTEM TEST SUITE', () => {
     expect(swapRes.success).toBe(true);
     expect(swapRes.simulated).toBe(true);
     expect(swapRes.outputTokens).toBeGreaterThan(0);
+
+    // The TUI withdraws on Robinhood Chain with sendEvm(4663, ...).
+    const rhSend = await ws.sendEvm(4663, '0x742d35Cc6634C0532925a3b844Bc9e7595f2bD18', 0.1);
+    expect(rhSend.explorerUrl).toContain('robinhoodchain.blockscout.com/tx/');
   });
 
   it('18b. EVM Adapter Dry-Run Buy: realistic Uniswap API quote (simulated, no broadcast)', async () => {
@@ -405,13 +409,16 @@ describe('🐾 OPENCATZ MULTI-AGENT SYSTEM TEST SUITE', () => {
 
     // With a stubbed Uniswap API response, the dry-run reports real quote numbers.
     const originalFetch = globalThis.fetch;
-    globalThis.fetch = vi.fn(async () => new Response(JSON.stringify({ amountOut: '250000000000000000000' }), {
+    const fetchMock = vi.fn(async (_url: string, _init: { body: string }) => new Response(JSON.stringify({ amountOut: '250000000000000000000' }), {
       status: 200,
       headers: { 'content-type': 'application/json' },
-    })) as unknown as typeof fetch;
+    }));
+    globalThis.fetch = fetchMock as unknown as typeof fetch;
     process.env.UNISWAP_API_KEY = 'test_key_123';
     const stubRes = await adapter.executeBuyToken(request);
     globalThis.fetch = originalFetch;
+    // The quote is requested for Robinhood Chain (4663).
+    expect(JSON.parse(fetchMock.mock.calls[0][1].body).chainId).toBe(4663);
     if (prevKey !== undefined) process.env.UNISWAP_API_KEY = prevKey; else delete process.env.UNISWAP_API_KEY;
 
     expect(stubRes.simulated).toBe(true);

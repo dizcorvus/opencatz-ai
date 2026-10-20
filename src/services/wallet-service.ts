@@ -29,7 +29,7 @@ const EVM_CHAINS: Record<number, { chain: Chain; rpcEnvKey: string; explorerBase
   137: { chain: polygon, rpcEnvKey: 'EVM_POLYGON_RPC_URL', explorerBase: 'https://polygonscan.com/tx/' },
   56: { chain: bsc, rpcEnvKey: 'EVM_BSC_RPC_URL', explorerBase: 'https://bscscan.com/tx/' },
   57073: { chain: ink, rpcEnvKey: 'EVM_INK_RPC_URL', explorerBase: 'https://explorer.inkonchain.com/tx/' },
-  5318008: { chain: robinhood, rpcEnvKey: 'EVM_ROBINHOOD_RPC_URL', explorerBase: 'https://robinhoodchain.blockscout.com/tx/' },
+  4663: { chain: robinhood, rpcEnvKey: 'EVM_ROBINHOOD_RPC_URL', explorerBase: 'https://robinhoodchain.blockscout.com/tx/' },
 };
 
 /**
