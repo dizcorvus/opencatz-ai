@@ -41,7 +41,7 @@ const CHAIN_ID_MAP: Record<string, number> = {
   polygon: 137, poly: 137, '137': 137,
   bsc: 56, binance: 56, '56': 56,
   ink: 57073, '57073': 57073,
-  robinhood: 5318008, '5318008': 5318008,
+  robinhood: 4663, '4663': 4663,
 };
 
 export class EVMTradeAdapter {
@@ -97,7 +97,7 @@ export class EVMTradeAdapter {
             tokenOut: request.tokenAddress,
             amount: BigInt(Math.round(request.amountEth * 1e18)).toString(),
             type: 'EXACT_INPUT',
-            chainId: 5318008,
+            chainId: this.parseChainId(request.chain),
             configs: [{ protocols: ['V2','V3','V4'], routingType: 'CLASSIC', enableUniversalRouter: true }],
           }),
           signal: controller.signal,
